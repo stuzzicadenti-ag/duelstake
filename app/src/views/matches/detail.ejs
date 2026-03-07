@@ -59,7 +59,7 @@
     </div>
   </div>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;" class="match-detail-grid">
     <!-- Timeline -->
     <div class="card">
       <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px;">Timeline</h2>
@@ -116,8 +116,10 @@
           <form action="/matches/<%= match.id %>/proof" method="POST" enctype="multipart/form-data">
             <div class="form-group">
               <label>Screenshot / Video</label>
-              <input type="file" name="file" accept="image/*,video/*" class="form-control" required
-                     style="padding: 8px;">
+              <div class="file-upload">
+                <span>&#128206; Choose file or drag here...</span>
+                <input type="file" name="file" accept="image/*,video/*" required>
+              </div>
             </div>
             <div class="form-group">
               <label>Description (optional)</label>
