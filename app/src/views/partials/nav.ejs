@@ -4,9 +4,13 @@
     <div class="nav-links">
       <a href="/games">Games</a>
       <a href="/leaderboard">Leaderboard</a>
+      <a href="/faq">FAQ</a>
       <% if (typeof user !== 'undefined' && user) { %>
         <a href="/matches">My Matches</a>
         <a href="/wallet">Wallet</a>
+        <% if (typeof user.role !== 'undefined' && (user.role === 'admin' || user.role === 'owner')) { %>
+          <a href="/admin" style="color: var(--accent);">Admin</a>
+        <% } %>
         <a href="/profile/<%= user.username %>" class="hide-mobile"><%= user.display_name || user.username %></a>
         <a href="/auth/logout" class="btn btn-outline btn-sm">Logout</a>
       <% } else { %>

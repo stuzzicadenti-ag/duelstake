@@ -1,6 +1,44 @@
 import { pool } from '../db/schema.js';
+import { scanContent } from '../utils/moderation.js';
 
 export default async function profileRoutes(app) {
+  // POST /profile/:id/report - Report a user
+  app.post('/:id/report', async (request, reply) => {
+    if (!request.user) return reply.redirect('/auth/login');
+
+    const reportedId = parseInt(request.params.id);
+    const userId = request.user.id;
+
+    if (reportedId === userId) {
+      return reply.code(400).send('Cannot report yourself');
+    }
+
+    const { reason, details } = request.body;
+
+    // Look up reported user's username for redirect
+    const reportedUser = await pool.query('SELECT username FROM users WHERE id = $1', [reportedId]);
+    if (reportedUser.rows.length === 0) return reply.code(404).send('User not found');
+
+    // Scan content
+    const scan = scanContent(details || '');
+
+    await pool.query(
+      `INSERT INTO flags (type, user_id, reported_user_id, details)
+       VALUES ($1, $2, $3, $4)`,
+      [reason || 'player_report', userId, reportedId, details || 'No details provided']
+    );
+
+    for (const flag of scan.flags) {
+      await pool.query(
+        `INSERT INTO flags (type, user_id, reported_user_id, details)
+         VALUES ($1, $2, $3, $4)`,
+        [flag.type, userId, reportedId, flag.detail]
+      );
+    }
+
+    return reply.redirect(`/profile/${reportedUser.rows[0].username}`);
+  });
+
   // GET /profile/:username - Public profile
   app.get('/:username', async (request, reply) => {
     const { username } = request.params;

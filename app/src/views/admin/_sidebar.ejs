@@ -1,0 +1,125 @@
+<style>
+  .admin-layout {
+    display: flex;
+    min-height: calc(100vh - 60px);
+  }
+  .admin-sidebar {
+    width: 240px;
+    background: #0f0f0f;
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+  .admin-sidebar .sidebar-title {
+    padding: 0 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .admin-sidebar .sidebar-badge {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: var(--danger);
+    color: #fff;
+    font-weight: 700;
+    margin-left: auto;
+  }
+  .admin-sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.15s;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+  }
+  .admin-sidebar a:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .admin-sidebar a.active {
+    color: var(--primary);
+    border-left-color: var(--primary);
+    background: rgba(230, 57, 70, 0.05);
+  }
+  .admin-sidebar a .icon {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+  }
+  .admin-sidebar .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 20px;
+  }
+  .admin-content {
+    flex: 1;
+    padding: 32px;
+    background: var(--bg);
+    min-width: 0;
+  }
+
+  @media (max-width: 768px) {
+    .admin-layout { flex-direction: column; }
+    .admin-sidebar {
+      width: 100%;
+      position: static;
+      height: auto;
+      display: flex;
+      overflow-x: auto;
+      padding: 12px;
+      gap: 4px;
+    }
+    .admin-sidebar .sidebar-title { display: none; }
+    .admin-sidebar .divider { display: none; }
+    .admin-sidebar a {
+      padding: 8px 14px;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      font-size: 0.8rem;
+    }
+    .admin-sidebar a.active {
+      border-left-color: transparent;
+      border-bottom-color: var(--primary);
+    }
+    .admin-content { padding: 20px; }
+  }
+</style>
+
+<div class="admin-sidebar">
+  <div class="sidebar-title">Admin Panel</div>
+  <a href="/admin" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
+    <span class="icon">&#9776;</span> Dashboard
+  </a>
+  <a href="/admin/users" class="<%= typeof activePage !== 'undefined' && activePage === 'users' ? 'active' : '' %>">
+    <span class="icon">&#128100;</span> Users
+  </a>
+  <a href="/admin/matches" class="<%= typeof activePage !== 'undefined' && activePage === 'matches' ? 'active' : '' %>">
+    <span class="icon">&#9876;</span> Matches
+  </a>
+  <a href="/admin/flags" class="<%= typeof activePage !== 'undefined' && activePage === 'flags' ? 'active' : '' %>">
+    <span class="icon">&#9873;</span> Flags
+    <% if (typeof stats !== 'undefined' && stats.pendingFlags > 0) { %>
+      <span class="sidebar-badge"><%= stats.pendingFlags %></span>
+    <% } %>
+  </a>
+  <a href="/admin/logs" class="<%= typeof activePage !== 'undefined' && activePage === 'logs' ? 'active' : '' %>">
+    <span class="icon">&#128196;</span> Logs
+  </a>
+  <div class="divider"></div>
+  <a href="/">
+    <span class="icon">&#8592;</span> Back to Site
+  </a>
+</div>

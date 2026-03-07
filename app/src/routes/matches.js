@@ -1,5 +1,6 @@
 import { pool } from '../db/schema.js';
 import { calculateElo } from '../utils/elo.js';
+import { scanContent } from '../utils/moderation.js';
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -371,6 +372,40 @@ export default async function matchesRoutes(app) {
     } else {
       // Self-reported as winner - mark disputed
       await pool.query("UPDATE matches SET status = 'disputed' WHERE id = $1", [matchId]);
+    }
+
+    return reply.redirect(`/matches/${matchId}`);
+  });
+
+  // POST /matches/:id/flag - Report a player in a match
+  app.post('/:id/flag', async (request, reply) => {
+    if (!request.user) return reply.redirect('/auth/login');
+
+    const matchId = parseInt(request.params.id);
+    const userId = request.user.id;
+    const { reported_user_id, reason, details } = request.body;
+
+    const reportedId = parseInt(reported_user_id);
+    if (!reportedId || reportedId === userId) {
+      return reply.code(400).send('Invalid report');
+    }
+
+    // Scan report text for moderation
+    const scan = scanContent(details || '');
+
+    await pool.query(
+      `INSERT INTO flags (type, match_id, user_id, reported_user_id, details)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [reason || 'player_report', matchId, userId, reportedId, details || 'No details provided']
+    );
+
+    // Auto-flag if content itself has issues
+    for (const flag of scan.flags) {
+      await pool.query(
+        `INSERT INTO flags (type, match_id, user_id, reported_user_id, details)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [flag.type, matchId, userId, reportedId, flag.detail]
+      );
     }
 
     return reply.redirect(`/matches/${matchId}`);

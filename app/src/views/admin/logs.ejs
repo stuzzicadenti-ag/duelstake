@@ -1,0 +1,72 @@
+<%- include('../partials/head', { title: 'Admin - Activity Log' }) %>
+<%- include('../partials/nav') %>
+
+<div class="admin-layout">
+  <%- include('_sidebar', { activePage: 'logs' }) %>
+
+  <div class="admin-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 1.6rem; font-weight: 800;">Activity Log</h1>
+      <p class="text-muted">Admin actions and moderation history</p>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Admin</th>
+              <th>Action</th>
+              <th>Target</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (logs.length === 0) { %>
+              <tr><td colspan="5" class="text-muted text-center" style="padding: 40px;">No admin activity yet</td></tr>
+            <% } else { %>
+              <% logs.forEach(function(l) { %>
+                <tr>
+                  <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
+                    <%= new Date(l.created_at).toLocaleString() %>
+                  </td>
+                  <td style="font-weight: 600;"><%= l.admin_name %></td>
+                  <td>
+                    <span class="badge" style="background: <%=
+                      l.action.includes('ban') ? 'rgba(239, 68, 68, 0.15)' :
+                      l.action.includes('unban') ? 'rgba(34, 197, 94, 0.15)' :
+                      l.action.includes('resolve') ? 'rgba(96, 165, 250, 0.15)' :
+                      l.action.includes('dismiss') ? 'rgba(138, 138, 154, 0.15)' :
+                      'rgba(255, 215, 0, 0.15)'
+                    %>; color: <%=
+                      l.action.includes('ban') ? 'var(--danger)' :
+                      l.action.includes('unban') ? 'var(--success)' :
+                      l.action.includes('resolve') ? '#60a5fa' :
+                      l.action.includes('dismiss') ? 'var(--text-muted)' :
+                      'var(--accent)'
+                    %>;">
+                      <%= l.action %>
+                    </span>
+                  </td>
+                  <td style="font-size: 0.85rem;">
+                    <% if (l.target_type && l.target_id) { %>
+                      <span class="text-muted"><%= l.target_type %></span> #<%= l.target_id %>
+                    <% } else { %>
+                      <span class="text-muted">-</span>
+                    <% } %>
+                  </td>
+                  <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<%= l.details || '' %>">
+                    <%= l.details || '-' %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

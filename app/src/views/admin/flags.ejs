@@ -1,0 +1,97 @@
+<%- include('../partials/head', { title: 'Admin - Flags' }) %>
+<%- include('../partials/nav') %>
+
+<div class="admin-layout">
+  <%- include('_sidebar', { activePage: 'flags' }) %>
+
+  <div class="admin-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 1.6rem; font-weight: 800;">Flag Queue</h1>
+      <p class="text-muted">Review reports, auto-flags, and moderation alerts</p>
+    </div>
+
+    <!-- Status tabs -->
+    <div class="tabs mb-3">
+      <a href="/admin/flags?status=pending" class="tab <%= statusFilter === 'pending' ? 'active' : '' %>">Pending</a>
+      <a href="/admin/flags?status=actioned" class="tab <%= statusFilter === 'actioned' ? 'active' : '' %>">Actioned</a>
+      <a href="/admin/flags?status=dismissed" class="tab <%= statusFilter === 'dismissed' ? 'active' : '' %>">Dismissed</a>
+    </div>
+
+    <% if (flags.length === 0) { %>
+      <div class="card" style="text-align: center; padding: 60px;">
+        <div style="font-size: 3rem; margin-bottom: 12px;">&#9873;</div>
+        <p class="text-muted">No <%= statusFilter %> flags</p>
+      </div>
+    <% } else { %>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <% flags.forEach(function(f) { %>
+          <div class="card" style="border-left: 3px solid <%= f.type.startsWith('auto_threat') ? 'var(--danger)' : f.type.startsWith('auto_profanity') ? '#f59e0b' : f.type === 'player_report' ? 'var(--primary)' : '#60a5fa' %>;">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 300px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <span class="badge" style="background: <%= f.type.startsWith('auto_threat') ? 'rgba(239, 68, 68, 0.15)' : f.type.startsWith('auto_profanity') ? 'rgba(245, 158, 11, 0.15)' : f.type === 'player_report' ? 'rgba(230, 57, 70, 0.15)' : 'rgba(96, 165, 250, 0.15)' %>; color: <%= f.type.startsWith('auto_threat') ? 'var(--danger)' : f.type.startsWith('auto_profanity') ? '#f59e0b' : f.type === 'player_report' ? 'var(--primary)' : '#60a5fa' %>;">
+                    <%= f.type %>
+                  </span>
+                  <span style="font-size: 0.8rem; color: var(--text-muted);">Flag #<%= f.id %></span>
+                  <span style="font-size: 0.8rem; color: var(--text-muted);"><%= new Date(f.created_at).toLocaleString() %></span>
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                  <% if (f.reporter_name) { %>
+                    <span style="font-size: 0.85rem;">Reported by: <a href="/profile/<%= f.reporter_name %>" style="font-weight: 600;"><%= f.reporter_name %></a></span>
+                  <% } %>
+                  <% if (f.reported_name) { %>
+                    <span style="font-size: 0.85rem;"> &rarr; <a href="/profile/<%= f.reported_name %>" style="font-weight: 600; color: var(--danger);"><%= f.reported_name %></a></span>
+                  <% } %>
+                  <% if (f.match_id) { %>
+                    <span style="font-size: 0.85rem;"> | <a href="/matches/<%= f.match_id %>">Match #<%= f.match_id %></a></span>
+                  <% } %>
+                </div>
+
+                <% if (f.details) { %>
+                  <div style="font-size: 0.85rem; color: var(--text); background: var(--bg); padding: 10px; border-radius: var(--radius); border: 1px solid var(--border);">
+                    <%= f.details %>
+                  </div>
+                <% } %>
+
+                <% if (f.reviewer_name) { %>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
+                    Reviewed by <%= f.reviewer_name %> on <%= new Date(f.reviewed_at).toLocaleString() %>
+                  </div>
+                <% } %>
+              </div>
+
+              <% if (f.status === 'pending') { %>
+                <div style="display: flex; flex-direction: column; gap: 6px; min-width: 160px;">
+                  <!-- Dismiss -->
+                  <form method="POST" action="/admin/flags/<%= f.id %>/dismiss">
+                    <button type="submit" class="btn btn-sm btn-outline" style="width: 100%; justify-content: center;">Dismiss</button>
+                  </form>
+
+                  <% if (f.reported_user_id) { %>
+                    <!-- Ban user -->
+                    <form method="POST" action="/admin/flags/<%= f.id %>/action" onsubmit="return confirm('Ban this user?');">
+                      <input type="hidden" name="action_type" value="ban">
+                      <input type="text" name="ban_reason" placeholder="Ban reason..." class="form-control" style="padding: 4px 8px; font-size: 0.8rem; margin-bottom: 4px;">
+                      <button type="submit" class="btn btn-sm btn-danger" style="width: 100%; justify-content: center;">Ban User</button>
+                    </form>
+                  <% } %>
+
+                  <% if (f.match_id) { %>
+                    <!-- Cancel match -->
+                    <form method="POST" action="/admin/flags/<%= f.id %>/action" onsubmit="return confirm('Cancel match and refund?');">
+                      <input type="hidden" name="action_type" value="cancel_match">
+                      <button type="submit" class="btn btn-sm btn-secondary" style="width: 100%; justify-content: center;">Cancel Match</button>
+                    </form>
+                  <% } %>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

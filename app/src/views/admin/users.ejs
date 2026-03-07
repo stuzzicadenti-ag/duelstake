@@ -1,0 +1,128 @@
+<%- include('../partials/head', { title: 'Admin - Users' }) %>
+<%- include('../partials/nav') %>
+
+<div class="admin-layout">
+  <%- include('_sidebar', { activePage: 'users' }) %>
+
+  <div class="admin-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 1.6rem; font-weight: 800;">Users</h1>
+      <p class="text-muted">Manage platform users, roles, and bans</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-3">
+      <form method="GET" action="/admin/users" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+        <div style="flex: 1; min-width: 200px;">
+          <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Search</label>
+          <input type="text" name="search" value="<%= search %>" class="form-control" placeholder="Username, email, or display name...">
+        </div>
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Role</label>
+          <select name="role" class="form-control">
+            <option value="">All Roles</option>
+            <option value="user" <%= roleFilter === 'user' ? 'selected' : '' %>>User</option>
+            <option value="admin" <%= roleFilter === 'admin' ? 'selected' : '' %>>Admin</option>
+            <option value="owner" <%= roleFilter === 'owner' ? 'selected' : '' %>>Owner</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Ban Status</label>
+          <select name="banned" class="form-control">
+            <option value="">All</option>
+            <option value="true" <%= bannedFilter === 'true' ? 'selected' : '' %>>Banned</option>
+            <option value="false" <%= bannedFilter === 'false' ? 'selected' : '' %>>Active</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+      </form>
+    </div>
+
+    <!-- Users table -->
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>ELO</th>
+              <th>Wallet</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (users.length === 0) { %>
+              <tr><td colspan="7" class="text-muted text-center" style="padding: 40px;">No users found</td></tr>
+            <% } else { %>
+              <% users.forEach(function(u) { %>
+                <tr style="<%= u.banned ? 'opacity: 0.6;' : '' %>">
+                  <td>
+                    <div>
+                      <a href="/profile/<%= u.username %>" style="font-weight: 600;"><%= u.username %></a>
+                      <% if (u.verified) { %><span title="Verified" style="color: var(--success);">&#10003;</span><% } %>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);"><%= u.email %></div>
+                    <% if (u.display_name && u.display_name !== u.username) { %>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);"><%= u.display_name %></div>
+                    <% } %>
+                  </td>
+                  <td style="font-weight: 700;"><%= u.elo_rating %></td>
+                  <td style="color: var(--accent);">&euro;<%= parseFloat(u.wallet_balance).toFixed(2) %></td>
+                  <td>
+                    <span class="badge" style="background: <%= u.role === 'owner' ? 'rgba(255, 215, 0, 0.15)' : u.role === 'admin' ? 'rgba(96, 165, 250, 0.15)' : 'rgba(138, 138, 154, 0.15)' %>; color: <%= u.role === 'owner' ? 'var(--accent)' : u.role === 'admin' ? '#60a5fa' : 'var(--text-muted)' %>;">
+                      <%= u.role %>
+                    </span>
+                  </td>
+                  <td>
+                    <% if (u.banned) { %>
+                      <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">BANNED</span>
+                      <% if (u.banned_reason) { %>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;" title="<%= u.banned_reason %>">
+                          <%= u.banned_reason.length > 30 ? u.banned_reason.substring(0, 30) + '...' : u.banned_reason %>
+                        </div>
+                      <% } %>
+                    <% } else { %>
+                      <span class="badge badge-active">Active</span>
+                    <% } %>
+                  </td>
+                  <td style="font-size: 0.85rem; color: var(--text-muted);"><%= new Date(u.created_at).toLocaleDateString() %></td>
+                  <td>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                      <% if (adminRole === 'owner' && u.id !== user.id) { %>
+                        <!-- Role change -->
+                        <form method="POST" action="/admin/users/<%= u.id %>/role" style="display: flex; gap: 4px;">
+                          <select name="role" class="form-control" style="padding: 4px 8px; font-size: 0.75rem; width: auto;">
+                            <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>User</option>
+                            <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                            <option value="owner" <%= u.role === 'owner' ? 'selected' : '' %>>Owner</option>
+                          </select>
+                          <button type="submit" class="btn btn-sm btn-outline" style="padding: 4px 8px; font-size: 0.7rem;">Set</button>
+                        </form>
+                      <% } %>
+
+                      <% if (!u.banned && u.id !== user.id && u.role !== 'owner') { %>
+                        <form method="POST" action="/admin/users/<%= u.id %>/ban" style="display: inline;" onsubmit="return confirm('Ban this user? Their active matches will be cancelled and refunded.');">
+                          <input type="hidden" name="reason" value="Banned by admin">
+                          <button type="submit" class="btn btn-sm btn-danger" style="padding: 4px 10px; font-size: 0.75rem;">Ban</button>
+                        </form>
+                      <% } else if (u.banned) { %>
+                        <form method="POST" action="/admin/users/<%= u.id %>/unban" style="display: inline;">
+                          <button type="submit" class="btn btn-sm btn-success" style="padding: 4px 10px; font-size: 0.75rem;">Unban</button>
+                        </form>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

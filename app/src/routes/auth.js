@@ -79,7 +79,7 @@ export default async function authRoutes(app) {
 
       const user = result.rows[0];
       const token = jwt.sign(
-        { id: user.id, username: user.username, display_name: user.display_name },
+        { id: user.id, username: user.username, display_name: user.display_name, role: 'user' },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -114,7 +114,7 @@ export default async function authRoutes(app) {
 
     try {
       const result = await pool.query(
-        'SELECT id, username, display_name, password_hash, elo_rating FROM users WHERE email = $1',
+        'SELECT id, username, display_name, password_hash, elo_rating, role, banned, banned_reason, banned_at FROM users WHERE email = $1',
         [email.toLowerCase()]
       );
 
@@ -135,8 +135,17 @@ export default async function authRoutes(app) {
         });
       }
 
+      // Check if user is banned
+      if (user.banned) {
+        return reply.view('auth/banned.ejs', {
+          user: null,
+          reason: user.banned_reason,
+          bannedAt: user.banned_at,
+        });
+      }
+
       const token = jwt.sign(
-        { id: user.id, username: user.username, display_name: user.display_name },
+        { id: user.id, username: user.username, display_name: user.display_name, role: user.role || 'user' },
         JWT_SECRET,
         { expiresIn: '7d' }
       );

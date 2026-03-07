@@ -1,0 +1,314 @@
+<%- include('partials/head', { title: 'FAQ & Rules' }) %>
+<%- include('partials/nav') %>
+
+<style>
+  .faq-section { margin-bottom: 32px; }
+  .faq-section h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .faq-section h2 .icon { font-size: 1.4rem; }
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+  }
+  details:hover { border-color: var(--primary); }
+  details[open] { border-color: var(--primary); }
+  details summary {
+    padding: 14px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after {
+    content: '+';
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+  details[open] summary::after {
+    content: '-';
+    color: var(--primary);
+  }
+  details .answer {
+    padding: 0 18px 16px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+  details .answer p { margin-bottom: 10px; }
+  details .answer ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin-bottom: 10px;
+  }
+  details .answer li { margin-bottom: 4px; }
+  details .answer strong { color: var(--text); }
+</style>
+
+<div class="container">
+  <div class="page-header">
+    <h1>FAQ & Platform Rules</h1>
+    <p>Everything you need to know about DuelStake</p>
+  </div>
+
+  <!-- How DuelStake Works -->
+  <div class="faq-section">
+    <h2><span class="icon">&#9876;</span> How DuelStake Works</h2>
+
+    <details>
+      <summary>What is DuelStake?</summary>
+      <div class="answer">
+        <p>DuelStake is a competitive gaming platform where players create <strong>staked matches</strong> against each other. Players put up a stake (in CHF), play their match, and the winner takes the pot.</p>
+        <p>It is a skill-based competition platform, not a gambling or betting service.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>How does the staking and escrow system work?</summary>
+      <div class="answer">
+        <p>When you create or join a match, your stake is held in <strong>escrow</strong> - a secure holding account managed by a licensed financial intermediary under Swiss law.</p>
+        <ul>
+          <li>Both players stake the same amount</li>
+          <li>Funds are locked until the match is resolved</li>
+          <li>The winner receives the full pot (both stakes combined)</li>
+          <li>If a match is cancelled, both players are refunded in full</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>How are payouts calculated?</summary>
+      <div class="answer">
+        <p>The winner receives the total pot. A <strong>5% commission</strong> is applied to winnings to cover platform operations, escrow management, and dispute resolution.</p>
+        <p>Example: Two players each stake 10 CHF. The pot is 20 CHF. The winner receives 20 CHF, and 1 CHF (5%) goes to the platform as commission.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Match Rules -->
+  <div class="faq-section">
+    <h2><span class="icon">&#127918;</span> Match Rules</h2>
+
+    <details>
+      <summary>How do I create a match?</summary>
+      <div class="answer">
+        <p>Navigate to a game page, click <strong>"Create Match"</strong>, select your stake amount, and wait for an opponent to join. You need sufficient wallet balance to cover your stake.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>What happens after the match is played?</summary>
+      <div class="answer">
+        <p>After playing your match in-game, both players return to DuelStake to:</p>
+        <ul>
+          <li><strong>Submit proof</strong> (screenshots/videos of the final result)</li>
+          <li><strong>Report the winner</strong> - if you lost, you confirm the opponent as winner</li>
+        </ul>
+        <p>If both players agree on the winner, the match completes instantly. If there is a disagreement, the match goes to <strong>dispute resolution</strong>.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>How does dispute resolution work?</summary>
+      <div class="answer">
+        <p>When players disagree on the result, the match status changes to <strong>"Disputed"</strong>. An admin will:</p>
+        <ul>
+          <li>Review all submitted proofs from both players</li>
+          <li>Determine the rightful winner based on evidence</li>
+          <li>Set the winner or cancel the match if evidence is inconclusive</li>
+        </ul>
+        <p>Always submit clear proof to support your claim in case of disputes.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>What constitutes valid proof?</summary>
+      <div class="answer">
+        <ul>
+          <li>Clear screenshot of the final scoreboard or result screen</li>
+          <li>Video recording of the match (especially the ending)</li>
+          <li>Must show player names/IDs matching the DuelStake participants</li>
+          <li>Must be unedited and timestamped (if possible)</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <!-- Wallet & Payments -->
+  <div class="faq-section">
+    <h2><span class="icon">&#128176;</span> Wallet & Payments</h2>
+
+    <details>
+      <summary>How do I deposit funds?</summary>
+      <div class="answer">
+        <p>Go to your <strong>Wallet</strong> page and choose a deposit method. Funds are credited to your DuelStake wallet balance and can be used immediately for matches.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>How do withdrawals work?</summary>
+      <div class="answer">
+        <p>You can withdraw your wallet balance at any time from the Wallet page. Withdrawals are processed within 1-3 business days. Minimum withdrawal amount applies.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>What is the platform commission?</summary>
+      <div class="answer">
+        <p>DuelStake charges a <strong>5% commission</strong> on match winnings. This covers:</p>
+        <ul>
+          <li>Platform development and maintenance</li>
+          <li>Escrow and financial intermediary services</li>
+          <li>Dispute resolution and admin moderation</li>
+          <li>Anti-cheat and fair play enforcement</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <!-- Anti-Cheat & Fair Play -->
+  <div class="faq-section">
+    <h2><span class="icon">&#128737;</span> Anti-Cheat & Fair Play</h2>
+
+    <details>
+      <summary>What counts as cheating?</summary>
+      <div class="answer">
+        <ul>
+          <li>Using exploits, hacks, or unauthorized third-party software</li>
+          <li>Match-fixing or colluding with opponents</li>
+          <li>Submitting falsified or manipulated proof</li>
+          <li>Using smurfs or alternate accounts to manipulate ELO</li>
+          <li>Intentionally disconnecting to avoid a loss</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>What are the proof requirements?</summary>
+      <div class="answer">
+        <p>All staked matches require proof submission. Acceptable formats include:</p>
+        <ul>
+          <li>Screenshot: JPG, PNG, WebP, GIF (clear and unedited)</li>
+          <li>The proof must clearly show the match result and player identifiers</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>How do I report a player?</summary>
+      <div class="answer">
+        <p>You can report a player from the <strong>match detail page</strong> or their <strong>profile page</strong> using the "Report Player" button. Provide a clear description of the violation. All reports are reviewed by our moderation team.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Account Rules -->
+  <div class="faq-section">
+    <h2><span class="icon">&#128100;</span> Account Rules</h2>
+
+    <details>
+      <summary>Account requirements</summary>
+      <div class="answer">
+        <ul>
+          <li><strong>One account per person</strong> - multiple accounts are not allowed</li>
+          <li><strong>18+ only</strong> - you must be at least 18 years old to participate in staked matches</li>
+          <li><strong>Identity verification</strong> may be required for high-stake matches or large withdrawals</li>
+          <li>Your account is personal and non-transferable</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>What behavior is prohibited?</summary>
+      <div class="answer">
+        <ul>
+          <li>Harassment, threats, or abusive language toward other players</li>
+          <li>Sharing personal information of other users (doxxing)</li>
+          <li>Attempting to circumvent platform security measures</li>
+          <li>Creating multiple accounts</li>
+          <li>Fraudulent financial activity</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <!-- Ban Policy -->
+  <div class="faq-section">
+    <h2><span class="icon">&#128683;</span> Ban Policy</h2>
+
+    <details>
+      <summary>What can get me banned?</summary>
+      <div class="answer">
+        <p>The following violations result in <strong>permanent account suspension</strong>:</p>
+        <ul>
+          <li><strong>Cheating</strong> - using hacks, exploits, or unauthorized software</li>
+          <li><strong>Match-fixing</strong> - colluding with opponents or manipulating results</li>
+          <li><strong>Toxicity</strong> - severe harassment, hate speech, or threats</li>
+          <li><strong>Fraud</strong> - submitting fake proofs, chargeback abuse, or financial manipulation</li>
+          <li><strong>Multiple accounts</strong> - operating more than one account</li>
+        </ul>
+        <p>When banned, all your active matches are cancelled and stakes refunded to both parties. Wallet balance may be frozen pending investigation.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Can I appeal a ban?</summary>
+      <div class="answer">
+        <p>Yes. Contact <strong>support@duelstake.ch</strong> with:</p>
+        <ul>
+          <li>Your username and email</li>
+          <li>A description of why you believe the ban was incorrect</li>
+          <li>Any supporting evidence</li>
+        </ul>
+        <p>Appeals are reviewed within 5 business days.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Swiss Regulations -->
+  <div class="faq-section">
+    <h2><span class="icon">&#127464;&#127469;</span> Swiss Regulations</h2>
+
+    <details>
+      <summary>Legal framework</summary>
+      <div class="answer">
+        <p>DuelStake operates under Swiss law and complies with all applicable regulations:</p>
+        <ul>
+          <li><strong>Licensed financial intermediary</strong> - all escrow services are managed by a licensed entity</li>
+          <li><strong>Escrow protection</strong> - player funds are held in escrow under Swiss law, separate from platform operating funds</li>
+          <li><strong>18+ requirement</strong> - age verification is mandatory as per Swiss regulations</li>
+          <li><strong>Data protection</strong> - compliant with Swiss Federal Act on Data Protection (FADP)</li>
+          <li><strong>Skill-based competition</strong> - DuelStake is classified as a skill-based competition platform, not gambling</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Company information</summary>
+      <div class="answer">
+        <p><strong>Stuzzicadenti AG</strong></p>
+        <p>Zurich, Switzerland</p>
+        <p>Contact: <a href="mailto:support@duelstake.ch">support@duelstake.ch</a></p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

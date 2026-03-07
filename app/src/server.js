@@ -17,6 +17,8 @@ import leaderboardRoutes from './routes/leaderboard.js';
 import walletRoutes from './routes/wallet.js';
 import profileRoutes from './routes/profile.js';
 import wsRoutes from './routes/ws.js';
+import adminRoutes, { runAdminMigrations } from './routes/admin.js';
+import { pool } from './db/schema.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -104,6 +106,13 @@ app.addHook('onRequest', async (request, reply) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'change-me');
+      // Check if user is banned
+      const banCheck = await pool.query('SELECT banned, banned_reason, banned_at FROM users WHERE id = $1', [decoded.id]);
+      if (banCheck.rows.length > 0 && banCheck.rows[0].banned) {
+        reply.clearCookie('token', { path: '/' });
+        request.user = null;
+        return;
+      }
       request.user = decoded;
     } catch {
       // Invalid token, continue as guest
@@ -124,10 +133,13 @@ await app.register(matchesRoutes, { prefix: '/matches' });
 await app.register(leaderboardRoutes, { prefix: '/leaderboard' });
 await app.register(walletRoutes, { prefix: '/wallet' });
 await app.register(profileRoutes, { prefix: '/profile' });
+await app.register(adminRoutes, { prefix: '/admin' });
 await app.register(wsRoutes);
 
-// --- DB ---
-import { pool } from './db/schema.js';
+// --- FAQ ---
+app.get('/faq', async (request, reply) => {
+  return reply.view('faq.ejs', { user: request.user });
+});
 
 // --- Homepage ---
 app.get('/', async (request, reply) => {
@@ -171,6 +183,8 @@ process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
 // --- Start ---
+await runAdminMigrations();
+
 const PORT = parseInt(process.env.PORT || '4004', 10);
 try {
   await app.listen({ port: PORT, host: '0.0.0.0' });

@@ -1,0 +1,104 @@
+<%- include('../partials/head', { title: 'Admin - Matches' }) %>
+<%- include('../partials/nav') %>
+
+<div class="admin-layout">
+  <%- include('_sidebar', { activePage: 'matches' }) %>
+
+  <div class="admin-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 1.6rem; font-weight: 800;">Matches</h1>
+      <p class="text-muted">View and manage all matches</p>
+    </div>
+
+    <!-- Status filter -->
+    <div class="tabs mb-3">
+      <a href="/admin/matches" class="tab <%= !statusFilter ? 'active' : '' %>">All</a>
+      <a href="/admin/matches?status=waiting" class="tab <%= statusFilter === 'waiting' ? 'active' : '' %>">Waiting</a>
+      <a href="/admin/matches?status=active" class="tab <%= statusFilter === 'active' ? 'active' : '' %>">Active</a>
+      <a href="/admin/matches?status=disputed" class="tab <%= statusFilter === 'disputed' ? 'active' : '' %>">Disputed</a>
+      <a href="/admin/matches?status=completed" class="tab <%= statusFilter === 'completed' ? 'active' : '' %>">Completed</a>
+      <a href="/admin/matches?status=cancelled" class="tab <%= statusFilter === 'cancelled' ? 'active' : '' %>">Cancelled</a>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Game</th>
+              <th>Players</th>
+              <th>Stake</th>
+              <th>Status</th>
+              <th>Winner</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (matches.length === 0) { %>
+              <tr><td colspan="8" class="text-muted text-center" style="padding: 40px;">No matches found</td></tr>
+            <% } else { %>
+              <% matches.forEach(function(m) { %>
+                <tr>
+                  <td><a href="/matches/<%= m.id %>" style="font-weight: 600;">#<%= m.id %></a></td>
+                  <td><%= m.game_icon %> <%= m.game_name %></td>
+                  <td>
+                    <a href="/profile/<%= m.player1_name %>"><%= m.player1_name %></a>
+                    <span class="text-muted"> vs </span>
+                    <% if (m.player2_name) { %>
+                      <a href="/profile/<%= m.player2_name %>"><%= m.player2_name %></a>
+                    <% } else { %>
+                      <span class="text-muted">TBD</span>
+                    <% } %>
+                  </td>
+                  <td style="color: var(--accent); font-weight: 700;">&euro;<%= parseFloat(m.stake_amount).toFixed(2) %></td>
+                  <td><span class="badge badge-<%= m.status %>"><%= m.status %></span></td>
+                  <td>
+                    <% if (m.winner_name) { %>
+                      <a href="/profile/<%= m.winner_name %>"><%= m.winner_name %></a>
+                    <% } else { %>
+                      <span class="text-muted">-</span>
+                    <% } %>
+                  </td>
+                  <td style="font-size: 0.85rem; color: var(--text-muted);"><%= new Date(m.created_at).toLocaleDateString() %></td>
+                  <td>
+                    <% if (m.status === 'disputed') { %>
+                      <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <!-- Set winner -->
+                        <form method="POST" action="/admin/matches/<%= m.id %>/resolve" style="display: flex; gap: 4px;">
+                          <input type="hidden" name="action" value="set_winner">
+                          <select name="winner_id" class="form-control" style="padding: 4px 6px; font-size: 0.75rem; width: auto;">
+                            <option value="<%= m.player1_id %>"><%= m.player1_name %></option>
+                            <% if (m.player2_id) { %>
+                              <option value="<%= m.player2_id %>"><%= m.player2_name %></option>
+                            <% } %>
+                          </select>
+                          <button type="submit" class="btn btn-sm btn-success" style="padding: 4px 8px; font-size: 0.7rem;">Winner</button>
+                        </form>
+                        <!-- Cancel -->
+                        <form method="POST" action="/admin/matches/<%= m.id %>/resolve" onsubmit="return confirm('Cancel this match and refund both players?');">
+                          <input type="hidden" name="action" value="cancel">
+                          <button type="submit" class="btn btn-sm btn-danger" style="padding: 4px 8px; font-size: 0.7rem; width: 100%;">Cancel & Refund</button>
+                        </form>
+                      </div>
+                    <% } else if (m.status === 'waiting' || m.status === 'active' || m.status === 'proof_required') { %>
+                      <form method="POST" action="/admin/matches/<%= m.id %>/resolve" onsubmit="return confirm('Cancel this match and refund?');">
+                        <input type="hidden" name="action" value="cancel">
+                        <button type="submit" class="btn btn-sm btn-outline" style="padding: 4px 8px; font-size: 0.7rem;">Cancel</button>
+                      </form>
+                    <% } else { %>
+                      <span class="text-muted">-</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

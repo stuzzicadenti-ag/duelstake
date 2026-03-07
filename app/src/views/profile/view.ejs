@@ -103,6 +103,34 @@
     </div>
   </div>
 
+  <!-- Report Player -->
+  <% if (typeof user !== 'undefined' && user && user.id !== profile.id) { %>
+    <div class="card mt-3">
+      <details>
+        <summary style="cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); list-style: none; display: flex; align-items: center; gap: 6px;">
+          <span style="color: var(--danger);">&#9873;</span> Report Player
+        </summary>
+        <form action="/profile/<%= profile.id %>/report" method="POST" style="margin-top: 12px;">
+          <div class="form-group">
+            <label>Reason</label>
+            <select name="reason" class="form-control">
+              <option value="player_report">General Report</option>
+              <option value="cheating">Cheating / Exploits</option>
+              <option value="smurf">Smurf / Multiple Accounts</option>
+              <option value="harassment">Harassment / Threats</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Details</label>
+            <textarea name="details" class="form-control" rows="3" placeholder="Describe the issue..." required style="resize: vertical;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-danger btn-sm" style="width: 100%; justify-content: center;">Submit Report</button>
+        </form>
+      </details>
+    </div>
+  <% } %>
+
   <!-- ELO Chart placeholder -->
   <div class="card mt-3" style="text-align: center; padding: 40px;">
     <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">ELO History</div>

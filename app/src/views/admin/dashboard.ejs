@@ -1,0 +1,98 @@
+<%- include('../partials/head', { title: 'Admin Dashboard' }) %>
+<%- include('../partials/nav') %>
+
+<div class="admin-layout">
+  <%- include('_sidebar', { activePage: 'dashboard', stats }) %>
+
+  <div class="admin-content">
+    <div style="margin-bottom: 32px;">
+      <h1 style="font-size: 1.6rem; font-weight: 800;">Dashboard</h1>
+      <p class="text-muted">Platform overview and recent activity</p>
+    </div>
+
+    <!-- Stats cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      <div class="card stat" style="border-left: 3px solid var(--primary);">
+        <div class="stat-value" style="font-size: 1.8rem;"><%= stats.totalUsers %></div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="card stat" style="border-left: 3px solid var(--success);">
+        <div class="stat-value text-success" style="font-size: 1.8rem;"><%= stats.activeMatches %></div>
+        <div class="stat-label">Active Matches</div>
+      </div>
+      <div class="card stat" style="border-left: 3px solid var(--accent);">
+        <div class="stat-value text-accent" style="font-size: 1.8rem;">&euro;<%= stats.totalStaked %></div>
+        <div class="stat-label">Total Staked</div>
+      </div>
+      <div class="card stat" style="border-left: 3px solid var(--danger);">
+        <div class="stat-value text-danger" style="font-size: 1.8rem;"><%= stats.pendingFlags %></div>
+        <div class="stat-label">Pending Flags</div>
+      </div>
+      <div class="card stat" style="border-left: 3px solid #60a5fa;">
+        <div class="stat-value" style="font-size: 1.8rem; color: #60a5fa;">&euro;<%= stats.revenue %></div>
+        <div class="stat-label">Revenue (5%)</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <!-- Recent Disputes -->
+      <div class="card">
+        <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+          Recent Disputes
+          <a href="/admin/matches?status=disputed" class="btn btn-sm btn-outline">View All</a>
+        </h2>
+        <% if (recentDisputes.length === 0) { %>
+          <p class="text-muted" style="padding: 20px 0; text-align: center;">No active disputes</p>
+        <% } else { %>
+          <% recentDisputes.forEach(function(d) { %>
+            <div style="padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <a href="/admin/matches" style="font-weight: 600;">Match #<%= d.id %></a>
+                <span class="text-muted" style="font-size: 0.85rem;"> - <%= d.game_name %></span>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  <%= d.player1_name %> vs <%= d.player2_name || 'TBD' %>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="color: var(--accent); font-weight: 700; font-size: 0.9rem;">&euro;<%= parseFloat(d.stake_amount).toFixed(2) %></div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);"><%= new Date(d.created_at).toLocaleDateString() %></div>
+              </div>
+            </div>
+          <% }); %>
+        <% } %>
+      </div>
+
+      <!-- Recent Flags -->
+      <div class="card">
+        <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+          Recent Flags
+          <a href="/admin/flags" class="btn btn-sm btn-outline">View All</a>
+        </h2>
+        <% if (recentFlags.length === 0) { %>
+          <p class="text-muted" style="padding: 20px 0; text-align: center;">No pending flags</p>
+        <% } else { %>
+          <% recentFlags.forEach(function(f) { %>
+            <div style="padding: 10px 0; border-bottom: 1px solid var(--border);">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);"><%= f.type %></span>
+                  <% if (f.reported_name) { %>
+                    <span style="font-size: 0.85rem; margin-left: 6px;">vs <strong><%= f.reported_name %></strong></span>
+                  <% } %>
+                </div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);"><%= new Date(f.created_at).toLocaleDateString() %></span>
+              </div>
+              <% if (f.details) { %>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">
+                  <%= f.details %>
+                </div>
+              <% } %>
+            </div>
+          <% }); %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
