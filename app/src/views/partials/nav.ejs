@@ -1,6 +1,6 @@
-<nav>
+<nav class="app-nav">
   <div class="nav-inner">
-    <a href="/" class="logo">Duel<span>Stake</span></a>
+    <a href="/" class="logo"><span class="logo-sword">&#9876;</span> Duel<span class="red">Stake</span></a>
     <div class="nav-links">
       <a href="/games">Games</a>
       <a href="/leaderboard">Leaderboard</a>
@@ -8,7 +8,7 @@
         <a href="/matches">My Matches</a>
         <a href="/wallet">Wallet</a>
         <a href="/profile/<%= user.username %>" class="hide-mobile"><%= user.display_name || user.username %></a>
-        <a href="/auth/logout" class="btn btn-secondary btn-sm">Logout</a>
+        <a href="/auth/logout" class="btn btn-outline btn-sm">Logout</a>
       <% } else { %>
         <a href="/auth/login" class="btn btn-secondary btn-sm">Login</a>
         <a href="/auth/register" class="btn btn-primary btn-sm">Sign Up</a>

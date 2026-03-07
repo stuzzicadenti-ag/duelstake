@@ -41,6 +41,10 @@ await app.register(fastifyView, {
   defaultContext: { user: null },
 });
 await app.register(fastifyStatic, {
+  root: path.join(__dirname, 'public'),
+  prefix: '/public/',
+});
+await app.register(fastifyStatic, {
   root: path.join(__dirname, '..', '..', 'src'),
   prefix: '/static/',
   decorateReply: false,

@@ -1,100 +1,641 @@
-<%- include('partials/head', { title: 'Home' }) %>
-<%- include('partials/nav') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DuelStake - Competitive Gaming Matchmaking Platform</title>
+  <meta name="description" content="Find opponents, set stakes, and prove your skill on DuelStake. The ultimate competitive gaming matchmaking platform for 1v1 duels, tournaments, and ranked ladders.">
+  <meta name="keywords" content="competitive gaming, matchmaking, esports, 1v1, tournaments, staking, FIFA, Call of Duty, Fortnite, Valorant">
 
-<div class="container">
-  <!-- Hero -->
-  <section style="text-align: center; padding: 60px 0 40px;">
-    <h1 style="font-size: 3rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px;">
-      Stake. <span style="color: var(--primary);">Duel.</span> <span style="color: var(--accent);">Win.</span>
-    </h1>
-    <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 32px;">
-      Challenge players in 1v1 matches across your favorite games. Put your skills on the line and earn real rewards.
-    </p>
-    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-      <% if (typeof user !== 'undefined' && user) { %>
-        <a href="/games" class="btn btn-primary" style="padding: 14px 32px; font-size: 1rem;">Find a Match</a>
-        <a href="/matches" class="btn btn-secondary" style="padding: 14px 32px; font-size: 1rem;">My Matches</a>
-      <% } else { %>
-        <a href="/auth/register" class="btn btn-primary" style="padding: 14px 32px; font-size: 1rem;">Get Started</a>
-        <a href="/games" class="btn btn-secondary" style="padding: 14px 32px; font-size: 1rem;">Browse Games</a>
-      <% } %>
-    </div>
-  </section>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="DuelStake - Find Opponents. Set Stakes. Prove Your Skill.">
+  <meta property="og:description" content="The ultimate competitive gaming matchmaking platform. 1v1 duels, tournaments, ranked ladders and more.">
+  <meta property="og:site_name" content="DuelStake">
 
-  <!-- Stats bar -->
-  <section class="grid grid-3 mb-4">
-    <div class="card stat">
-      <div class="stat-value text-primary"><%= activeMatchCount %></div>
-      <div class="stat-label">Active Matches</div>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DuelStake - Find Opponents. Set Stakes. Prove Your Skill.">
+  <meta name="twitter:description" content="The ultimate competitive gaming matchmaking platform. 1v1 duels, tournaments, ranked ladders and more.">
+  <meta name="theme-color" content="#ff4136">
+
+  <link rel="stylesheet" href="/public/landing.css">
+  <link rel="icon" type="image/svg+xml" href="/public/favicon.svg">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="/" class="nav-logo">
+        <span class="logo-icon">&#9876;</span>
+        <span class="logo-text">Duel<span class="accent">Stake</span></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#hero" class="nav-link active">Home</a></li>
+        <li><a href="#games" class="nav-link">Games</a></li>
+        <li><a href="#tournaments" class="nav-link">Tournaments</a></li>
+        <li><a href="#leaderboard" class="nav-link">Leaderboard</a></li>
+        <li><a href="#pricing" class="nav-link">Pricing</a></li>
+      </ul>
+      <div class="nav-actions">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/games" class="btn btn-ghost">Games</a>
+          <a href="/matches" class="btn btn-ghost">My Matches</a>
+          <a href="/wallet" class="btn btn-ghost">Wallet</a>
+          <a href="/profile/<%= user.username %>" class="btn btn-ghost"><%= user.display_name || user.username %></a>
+          <a href="/auth/logout" class="btn btn-outline btn-sm">Logout</a>
+        <% } else { %>
+          <a href="/auth/login" class="btn btn-ghost" id="loginBtn">Login</a>
+          <a href="/auth/register" class="btn btn-primary" id="registerBtn">Register</a>
+        <% } %>
+      </div>
+      <div class="lang-dropdown">
+        <button type="button" class="lang-dropdown__btn" aria-expanded="false" aria-haspopup="true">
+          &#127760; <span class="lang-dropdown__current">EN</span> &#9662;
+        </button>
+        <ul class="lang-dropdown__menu" role="menu">
+          <li><a href="/" role="menuitem" class="active">English</a></li>
+          <li><a href="#" role="menuitem">Deutsch</a></li>
+          <li><a href="#" role="menuitem">Fran&ccedil;ais</a></li>
+          <li><a href="#" role="menuitem">Italiano</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="card stat">
-      <div class="stat-value text-accent"><%= games.length %></div>
-      <div class="stat-label">Games Available</div>
-    </div>
-    <div class="card stat">
-      <div class="stat-value text-success"><%= topPlayers.length %>+</div>
-      <div class="stat-label">Players</div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+      <div class="hero-badge">&#9889; Season 1 Now Live</div>
+      <h1 class="hero-title">
+        <span class="logo-icon-large">&#9876;</span>
+        Duel<span class="accent">Stake</span>
+      </h1>
+      <p class="hero-tagline">Find opponents. Set stakes. Prove your skill.</p>
+      <p class="hero-sub">The competitive gaming platform where every match matters. Stake real money, climb the ranks, and become a legend.</p>
+      <div class="hero-cta">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/games" class="btn btn-primary btn-lg">Find a Match</a>
+          <a href="/matches" class="btn btn-outline btn-lg">My Matches</a>
+        <% } else { %>
+          <a href="/auth/register" class="btn btn-primary btn-lg">Start Competing Now</a>
+          <a href="/games" class="btn btn-outline btn-lg">Browse Games</a>
+        <% } %>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number"><%= activeMatchCount %></span>
+          <span class="stat-label">Active Matches</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number"><%= games.length %></span>
+          <span class="stat-label">Games Available</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number"><%= topPlayers.length %>+</span>
+          <span class="stat-label">Top Players</span>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Featured Games -->
-  <section class="mb-4">
-    <div class="flex items-center justify-between mb-2">
-      <h2 style="font-size: 1.3rem; font-weight: 700;">Featured Games</h2>
-      <a href="/games" class="btn btn-secondary btn-sm">View All</a>
-    </div>
-    <div class="grid grid-3">
-      <% games.forEach(function(game) { %>
-        <a href="/games/<%= game.slug %>" class="card" style="text-decoration: none; color: var(--text);">
-          <div style="font-size: 2.5rem; margin-bottom: 12px;"><%= game.icon %></div>
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;"><%= game.name %></h3>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;"><%= game.description %></p>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="color: var(--accent); font-size: 0.85rem; font-weight: 600;">
-              &euro;<%= game.min_stake %> - &euro;<%= game.max_stake %>
-            </span>
-            <span class="btn btn-primary btn-sm">Play</span>
+  <section class="section" id="games">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Featured <span class="accent">Games</span></h2>
+        <p class="section-sub">Choose your battlefield. Dominate your opponents.</p>
+      </div>
+      <% if (games.length > 0) { %>
+        <div class="games-grid">
+          <% games.forEach(function(game) { %>
+            <div class="game-card">
+              <div class="game-icon"><%= game.icon %></div>
+              <h3 class="game-title"><%= game.name %></h3>
+              <div class="game-meta">
+                <span class="game-players">&#128101; <%= game.player_count || 0 %> online</span>
+                <span class="game-stakes">&#9876; &euro;<%= game.min_stake %> - &euro;<%= game.max_stake %></span>
+              </div>
+              <a href="/games/<%= game.slug %>" class="btn btn-primary btn-sm">Find Match</a>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="games-grid">
+          <div class="game-card">
+            <div class="game-icon">&#9917;</div>
+            <h3 class="game-title">FIFA 26</h3>
+            <div class="game-meta">
+              <span class="game-players">&#128101; 12.4K online</span>
+              <span class="game-stakes">&#9876; &#8364;1 - &#8364;500</span>
+            </div>
+            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
           </div>
-        </a>
-      <% }); %>
+          <div class="game-card">
+            <div class="game-icon">&#128163;</div>
+            <h3 class="game-title">Battlefield 6</h3>
+            <div class="game-meta">
+              <span class="game-players">&#128101; 8.7K online</span>
+              <span class="game-stakes">&#9876; &#8364;2 - &#8364;250</span>
+            </div>
+            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+          </div>
+          <div class="game-card">
+            <div class="game-icon">&#127919;</div>
+            <h3 class="game-title">Call of Duty</h3>
+            <div class="game-meta">
+              <span class="game-players">&#128101; 15.1K online</span>
+              <span class="game-stakes">&#9876; &#8364;1 - &#8364;1000</span>
+            </div>
+            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+          </div>
+          <div class="game-card">
+            <div class="game-icon">&#9935;</div>
+            <h3 class="game-title">Fortnite</h3>
+            <div class="game-meta">
+              <span class="game-players">&#128101; 22.3K online</span>
+              <span class="game-stakes">&#9876; &#8364;1 - &#8364;300</span>
+            </div>
+            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+          </div>
+          <div class="game-card">
+            <div class="game-icon">&#128664;</div>
+            <h3 class="game-title">Rocket League</h3>
+            <div class="game-meta">
+              <span class="game-players">&#128101; 6.9K online</span>
+              <span class="game-stakes">&#9876; &#8364;1 - &#8364;200</span>
+            </div>
+            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+          </div>
+          <div class="game-card">
+            <div class="game-icon">&#128299;</div>
+            <h3 class="game-title">Valorant</h3>
+            <div class="game-meta">
+              <span class="game-players">&#128101; 18.6K online</span>
+              <span class="game-stakes">&#9876; &#8364;2 - &#8364;750</span>
+            </div>
+            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+          </div>
+        </div>
+      <% } %>
     </div>
   </section>
 
-  <!-- Top Players -->
-  <% if (topPlayers.length > 0) { %>
-  <section class="mb-4">
-    <div class="flex items-center justify-between mb-2">
-      <h2 style="font-size: 1.3rem; font-weight: 700;">Top Players</h2>
-      <a href="/leaderboard" class="btn btn-secondary btn-sm">Full Leaderboard</a>
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Player</th>
-              <th>ELO</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% topPlayers.forEach(function(p, i) { %>
-            <tr>
-              <td style="font-weight: 700; color: <%= i === 0 ? 'var(--accent)' : 'var(--text-muted)' %>;">
-                <%= i + 1 %>
-              </td>
-              <td>
-                <a href="/profile/<%= p.username %>"><%= p.display_name || p.username %></a>
-              </td>
-              <td style="font-weight: 700;"><%= p.elo_rating %></td>
-            </tr>
-            <% }); %>
-          </tbody>
-        </table>
+  <!-- How It Works -->
+  <section class="section section-dark" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">How It <span class="accent">Works</span></h2>
+        <p class="section-sub">Three steps to glory. No complexity. Pure competition.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">&#128100;</div>
+          <h3 class="step-title">Create Account</h3>
+          <p class="step-desc">Sign up in seconds. Link your gaming profiles. Verify your identity to unlock staked matches and withdrawals.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">&#128269;</div>
+          <h3 class="step-title">Find Match</h3>
+          <p class="step-desc">Choose your game, set your stake, and our matchmaking algorithm pairs you with an opponent of equal skill.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">&#127942;</div>
+          <h3 class="step-title">Compete &amp; Win</h3>
+          <p class="step-desc">Play the match, submit your results. Winners get paid instantly. Climb the leaderboard and earn your reputation.</p>
+        </div>
       </div>
     </div>
   </section>
-  <% } %>
-</div>
 
-<%- include('partials/footer') %>
+  <!-- Match Types -->
+  <section class="section" id="tournaments">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Match <span class="accent">Types</span></h2>
+        <p class="section-sub">Multiple ways to compete. Choose your arena.</p>
+      </div>
+      <div class="match-types-grid">
+        <div class="match-card match-card-featured">
+          <div class="match-badge">Most Popular</div>
+          <div class="match-icon">&#9876;</div>
+          <h3 class="match-title">1v1 Duels</h3>
+          <p class="match-desc">Head-to-head competition with real money on the line. Set your own stake from &#8364;1 to &#8364;1000. Winner takes all.</p>
+          <ul class="match-features">
+            <li>&#10003; Custom stake amounts</li>
+            <li>&#10003; Instant payouts</li>
+            <li>&#10003; Skill-based matchmaking</li>
+            <li>&#10003; Anti-cheat protected</li>
+          </ul>
+        </div>
+        <div class="match-card">
+          <div class="match-icon">&#127942;</div>
+          <h3 class="match-title">Tournaments</h3>
+          <p class="match-desc">Bracket-style competitions with entry fees and massive prize pools. Single elimination, double elimination, or round robin.</p>
+          <ul class="match-features">
+            <li>&#10003; Entry fee + prize pool</li>
+            <li>&#10003; 8 to 256 players</li>
+            <li>&#10003; Multiple formats</li>
+            <li>&#10003; Live brackets</li>
+          </ul>
+        </div>
+        <div class="match-card">
+          <div class="match-icon">&#128200;</div>
+          <h3 class="match-title">Ranked Ladders</h3>
+          <p class="match-desc">Free competitive play. Earn XP, climb divisions from Bronze to Champion. Prove your worth without risking a cent.</p>
+          <ul class="match-features">
+            <li>&#10003; 100% free to play</li>
+            <li>&#10003; XP-based progression</li>
+            <li>&#10003; Seasonal rewards</li>
+            <li>&#10003; Division tiers</li>
+          </ul>
+        </div>
+        <div class="match-card">
+          <div class="match-icon">&#127918;</div>
+          <h3 class="match-title">Free Play</h3>
+          <p class="match-desc">Casual matches with no stakes. Perfect for warming up, practicing new strategies, or just having fun with the community.</p>
+          <ul class="match-features">
+            <li>&#10003; No stakes required</li>
+            <li>&#10003; All games available</li>
+            <li>&#10003; Casual matchmaking</li>
+            <li>&#10003; Practice mode</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leaderboard Preview -->
+  <section class="section section-dark" id="leaderboard">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Top <span class="accent">Players</span></h2>
+        <p class="section-sub">This week's elite competitors.</p>
+      </div>
+      <% if (topPlayers.length > 0) { %>
+        <div class="leaderboard-table">
+          <div class="leaderboard-row leaderboard-header">
+            <span class="lb-rank">Rank</span>
+            <span class="lb-player">Player</span>
+            <span class="lb-wins">ELO</span>
+            <span class="lb-earnings">Profile</span>
+            <span class="lb-winrate"></span>
+          </div>
+          <% topPlayers.forEach(function(p, i) { %>
+            <div class="leaderboard-row <%= i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '' %>">
+              <span class="lb-rank"><%= i === 0 ? '&#127941; ' : i === 1 ? '&#129352; ' : i === 2 ? '&#129353; ' : '' %><%= i + 1 %></span>
+              <span class="lb-player"><%= p.display_name || p.username %></span>
+              <span class="lb-wins"><%= p.elo_rating %></span>
+              <span class="lb-earnings"><a href="/profile/<%= p.username %>">View</a></span>
+              <span class="lb-winrate"></span>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="leaderboard-table">
+          <div class="leaderboard-row leaderboard-header">
+            <span class="lb-rank">Rank</span>
+            <span class="lb-player">Player</span>
+            <span class="lb-wins">Wins</span>
+            <span class="lb-earnings">Earnings</span>
+            <span class="lb-winrate">Win Rate</span>
+          </div>
+          <div class="leaderboard-row gold">
+            <span class="lb-rank">&#127941; 1</span>
+            <span class="lb-player">xDarkSlayer99</span>
+            <span class="lb-wins">247</span>
+            <span class="lb-earnings">&#8364;12,450</span>
+            <span class="lb-winrate">89%</span>
+          </div>
+          <div class="leaderboard-row silver">
+            <span class="lb-rank">&#129352; 2</span>
+            <span class="lb-player">NightHawk_Pro</span>
+            <span class="lb-wins">231</span>
+            <span class="lb-earnings">&#8364;9,820</span>
+            <span class="lb-winrate">85%</span>
+          </div>
+          <div class="leaderboard-row bronze">
+            <span class="lb-rank">&#129353; 3</span>
+            <span class="lb-player">ShadowBlade_X</span>
+            <span class="lb-wins">198</span>
+            <span class="lb-earnings">&#8364;8,340</span>
+            <span class="lb-winrate">82%</span>
+          </div>
+          <div class="leaderboard-row">
+            <span class="lb-rank">4</span>
+            <span class="lb-player">VelocityKing</span>
+            <span class="lb-wins">186</span>
+            <span class="lb-earnings">&#8364;7,120</span>
+            <span class="lb-winrate">79%</span>
+          </div>
+          <div class="leaderboard-row">
+            <span class="lb-rank">5</span>
+            <span class="lb-player">IceStorm_GG</span>
+            <span class="lb-wins">174</span>
+            <span class="lb-earnings">&#8364;6,590</span>
+            <span class="lb-winrate">77%</span>
+          </div>
+        </div>
+      <% } %>
+      <div style="text-align: center; margin-top: 32px;">
+        <a href="/leaderboard" class="btn btn-outline">View Full Leaderboard</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fair Play & Match Proof -->
+  <section class="section" id="fair-play">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Fair Play <span class="accent">Guaranteed</span></h2>
+        <p class="section-sub">Certified, transparent, and compliant with Swiss and EU regulations.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">&#128247;</div>
+          <h3 class="step-title">Match Proof Required</h3>
+          <p class="step-desc">Both players must upload a screenshot or video proof of the match result within 30 minutes. No proof, no payout.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#129302;</div>
+          <h3 class="step-title">AI + Human Review</h3>
+          <p class="step-desc">Proofs are verified by AI within minutes. Disputed results are escalated to human reviewers and resolved within 24 hours.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#128274;</div>
+          <h3 class="step-title">Platform Verified Accounts</h3>
+          <p class="step-desc">Link your Steam, Discord, or gaming platform account. One account per player. Multi-accounting results in a permanent ban and forfeiture of funds.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#9878;</div>
+          <h3 class="step-title">Swiss Regulated</h3>
+          <p class="step-desc">DuelStake is a skill-based competition platform, not a gambling service. Fully compliant with Swiss Federal Gaming Act (BGS) and EU regulations. Funds held in escrow by a licensed Swiss financial intermediary.</p>
+        </div>
+      </div>
+      <div class="fair-play-note">
+        <p><strong>How payouts work:</strong> Stakes are held in escrow during the match. After both players submit proof, the AI verifies the result. If both proofs agree, the winner receives the payout instantly (minus platform fee). If there's a dispute, a human reviewer decides within 24 hours. All transactions are logged and auditable.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="section" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title"><span class="accent">Pricing</span> Plans</h2>
+        <p class="section-sub">Upgrade your competitive edge.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-tier">Free</div>
+          <div class="pricing-price">&#8364;0<span>/mo</span></div>
+          <ul class="pricing-features">
+            <li>&#10003; 3 matches per day</li>
+            <li>&#10003; Leaderboard access</li>
+            <li>&#10003; Basic matchmaking</li>
+            <li>&#10003; Community chat</li>
+            <li class="disabled">&#10007; Priority matchmaking</li>
+            <li class="disabled">&#10007; Stats dashboard</li>
+            <li class="disabled">&#10007; Team management</li>
+          </ul>
+          <a href="/auth/register" class="btn btn-outline">Get Started</a>
+        </div>
+        <div class="pricing-card pricing-card-featured">
+          <div class="pricing-badge">Best Value</div>
+          <div class="pricing-tier">Pro</div>
+          <div class="pricing-price">&#8364;9.99<span>/mo</span></div>
+          <ul class="pricing-features">
+            <li>&#10003; Unlimited matches</li>
+            <li>&#10003; Leaderboard access</li>
+            <li>&#10003; Priority matchmaking</li>
+            <li>&#10003; Advanced stats dashboard</li>
+            <li>&#10003; Match replay analysis</li>
+            <li>&#10003; Custom profile badge</li>
+            <li class="disabled">&#10007; Team management</li>
+          </ul>
+          <a href="/auth/register" class="btn btn-primary">Go Pro</a>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-tier">Team</div>
+          <div class="pricing-price">&#8364;29.99<span>/mo</span></div>
+          <ul class="pricing-features">
+            <li>&#10003; Everything in Pro</li>
+            <li>&#10003; Team management (up to 10)</li>
+            <li>&#10003; Private tournaments</li>
+            <li>&#10003; API access</li>
+            <li>&#10003; Team analytics</li>
+            <li>&#10003; Dedicated support</li>
+            <li>&#10003; Custom branding</li>
+          </ul>
+          <a href="/auth/register" class="btn btn-outline">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section section-dark" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">What Players <span class="accent">Say</span></h2>
+        <p class="section-sub">Real players. Real wins. Real competition.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"DuelStake changed how I play FIFA. The matchmaking is insanely fast, and knowing there's real money on the line makes every goal feel 10x more intense. Cashed out &#8364;2,400 last month alone."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MZ</div>
+            <div>
+              <div class="testimonial-name">Marco Z.</div>
+              <div class="testimonial-role">FIFA 26 &bull; Diamond Division</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"The tournament system is fire. Entered a 64-player CoD bracket with a &#8364;10 entry, walked away with &#8364;380. The anti-cheat actually works and I've never had a dispute take more than 5 minutes."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">SK</div>
+            <div>
+              <div class="testimonial-name">Sarah K.</div>
+              <div class="testimonial-role">Call of Duty &bull; Platinum Division</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"I started on free play to practice, moved to ranked ladders, and now I'm competing in &#8364;100 1v1 duels daily. The progression feels natural and the payouts are instant. Best gaming platform out there."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">JR</div>
+            <div>
+              <div class="testimonial-name">Jake R.</div>
+              <div class="testimonial-role">Valorant &bull; Champion Division</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="section cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Ready to Prove Your Skill?</h2>
+        <p class="cta-sub">Join 50,000+ competitive gamers. Your first 3 matches are free.</p>
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/games" class="btn btn-primary btn-lg">Find a Match</a>
+        <% } else { %>
+          <a href="/auth/register" class="btn btn-primary btn-lg">Create Free Account</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <span class="logo-icon">&#9876;</span>
+            <span class="logo-text">Duel<span class="accent">Stake</span></span>
+          </div>
+          <p class="footer-desc">The ultimate competitive gaming matchmaking platform. Play, compete, and win.</p>
+          <div class="footer-socials">
+            <a href="#" class="social-link" aria-label="Twitter">&#120143;</a>
+            <a href="#" class="social-link" aria-label="Discord">&#9672;</a>
+            <a href="#" class="social-link" aria-label="YouTube">&#9654;</a>
+            <a href="#" class="social-link" aria-label="Twitch">&#8801;</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Platform</h4>
+          <ul>
+            <li><a href="/games">Games</a></li>
+            <li><a href="#tournaments">Tournaments</a></li>
+            <li><a href="/leaderboard">Leaderboard</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Report a Bug</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Responsible Gaming</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 DuelStake. All rights reserved.</p>
+        <p class="footer-disclaimer">DuelStake is a skill-based competitive platform regulated under Swiss law. It is not a gambling or betting service. Staked matches involve esports skill competitions only. Funds are held in escrow by a licensed financial intermediary. Available in jurisdictions where skill-based competitions are legal. Must be 18+ to participate in staked matches. Play responsibly.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      var nav = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    }, { passive: true });
+
+    // Nav scroll active tracking
+    (function() {
+      var sections = document.querySelectorAll('section[id]');
+      var navLinks = document.querySelectorAll('.nav-link');
+      function updateActive() {
+        var scrollY = window.scrollY + 120;
+        sections.forEach(function(section) {
+          var top = section.offsetTop;
+          var height = section.offsetHeight;
+          var id = section.getAttribute('id');
+          if (scrollY >= top && scrollY < top + height) {
+            navLinks.forEach(function(link) {
+              link.classList.remove('active');
+              if (link.getAttribute('href') === '#' + id) {
+                link.classList.add('active');
+              }
+            });
+          }
+        });
+      }
+      window.addEventListener('scroll', updateActive, { passive: true });
+      navLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+          navLinks.forEach(function(l) { l.classList.remove('active'); });
+          this.classList.add('active');
+        });
+      });
+    })();
+
+    // Mobile nav toggle
+    document.getElementById('navToggle').addEventListener('click', function() {
+      document.getElementById('navLinks').classList.toggle('open');
+      this.classList.toggle('active');
+    });
+
+    // Language dropdown
+    (function() {
+      var btn = document.querySelector('.lang-dropdown__btn');
+      var menu = document.querySelector('.lang-dropdown__menu');
+      if (!btn || !menu) return;
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var open = menu.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
+      });
+      document.addEventListener('click', function() {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          menu.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          document.getElementById('navLinks').classList.remove('open');
+          document.getElementById('navToggle').classList.remove('active');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
