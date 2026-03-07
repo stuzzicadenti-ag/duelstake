@@ -17,10 +17,13 @@ export default async function matchesRoutes(app) {
     const userId = request.user.id;
     const tab = request.query.tab || 'active';
 
-    let statusFilter;
-    if (tab === 'completed') statusFilter = "('completed')";
-    else if (tab === 'disputed') statusFilter = "('disputed')";
-    else statusFilter = "('waiting','active','proof_required')";
+    // Use parameterized statuses instead of string interpolation
+    let statuses;
+    if (tab === 'completed') statuses = ['completed'];
+    else if (tab === 'disputed') statuses = ['disputed'];
+    else statuses = ['waiting', 'active', 'proof_required'];
+
+    const statusPlaceholders = statuses.map((_, i) => `$${i + 2}`).join(', ');
 
     const matches = await pool.query(
       `SELECT m.*, g.name as game_name, g.slug as game_slug, g.icon as game_icon,
@@ -32,9 +35,10 @@ export default async function matchesRoutes(app) {
        LEFT JOIN users u2 ON m.player2_id = u2.id
        LEFT JOIN users uw ON m.winner_id = uw.id
        WHERE (m.player1_id = $1 OR m.player2_id = $1)
-         AND m.status IN ${statusFilter}
-       ORDER BY m.created_at DESC`,
-      [userId]
+         AND m.status IN (${statusPlaceholders})
+       ORDER BY m.created_at DESC
+       LIMIT 50`,
+      [userId, ...statuses]
     );
 
     return reply.view('matches/list.ejs', {

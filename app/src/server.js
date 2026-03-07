@@ -39,16 +39,15 @@ await app.register(fastifyView, {
   engine: { ejs },
   root: path.join(__dirname, 'views'),
   defaultContext: { user: null },
+  production: process.env.NODE_ENV === 'production',
 });
 await app.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
   prefix: '/public/',
+  maxAge: process.env.NODE_ENV === 'production' ? 86400000 : 0,
 });
-await app.register(fastifyStatic, {
-  root: path.join(__dirname, '..', '..', 'src'),
-  prefix: '/static/',
-  decorateReply: false,
-});
+// NOTE: Removed /static/ route that exposed entire src/ directory (security risk).
+// If static assets beyond /public/ are needed, serve a specific subdirectory instead.
 
 // --- Auth decorator ---
 app.decorateRequest('user', null);
@@ -79,20 +78,20 @@ await app.register(walletRoutes, { prefix: '/wallet' });
 await app.register(profileRoutes, { prefix: '/profile' });
 await app.register(wsRoutes);
 
+// --- DB ---
+import { pool } from './db/schema.js';
+
 // --- Homepage ---
 app.get('/', async (request, reply) => {
-  const { pool } = await import('./db/schema.js');
   try {
-    const gamesResult = await pool.query(
-      'SELECT * FROM games WHERE active = true ORDER BY name'
-    );
-    const matchCountResult = await pool.query(
-      "SELECT COUNT(*) as count FROM matches WHERE status IN ('waiting', 'active')"
-    );
-    const topPlayersResult = await pool.query(
-      `SELECT u.username, u.display_name, u.elo_rating, u.avatar_path
-       FROM users u ORDER BY u.elo_rating DESC LIMIT 5`
-    );
+    const [gamesResult, matchCountResult, topPlayersResult] = await Promise.all([
+      pool.query('SELECT * FROM games WHERE active = true ORDER BY name'),
+      pool.query("SELECT COUNT(*) as count FROM matches WHERE status IN ('waiting', 'active')"),
+      pool.query(
+        `SELECT u.username, u.display_name, u.elo_rating, u.avatar_path
+         FROM users u ORDER BY u.elo_rating DESC LIMIT 5`
+      ),
+    ]);
     return reply.view('index.ejs', {
       user: request.user,
       games: gamesResult.rows,
@@ -113,6 +112,15 @@ app.get('/', async (request, reply) => {
 app.get('/health', async () => {
   return { status: 'ok', service: 'duelstake', timestamp: new Date().toISOString() };
 });
+
+// --- Graceful shutdown ---
+const shutdown = async () => {
+  await app.close();
+  await pool.end();
+  process.exit(0);
+};
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 // --- Start ---
 const PORT = parseInt(process.env.PORT || '4004', 10);

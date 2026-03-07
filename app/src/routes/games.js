@@ -39,35 +39,35 @@ export default async function gamesRoutes(app) {
 
     const game = gameResult.rows[0];
 
-    const recentMatches = await pool.query(
-      `SELECT m.*, u1.username as player1_name, u2.username as player2_name,
-              uw.username as winner_name
-       FROM matches m
-       JOIN users u1 ON m.player1_id = u1.id
-       LEFT JOIN users u2 ON m.player2_id = u2.id
-       LEFT JOIN users uw ON m.winner_id = uw.id
-       WHERE m.game_id = $1
-       ORDER BY m.created_at DESC LIMIT 10`,
-      [game.id]
-    );
-
-    const topPlayers = await pool.query(
-      `SELECT u.username, u.display_name, u.avatar_path, l.elo, l.wins, l.losses, l.win_streak
-       FROM leaderboard l
-       JOIN users u ON l.user_id = u.id
-       WHERE l.game_id = $1
-       ORDER BY l.elo DESC LIMIT 10`,
-      [game.id]
-    );
-
-    const waitingMatches = await pool.query(
-      `SELECT m.*, u1.username as player1_name
-       FROM matches m
-       JOIN users u1 ON m.player1_id = u1.id
-       WHERE m.game_id = $1 AND m.status = 'waiting'
-       ORDER BY m.created_at DESC LIMIT 10`,
-      [game.id]
-    );
+    const [recentMatches, topPlayers, waitingMatches] = await Promise.all([
+      pool.query(
+        `SELECT m.*, u1.username as player1_name, u2.username as player2_name,
+                uw.username as winner_name
+         FROM matches m
+         JOIN users u1 ON m.player1_id = u1.id
+         LEFT JOIN users u2 ON m.player2_id = u2.id
+         LEFT JOIN users uw ON m.winner_id = uw.id
+         WHERE m.game_id = $1
+         ORDER BY m.created_at DESC LIMIT 10`,
+        [game.id]
+      ),
+      pool.query(
+        `SELECT u.username, u.display_name, u.avatar_path, l.elo, l.wins, l.losses, l.win_streak
+         FROM leaderboard l
+         JOIN users u ON l.user_id = u.id
+         WHERE l.game_id = $1
+         ORDER BY l.elo DESC LIMIT 10`,
+        [game.id]
+      ),
+      pool.query(
+        `SELECT m.*, u1.username as player1_name
+         FROM matches m
+         JOIN users u1 ON m.player1_id = u1.id
+         WHERE m.game_id = $1 AND m.status = 'waiting'
+         ORDER BY m.created_at DESC LIMIT 10`,
+        [game.id]
+      ),
+    ]);
 
     return reply.view('games/detail.ejs', {
       user: request.user,
