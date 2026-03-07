@@ -20,6 +20,7 @@ export default async function authRoutes(app) {
 
   // POST /auth/register
   app.post('/register', async (request, reply) => {
+    if (app.checkAuthRateLimit && !app.checkAuthRateLimit(request, reply)) return;
     const { email, username, password, display_name } = request.body;
 
     if (!email || !username || !password) {
@@ -43,10 +44,17 @@ export default async function authRoutes(app) {
       });
     }
 
-    if (password.length < 8) {
+    if (password.length < 8 || password.length > 1000) {
       return reply.view('auth/register.ejs', {
         user: request.user,
-        error: 'Password must be at least 8 characters.',
+        error: 'Password must be 8-1000 characters.',
+      });
+    }
+
+    if (display_name && display_name.length > 100) {
+      return reply.view('auth/register.ejs', {
+        user: request.user,
+        error: 'Display name must be under 100 characters.',
       });
     }
 
@@ -94,6 +102,7 @@ export default async function authRoutes(app) {
 
   // POST /auth/login
   app.post('/login', async (request, reply) => {
+    if (app.checkAuthRateLimit && !app.checkAuthRateLimit(request, reply)) return;
     const { email, password } = request.body;
 
     if (!email || !password) {

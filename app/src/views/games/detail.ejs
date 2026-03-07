@@ -21,9 +21,15 @@
           <h2 style="font-size: 1.1rem; font-weight: 700;">Quick Match</h2>
           <span style="color: var(--accent); font-weight: 600;">&euro;<%= game.min_stake %> - &euro;<%= game.max_stake %></span>
         </div>
-        <a href="/matches/create?game=<%= game.slug %>" class="btn btn-primary" style="width: 100%; justify-content: center;">
-          Create Match
-        </a>
+        <% if (user) { %>
+          <a href="/matches/create?game=<%= game.slug %>" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            Create Match
+          </a>
+        <% } else { %>
+          <a href="/auth/login" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            Login to Create Match
+          </a>
+        <% } %>
       </div>
 
       <!-- Waiting matches -->
@@ -47,9 +53,13 @@
                 <td style="color: var(--accent); font-weight: 700;">&euro;<%= parseFloat(m.stake_amount).toFixed(2) %></td>
                 <td class="text-muted"><%= new Date(m.created_at).toLocaleString() %></td>
                 <td>
-                  <form action="/matches/<%= m.id %>/join" method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-success btn-sm">Join</button>
-                  </form>
+                  <% if (user && user.id !== m.player1_id) { %>
+                    <form action="/matches/<%= m.id %>/join" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-success btn-sm">Join</button>
+                    </form>
+                  <% } else if (!user) { %>
+                    <a href="/auth/login" class="btn btn-outline btn-sm">Login to Join</a>
+                  <% } %>
                 </td>
               </tr>
               <% }); %>

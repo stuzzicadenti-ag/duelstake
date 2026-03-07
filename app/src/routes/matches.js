@@ -53,7 +53,10 @@ export default async function matchesRoutes(app) {
     if (!request.user) return reply.redirect('/auth/login');
 
     const gameSlug = request.query.game;
-    const games = await pool.query('SELECT * FROM games WHERE active = true ORDER BY name');
+    const [games, walletResult] = await Promise.all([
+      pool.query('SELECT * FROM games WHERE active = true ORDER BY name'),
+      pool.query('SELECT wallet_balance FROM users WHERE id = $1', [request.user.id]),
+    ]);
 
     let selectedGame = null;
     if (gameSlug) {
@@ -61,11 +64,14 @@ export default async function matchesRoutes(app) {
       if (g.rows.length > 0) selectedGame = g.rows[0];
     }
 
+    const walletBalance = walletResult.rows[0] ? parseFloat(walletResult.rows[0].wallet_balance) : 0;
+
     return reply.view('matches/create.ejs', {
       user: request.user,
       games: games.rows,
       selectedGame,
       error: null,
+      walletBalance,
     });
   });
 
@@ -84,6 +90,10 @@ export default async function matchesRoutes(app) {
     const g = game.rows[0];
     const stake = parseFloat(stake_amount);
 
+    // Check wallet balance early so we can show it in error views
+    const wallet = await pool.query('SELECT wallet_balance FROM users WHERE id = $1', [userId]);
+    const walletBalance = parseFloat(wallet.rows[0].wallet_balance);
+
     if (isNaN(stake) || stake < parseFloat(g.min_stake) || stake > parseFloat(g.max_stake)) {
       const games = await pool.query('SELECT * FROM games WHERE active = true ORDER BY name');
       return reply.view('matches/create.ejs', {
@@ -91,18 +101,18 @@ export default async function matchesRoutes(app) {
         games: games.rows,
         selectedGame: g,
         error: `Stake must be between ${g.min_stake} and ${g.max_stake}.`,
+        walletBalance,
       });
     }
 
-    // Check wallet balance
-    const wallet = await pool.query('SELECT wallet_balance FROM users WHERE id = $1', [userId]);
-    if (parseFloat(wallet.rows[0].wallet_balance) < stake) {
+    if (walletBalance < stake) {
       const games = await pool.query('SELECT * FROM games WHERE active = true ORDER BY name');
       return reply.view('matches/create.ejs', {
         user: request.user,
         games: games.rows,
         selectedGame: g,
         error: 'Insufficient balance. Please deposit funds first.',
+        walletBalance,
       });
     }
 
@@ -224,11 +234,22 @@ export default async function matchesRoutes(app) {
       return reply.code(400).send('No file uploaded');
     }
 
+    // Validate file type (extension + mimetype)
+    const ALLOWED_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const ext = path.extname(data.filename || '').toLowerCase() || '.png';
+    if (!ALLOWED_EXTS.includes(ext) || !ALLOWED_MIMES.includes(data.mimetype)) {
+      return reply.code(400).send('Invalid file type. Only images are allowed (jpg, png, webp, gif).');
+    }
+
     const uploadDir = process.env.UPLOAD_DIR || './data/uploads';
-    const dir = path.join(uploadDir, String(matchId));
+    // Sanitize matchId to prevent path traversal
+    const safeMatchId = String(parseInt(matchId, 10));
+    if (safeMatchId === 'NaN') return reply.code(400).send('Invalid match ID');
+    const dir = path.join(uploadDir, safeMatchId);
     await fs.mkdir(dir, { recursive: true });
 
-    const ext = path.extname(data.filename) || '.png';
+    // Use UUID-style filename to avoid any path traversal via original filename
     const filename = `proof_${userId}_${Date.now()}${ext}`;
     const filePath = path.join(dir, filename);
 

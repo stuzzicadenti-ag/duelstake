@@ -12,6 +12,15 @@
       <div class="alert alert-error"><%= error %></div>
     <% } %>
 
+    <% if (typeof walletBalance !== 'undefined') { %>
+      <div class="card" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+        <span style="color: var(--text-muted); font-size: 0.9rem;">Your Balance</span>
+        <span style="font-weight: 800; font-size: 1.1rem; color: <%= walletBalance > 0 ? 'var(--success)' : 'var(--danger)' %>;">
+          &euro;<%= walletBalance.toFixed(2) %>
+        </span>
+      </div>
+    <% } %>
+
     <div class="card">
       <form action="/matches/create" method="POST">
         <div class="form-group">
