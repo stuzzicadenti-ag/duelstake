@@ -48,6 +48,7 @@
               <th>ELO</th>
               <th>Wallet</th>
               <th>Role</th>
+              <th>Warnings</th>
               <th>Status</th>
               <th>Joined</th>
               <th>Actions</th>
@@ -55,7 +56,7 @@
           </thead>
           <tbody>
             <% if (users.length === 0) { %>
-              <tr><td colspan="7" class="text-muted text-center" style="padding: 40px;">No users found</td></tr>
+              <tr><td colspan="8" class="text-muted text-center" style="padding: 40px;">No users found</td></tr>
             <% } else { %>
               <% users.forEach(function(u) { %>
                 <tr style="<%= u.banned ? 'opacity: 0.6;' : '' %>">
@@ -76,6 +77,13 @@
                       <%= u.role %>
                     </span>
                   </td>
+                  <td style="text-align: center;">
+                    <% if (u.warning_count > 0) { %>
+                      <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);"><%= u.warning_count %></span>
+                    <% } else { %>
+                      <span class="text-muted">0</span>
+                    <% } %>
+                  </td>
                   <td>
                     <% if (u.banned) { %>
                       <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">BANNED</span>
@@ -90,7 +98,11 @@
                   </td>
                   <td style="font-size: 0.85rem; color: var(--text-muted);"><%= new Date(u.created_at).toLocaleDateString() %></td>
                   <td>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                      <!-- View links -->
+                      <a href="/admin/users/<%= u.id %>/transactions" class="btn btn-sm btn-outline" style="padding: 4px 8px; font-size: 0.7rem;" title="Transactions">&#128176;</a>
+                      <a href="/admin/users/<%= u.id %>/activity" class="btn btn-sm btn-outline" style="padding: 4px 8px; font-size: 0.7rem;" title="Activity">&#128196;</a>
+
                       <% if (adminRole === 'owner' && u.id !== user.id) { %>
                         <!-- Role change -->
                         <form method="POST" action="/admin/users/<%= u.id %>/role" style="display: flex; gap: 4px;">
@@ -104,6 +116,35 @@
                       <% } %>
 
                       <% if (!u.banned && u.id !== user.id && u.role !== 'owner') { %>
+                        <!-- Warn button (opens inline form) -->
+                        <details style="position: relative;">
+                          <summary class="btn btn-sm btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; cursor: pointer; list-style: none;">Warn</summary>
+                          <form method="POST" action="/admin/users/<%= u.id %>/warn" style="position: absolute; right: 0; top: 100%; z-index: 10; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; width: 280px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+                            <div class="form-group" style="margin-bottom: 8px;">
+                              <label style="font-size: 0.7rem;">Reason</label>
+                              <select name="reason" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" required>
+                                <option value="cheating">Cheating</option>
+                                <option value="toxicity">Toxicity</option>
+                                <option value="account_sharing">Account Sharing</option>
+                                <option value="match_fixing">Match Fixing</option>
+                                <option value="harassment">Harassment</option>
+                                <option value="impersonation">Impersonation</option>
+                                <option value="exploit_abuse">Exploit Abuse</option>
+                                <option value="other">Other</option>
+                              </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 8px;">
+                              <label style="font-size: 0.7rem;">Details</label>
+                              <input type="text" name="details" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" placeholder="Details...">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 8px;">
+                              <label style="font-size: 0.7rem;">Evidence URL (optional)</label>
+                              <input type="url" name="evidence_url" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" placeholder="https://...">
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-danger" style="width: 100%; font-size: 0.75rem;">Issue Warning</button>
+                          </form>
+                        </details>
+
                         <form method="POST" action="/admin/users/<%= u.id %>/ban" style="display: inline;" onsubmit="return confirm('Ban this user? Their active matches will be cancelled and refunded.');">
                           <input type="hidden" name="reason" value="Banned by admin">
                           <button type="submit" class="btn btn-sm btn-danger" style="padding: 4px 10px; font-size: 0.75rem;">Ban</button>

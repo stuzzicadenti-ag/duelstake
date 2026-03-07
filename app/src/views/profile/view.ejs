@@ -103,6 +103,61 @@
     </div>
   </div>
 
+  <!-- KYC Status -->
+  <% if (typeof user !== 'undefined' && user && user.id === profile.id) { %>
+    <div class="card mt-3">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 4px;">Identity Verification</h2>
+          <% if (profile.kyc_status === 'verified') { %>
+            <span class="badge badge-active">Verified</span>
+          <% } else if (profile.kyc_status === 'pending') { %>
+            <span class="badge badge-waiting">Pending Review</span>
+          <% } else if (profile.kyc_status === 'rejected') { %>
+            <span class="badge badge-disputed">Rejected</span>
+          <% } else { %>
+            <span class="badge badge-cancelled">Not Verified</span>
+          <% } %>
+        </div>
+        <% if (profile.kyc_status !== 'verified' && profile.kyc_status !== 'pending') { %>
+          <a href="/profile/verify" class="btn btn-sm btn-accent">Verify Identity</a>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Warnings (Task 3) - visible to self and admins -->
+  <% if (warnings && warnings.length > 0) { %>
+    <div class="card mt-3" style="border-left: 3px solid var(--danger);">
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--danger);">
+        Warnings (<%= warnings.length %>)
+      </h2>
+      <% warnings.forEach(function(w) { %>
+        <div style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">
+              <%= w.reason %>
+            </span>
+            <span style="font-size: 0.8rem; color: var(--text-muted);"><%= new Date(w.created_at).toLocaleDateString() %></span>
+          </div>
+          <% if (w.details) { %>
+            <div style="font-size: 0.85rem; color: var(--text); margin-top: 4px;"><%= w.details %></div>
+          <% } %>
+          <% if (w.evidence_url) { %>
+            <div style="font-size: 0.8rem; margin-top: 4px;">
+              <a href="<%= w.evidence_url %>" target="_blank" rel="noopener" style="color: #60a5fa;">View Evidence</a>
+            </div>
+          <% } %>
+        </div>
+      <% }); %>
+      <% if (warnings.length >= 3) { %>
+        <div class="alert alert-error" style="margin-top: 12px;">
+          3 or more warnings result in an automatic permanent ban.
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
   <!-- Report Player -->
   <% if (typeof user !== 'undefined' && user && user.id !== profile.id) { %>
     <div class="card mt-3">

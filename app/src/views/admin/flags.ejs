@@ -69,6 +69,18 @@
                   </form>
 
                   <% if (f.reported_user_id) { %>
+                    <!-- Warn user -->
+                    <form method="POST" action="/admin/flags/<%= f.id %>/action">
+                      <input type="hidden" name="action_type" value="warn">
+                      <select name="warn_reason" class="form-control" style="padding: 4px 8px; font-size: 0.8rem; margin-bottom: 4px;">
+                        <option value="cheating">Cheating</option>
+                        <option value="toxicity">Toxicity</option>
+                        <option value="harassment">Harassment</option>
+                        <option value="match_fixing">Match Fixing</option>
+                        <option value="other">Other</option>
+                      </select>
+                      <button type="submit" class="btn btn-sm btn-secondary" style="width: 100%; justify-content: center;">Warn User</button>
+                    </form>
                     <!-- Ban user -->
                     <form method="POST" action="/admin/flags/<%= f.id %>/action" onsubmit="return confirm('Ban this user?');">
                       <input type="hidden" name="action_type" value="ban">

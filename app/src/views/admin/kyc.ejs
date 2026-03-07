@@ -1,0 +1,72 @@
+<%- include('../partials/head', { title: 'Admin - KYC Verification' }) %>
+<%- include('../partials/nav') %>
+
+<div class="admin-layout">
+  <%- include('_sidebar', { activePage: 'kyc' }) %>
+
+  <div class="admin-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 1.6rem; font-weight: 800;">KYC Verification</h1>
+      <p class="text-muted">Review identity verification submissions</p>
+    </div>
+
+    <!-- Status tabs -->
+    <div class="tabs mb-3">
+      <a href="/admin/kyc?status=pending" class="tab <%= statusFilter === 'pending' ? 'active' : '' %>">Pending</a>
+      <a href="/admin/kyc?status=verified" class="tab <%= statusFilter === 'verified' ? 'active' : '' %>">Verified</a>
+      <a href="/admin/kyc?status=rejected" class="tab <%= statusFilter === 'rejected' ? 'active' : '' %>">Rejected</a>
+    </div>
+
+    <% if (submissions.length === 0) { %>
+      <div class="card" style="text-align: center; padding: 60px;">
+        <div style="font-size: 3rem; margin-bottom: 12px;">&#128196;</div>
+        <p class="text-muted">No <%= statusFilter %> KYC submissions</p>
+      </div>
+    <% } else { %>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <% submissions.forEach(function(s) { %>
+          <div class="card" style="border-left: 3px solid <%= statusFilter === 'pending' ? 'var(--accent)' : statusFilter === 'verified' ? 'var(--success)' : 'var(--danger)' %>;">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 250px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <a href="/profile/<%= s.username %>" style="font-weight: 700; font-size: 1rem;"><%= s.display_name || s.username %></a>
+                  <span style="font-size: 0.8rem; color: var(--text-muted);"><%= s.email %></span>
+                </div>
+                <div style="margin-bottom: 8px;">
+                  <span class="badge badge-waiting"><%= (s.kyc_document_type || '').replace(/_/g, ' ') %></span>
+                  <% if (s.kyc_submitted_at) { %>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 8px;">Submitted: <%= new Date(s.kyc_submitted_at).toLocaleString() %></span>
+                  <% } %>
+                </div>
+                <% if (s.kyc_rejected_reason) { %>
+                  <div style="font-size: 0.85rem; color: var(--danger); margin-top: 4px;">
+                    Rejection reason: <%= s.kyc_rejected_reason %>
+                  </div>
+                <% } %>
+                <% if (s.kyc_verified_at) { %>
+                  <div style="font-size: 0.8rem; color: var(--success); margin-top: 4px;">
+                    Verified: <%= new Date(s.kyc_verified_at).toLocaleString() %>
+                  </div>
+                <% } %>
+              </div>
+
+              <% if (statusFilter === 'pending') { %>
+                <div style="display: flex; flex-direction: column; gap: 6px; min-width: 180px;">
+                  <form method="POST" action="/admin/kyc/<%= s.id %>/approve">
+                    <button type="submit" class="btn btn-sm btn-success" style="width: 100%; justify-content: center;">Approve</button>
+                  </form>
+                  <form method="POST" action="/admin/kyc/<%= s.id %>/reject" style="display: flex; flex-direction: column; gap: 4px;">
+                    <input type="text" name="reason" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" placeholder="Rejection reason...">
+                    <button type="submit" class="btn btn-sm btn-danger" style="width: 100%; justify-content: center;">Reject</button>
+                  </form>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

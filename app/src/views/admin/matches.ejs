@@ -76,17 +76,69 @@
                           </select>
                           <button type="submit" class="btn btn-sm btn-success" style="padding: 4px 8px; font-size: 0.7rem;">Winner</button>
                         </form>
-                        <!-- Cancel -->
-                        <form method="POST" action="/admin/matches/<%= m.id %>/resolve" onsubmit="return confirm('Cancel this match and refund both players?');">
-                          <input type="hidden" name="action" value="cancel">
-                          <button type="submit" class="btn btn-sm btn-danger" style="padding: 4px 8px; font-size: 0.7rem; width: 100%;">Cancel & Refund</button>
-                        </form>
+                        <!-- Cancel with reason -->
+                        <details>
+                          <summary class="btn btn-sm btn-danger" style="padding: 4px 8px; font-size: 0.7rem; width: 100%; cursor: pointer; list-style: none; text-align: center;">Cancel & Refund</summary>
+                          <form method="POST" action="/admin/matches/<%= m.id %>/resolve" style="margin-top: 8px; background: var(--bg); padding: 10px; border-radius: var(--radius); border: 1px solid var(--border);" onsubmit="return confirm('Cancel this match and refund both players?');">
+                            <input type="hidden" name="action" value="cancel">
+                            <div class="form-group" style="margin-bottom: 6px;">
+                              <label style="font-size: 0.7rem;">Reason (required)</label>
+                              <select name="cancel_reason" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" required>
+                                <option value="cheating_confirmed">Cheating Confirmed</option>
+                                <option value="bug_exploit">Bug / Exploit</option>
+                                <option value="connection_issues">Connection Issues</option>
+                                <option value="player_dispute">Player Dispute</option>
+                                <option value="rule_violation">Rule Violation</option>
+                                <option value="match_fixing">Match Fixing</option>
+                                <option value="other">Other</option>
+                              </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 6px;">
+                              <label style="font-size: 0.7rem;">Details</label>
+                              <input type="text" name="cancel_details" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" placeholder="Optional details...">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 6px;">
+                              <label style="font-size: 0.7rem;">Evidence URL</label>
+                              <input type="url" name="cancel_evidence_url" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" placeholder="https://...">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 6px;">
+                              <label style="font-size: 0.7rem;">Warn cheater (optional)</label>
+                              <select name="warn_user_id" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;">
+                                <option value="">No warning</option>
+                                <option value="<%= m.player1_id %>"><%= m.player1_name %></option>
+                                <% if (m.player2_id) { %>
+                                  <option value="<%= m.player2_id %>"><%= m.player2_name %></option>
+                                <% } %>
+                              </select>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-danger" style="width: 100%; font-size: 0.75rem;">Confirm Cancel</button>
+                          </form>
+                        </details>
                       </div>
                     <% } else if (m.status === 'waiting' || m.status === 'active' || m.status === 'proof_required') { %>
-                      <form method="POST" action="/admin/matches/<%= m.id %>/resolve" onsubmit="return confirm('Cancel this match and refund?');">
-                        <input type="hidden" name="action" value="cancel">
-                        <button type="submit" class="btn btn-sm btn-outline" style="padding: 4px 8px; font-size: 0.7rem;">Cancel</button>
-                      </form>
+                      <details>
+                        <summary class="btn btn-sm btn-outline" style="padding: 4px 8px; font-size: 0.7rem; cursor: pointer; list-style: none;">Cancel</summary>
+                        <form method="POST" action="/admin/matches/<%= m.id %>/resolve" style="margin-top: 8px; background: var(--bg); padding: 10px; border-radius: var(--radius); border: 1px solid var(--border);" onsubmit="return confirm('Cancel and refund?');">
+                          <input type="hidden" name="action" value="cancel">
+                          <div class="form-group" style="margin-bottom: 6px;">
+                            <label style="font-size: 0.7rem;">Reason</label>
+                            <select name="cancel_reason" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" required>
+                              <option value="cheating_confirmed">Cheating Confirmed</option>
+                              <option value="bug_exploit">Bug / Exploit</option>
+                              <option value="connection_issues">Connection Issues</option>
+                              <option value="player_dispute">Player Dispute</option>
+                              <option value="rule_violation">Rule Violation</option>
+                              <option value="match_fixing">Match Fixing</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+                          <div class="form-group" style="margin-bottom: 6px;">
+                            <label style="font-size: 0.7rem;">Details</label>
+                            <input type="text" name="cancel_details" class="form-control" style="padding: 4px 8px; font-size: 0.8rem;" placeholder="Optional...">
+                          </div>
+                          <button type="submit" class="btn btn-sm btn-danger" style="width: 100%; font-size: 0.75rem;">Confirm Cancel</button>
+                        </form>
+                      </details>
                     <% } else { %>
                       <span class="text-muted">-</span>
                     <% } %>

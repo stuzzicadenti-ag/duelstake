@@ -1,0 +1,91 @@
+<%- include('../partials/head', { title: 'Admin - User Transactions' }) %>
+<%- include('../partials/nav') %>
+
+<div class="admin-layout">
+  <%- include('_sidebar', { activePage: 'users' }) %>
+
+  <div class="admin-content">
+    <div style="margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <a href="/admin/users" style="color: var(--text-muted); font-size: 0.85rem;">&larr; Back to Users</a>
+      </div>
+      <h1 style="font-size: 1.6rem; font-weight: 800;">Transactions: <%= targetUser.display_name || targetUser.username %></h1>
+      <p class="text-muted"><%= targetUser.email %> | Balance: <span style="color: var(--accent); font-weight: 700;">&euro;<%= parseFloat(targetUser.wallet_balance).toFixed(2) %></span></p>
+    </div>
+
+    <!-- Totals -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+      <div class="card stat" style="border-left: 3px solid var(--success);">
+        <div class="stat-value text-success" style="font-size: 1.4rem;">&euro;<%= (totalsByType.deposit || 0).toFixed(2) %></div>
+        <div class="stat-label">Deposits</div>
+      </div>
+      <div class="card stat" style="border-left: 3px solid var(--danger);">
+        <div class="stat-value text-danger" style="font-size: 1.4rem;">&euro;<%= (totalsByType.withdrawal || 0).toFixed(2) %></div>
+        <div class="stat-label">Withdrawals</div>
+      </div>
+      <div class="card stat" style="border-left: 3px solid var(--accent);">
+        <div class="stat-value text-accent" style="font-size: 1.4rem;">&euro;<%= (totalsByType.win || 0).toFixed(2) %></div>
+        <div class="stat-label">Winnings</div>
+      </div>
+      <div class="card stat" style="border-left: 3px solid #60a5fa;">
+        <div class="stat-value" style="font-size: 1.4rem; color: #60a5fa;">&euro;<%= (totalsByType.stake || 0).toFixed(2) %></div>
+        <div class="stat-label">Staked</div>
+      </div>
+      <div class="card stat" style="border-left: 3px solid var(--text-muted);">
+        <div class="stat-value" style="font-size: 1.4rem;">&euro;<%= (totalsByType.refund || 0).toFixed(2) %></div>
+        <div class="stat-label">Refunds</div>
+      </div>
+    </div>
+
+    <!-- Transaction list -->
+    <div class="card">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Transaction History (<%= transactions.length %>)</h2>
+      <% if (transactions.length > 0) { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Match</th>
+                <th>Description</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% transactions.forEach(function(tx) { %>
+              <tr>
+                <td style="font-size: 0.85rem; color: var(--text-muted);">#<%= tx.id %></td>
+                <td>
+                  <span class="badge badge-<%= tx.type === 'deposit' || tx.type === 'win' || tx.type === 'refund' ? 'active' : tx.type === 'stake' ? 'waiting' : 'disputed' %>">
+                    <%= tx.type %>
+                  </span>
+                </td>
+                <td style="font-weight: 700; color: <%= parseFloat(tx.amount) >= 0 ? 'var(--success)' : 'var(--danger)' %>;">
+                  <%= parseFloat(tx.amount) >= 0 ? '+' : '' %>&euro;<%= parseFloat(tx.amount).toFixed(2) %>
+                </td>
+                <td>
+                  <% if (tx.match_id) { %>
+                    <a href="/matches/<%= tx.match_id %>">#<%= tx.match_id %></a>
+                  <% } else { %>
+                    <span class="text-muted">-</span>
+                  <% } %>
+                </td>
+                <td class="text-muted" style="font-size: 0.85rem;"><%= tx.description || '-' %></td>
+                <td style="font-size: 0.85rem; color: var(--text-muted);"><%= new Date(tx.created_at).toLocaleString() %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-state" style="padding: 40px;">
+          <p>No transactions found for this user.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -28,6 +28,11 @@
       color: var(--text);
       min-height: 100vh;
       line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1;
     }
     a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
     a:hover { color: var(--primary-hover); }
@@ -384,7 +389,7 @@
       background: #111119;
       border-top: 1px solid var(--border);
       padding: 32px 0;
-      margin-top: 60px;
+      margin-top: auto;
       text-align: center;
       color: var(--text-muted);
       font-size: 0.85rem;
@@ -462,3 +467,4 @@
   </style>
 </head>
 <body>
+<div class="main-content">

@@ -59,6 +59,40 @@
     </div>
   </div>
 
+  <!-- Cancellation info (Task 4) -->
+  <% if (typeof cancellation !== 'undefined' && cancellation) { %>
+    <div class="card mb-3" style="border-left: 3px solid var(--danger);">
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--danger);">Match Cancelled</h2>
+      <div style="display: grid; gap: 8px;">
+        <div>
+          <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reason</span>
+          <div><span class="badge badge-disputed"><%= cancellation.reason.replace(/_/g, ' ') %></span></div>
+        </div>
+        <% if (cancellation.details) { %>
+          <div>
+            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Details</span>
+            <div style="font-size: 0.9rem;"><%= cancellation.details %></div>
+          </div>
+        <% } %>
+        <% if (cancellation.evidence_url) { %>
+          <div>
+            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Evidence</span>
+            <div><a href="<%= cancellation.evidence_url %>" target="_blank" rel="noopener" style="color: #60a5fa;">View Evidence</a></div>
+          </div>
+        <% } %>
+        <% if (cancellation.warned_username) { %>
+          <div>
+            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Warning Issued To</span>
+            <div><a href="/profile/<%= cancellation.warned_username %>" style="color: var(--danger); font-weight: 600;"><%= cancellation.warned_username %></a></div>
+          </div>
+        <% } %>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">
+          Cancelled by <%= cancellation.admin_username %> on <%= new Date(cancellation.created_at).toLocaleString() %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;" class="match-detail-grid">
     <!-- Timeline -->
     <div class="card">

@@ -1,4 +1,5 @@
 import { pool } from '../db/schema.js';
+import { logUserActivity } from './admin.js';
 
 export default async function walletRoutes(app) {
   // GET /wallet - Balance + transaction history
@@ -8,7 +9,7 @@ export default async function walletRoutes(app) {
     const userId = request.user.id;
 
     const userResult = await pool.query(
-      'SELECT wallet_balance FROM users WHERE id = $1',
+      'SELECT wallet_balance, kyc_status FROM users WHERE id = $1',
       [userId]
     );
 
@@ -20,12 +21,27 @@ export default async function walletRoutes(app) {
       [userId]
     );
 
+    const kycStatus = userResult.rows[0]?.kyc_status || 'none';
+
+    // Calculate deposit/withdrawal totals for billing view (Task 9)
+    const totals = await pool.query(
+      `SELECT type, COALESCE(SUM(ABS(amount)), 0) as total
+       FROM wallet_transactions
+       WHERE user_id = $1
+       GROUP BY type`,
+      [userId]
+    );
+    const totalsByType = {};
+    totals.rows.forEach(r => { totalsByType[r.type] = parseFloat(r.total); });
+
     return reply.view('wallet/index.ejs', {
       user: request.user,
       balance: userResult.rows[0]?.wallet_balance || 0,
       transactions: transactions.rows,
       error: request.query.error || null,
       success: request.query.success || null,
+      kycStatus,
+      totalsByType,
     });
   });
 
@@ -57,6 +73,7 @@ export default async function walletRoutes(app) {
       );
 
       await client.query('COMMIT');
+      logUserActivity(userId, 'deposit', request.ip, `Deposited ${depositAmount}`);
       return reply.redirect('/wallet?success=deposit');
     } catch (err) {
       await client.query('ROLLBACK');
@@ -83,8 +100,30 @@ export default async function walletRoutes(app) {
       [userId]
     );
 
-    if (parseFloat(balance.rows[0].wallet_balance) < withdrawAmount) {
+    const currentBalance = parseFloat(balance.rows[0].wallet_balance);
+
+    if (currentBalance <= 0) {
+      return reply.redirect('/wallet?error=no_funds');
+    }
+
+    if (currentBalance < withdrawAmount) {
       return reply.redirect('/wallet?error=insufficient');
+    }
+
+    // KYC limit check: unverified users max 100/day
+    const kycResult = await pool.query('SELECT kyc_status FROM users WHERE id = $1', [userId]);
+    const kycStatus = kycResult.rows[0]?.kyc_status || 'none';
+    if (kycStatus !== 'verified') {
+      const todayWithdrawals = await pool.query(
+        `SELECT COALESCE(SUM(ABS(amount)), 0) as total
+         FROM wallet_transactions
+         WHERE user_id = $1 AND type = 'withdrawal' AND created_at >= CURRENT_DATE`,
+        [userId]
+      );
+      const todayTotal = parseFloat(todayWithdrawals.rows[0].total);
+      if (todayTotal + withdrawAmount > 100) {
+        return reply.redirect('/wallet?error=kyc_limit');
+      }
     }
 
     const client = await pool.connect();
@@ -103,6 +142,7 @@ export default async function walletRoutes(app) {
       );
 
       await client.query('COMMIT');
+      logUserActivity(userId, 'withdrawal', request.ip, `Withdrew ${withdrawAmount}`);
       return reply.redirect('/wallet?success=withdraw');
     } catch (err) {
       await client.query('ROLLBACK');

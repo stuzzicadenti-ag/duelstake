@@ -1,0 +1,68 @@
+<%- include('../partials/head', { title: 'Admin - User Activity' }) %>
+<%- include('../partials/nav') %>
+
+<div class="admin-layout">
+  <%- include('_sidebar', { activePage: 'users' }) %>
+
+  <div class="admin-content">
+    <div style="margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <a href="/admin/users" style="color: var(--text-muted); font-size: 0.85rem;">&larr; Back to Users</a>
+      </div>
+      <h1 style="font-size: 1.6rem; font-weight: 800;">Activity: <%= targetUser.display_name || targetUser.username %></h1>
+      <p class="text-muted"><%= targetUser.email %></p>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Last 200 Actions</h2>
+      <% if (activities.length > 0) { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>IP Address</th>
+                <th>Details</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% activities.forEach(function(a) { %>
+              <tr>
+                <td>
+                  <span class="badge" style="background: <%=
+                    a.action === 'login' ? 'rgba(34, 197, 94, 0.15)' :
+                    a.action === 'register' ? 'rgba(96, 165, 250, 0.15)' :
+                    a.action === 'deposit' || a.action === 'withdrawal' ? 'rgba(255, 215, 0, 0.15)' :
+                    'rgba(138, 138, 154, 0.15)' %>; color: <%=
+                    a.action === 'login' ? 'var(--success)' :
+                    a.action === 'register' ? '#60a5fa' :
+                    a.action === 'deposit' || a.action === 'withdrawal' ? 'var(--accent)' :
+                    'var(--text-muted)' %>;">
+                    <%= a.action %>
+                  </span>
+                </td>
+                <td style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">
+                  <%= a.ip_address || '-' %>
+                </td>
+                <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  <%= a.details || '-' %>
+                </td>
+                <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
+                  <%= new Date(a.created_at).toLocaleString() %>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-state" style="padding: 40px;">
+          <p>No activity recorded for this user.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

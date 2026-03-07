@@ -115,8 +115,11 @@
       <span class="sidebar-badge"><%= stats.pendingFlags %></span>
     <% } %>
   </a>
+  <a href="/admin/kyc" class="<%= typeof activePage !== 'undefined' && activePage === 'kyc' ? 'active' : '' %>">
+    <span class="icon">&#128196;</span> KYC
+  </a>
   <a href="/admin/logs" class="<%= typeof activePage !== 'undefined' && activePage === 'logs' ? 'active' : '' %>">
-    <span class="icon">&#128196;</span> Logs
+    <span class="icon">&#128203;</span> Logs
   </a>
   <div class="divider"></div>
   <a href="/">

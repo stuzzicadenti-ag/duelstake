@@ -1,6 +1,7 @@
 import { pool } from '../db/schema.js';
 import { calculateElo } from '../utils/elo.js';
 import { scanContent } from '../utils/moderation.js';
+import { logUserActivity } from './admin.js';
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -95,6 +96,20 @@ export default async function matchesRoutes(app) {
     const wallet = await pool.query('SELECT wallet_balance FROM users WHERE id = $1', [userId]);
     const walletBalance = parseFloat(wallet.rows[0].wallet_balance);
 
+    // KYC limit: unverified users max 50/match
+    const kycCheck = await pool.query('SELECT kyc_status FROM users WHERE id = $1', [userId]);
+    const kycStatus = kycCheck.rows[0]?.kyc_status || 'none';
+    if (kycStatus !== 'verified' && stake > 50) {
+      const games = await pool.query('SELECT * FROM games WHERE active = true ORDER BY name');
+      return reply.view('matches/create.ejs', {
+        user: request.user,
+        games: games.rows,
+        selectedGame: g,
+        error: 'Unverified accounts are limited to \u20ac50/match. Verify your identity to unlock higher stakes.',
+        walletBalance,
+      });
+    }
+
     if (isNaN(stake) || stake < parseFloat(g.min_stake) || stake > parseFloat(g.max_stake)) {
       const games = await pool.query('SELECT * FROM games WHERE active = true ORDER BY name');
       return reply.view('matches/create.ejs', {
@@ -142,6 +157,7 @@ export default async function matchesRoutes(app) {
       );
 
       await client.query('COMMIT');
+      logUserActivity(userId, 'match_create', request.ip, `Match #${result.rows[0].id}, stake ${stake}`);
       return reply.redirect(`/matches/${result.rows[0].id}`);
     } catch (err) {
       await client.query('ROLLBACK');
@@ -200,6 +216,7 @@ export default async function matchesRoutes(app) {
       );
 
       await client.query('COMMIT');
+      logUserActivity(userId, 'match_join', request.ip, `Joined match #${matchId}`);
       return reply.redirect(`/matches/${matchId}`);
     } catch (err) {
       await client.query('ROLLBACK');
@@ -269,6 +286,8 @@ export default async function matchesRoutes(app) {
       "UPDATE matches SET status = 'proof_required' WHERE id = $1 AND status = 'active'",
       [matchId]
     );
+
+    logUserActivity(userId, 'proof_upload', request.ip, `Proof for match #${matchId}`);
 
     return reply.redirect(`/matches/${matchId}`);
   });
@@ -374,6 +393,8 @@ export default async function matchesRoutes(app) {
       await pool.query("UPDATE matches SET status = 'disputed' WHERE id = $1", [matchId]);
     }
 
+    logUserActivity(userId, 'match_report', request.ip, `Match #${matchId}, reported winner: ${winnerId}`);
+
     return reply.redirect(`/matches/${matchId}`);
   });
 
@@ -433,17 +454,28 @@ export default async function matchesRoutes(app) {
       return reply.code(404).send('Match not found');
     }
 
-    const proofs = await pool.query(
-      `SELECT mp.*, u.username FROM match_proofs mp
-       JOIN users u ON mp.user_id = u.id
-       WHERE mp.match_id = $1 ORDER BY mp.submitted_at`,
-      [matchId]
-    );
+    const [proofsResult, cancellationResult] = await Promise.all([
+      pool.query(
+        `SELECT mp.*, u.username FROM match_proofs mp
+         JOIN users u ON mp.user_id = u.id
+         WHERE mp.match_id = $1 ORDER BY mp.submitted_at`,
+        [matchId]
+      ),
+      pool.query(
+        `SELECT mc.*, a.username as admin_username, wu.username as warned_username
+         FROM match_cancellations mc
+         JOIN users a ON mc.admin_id = a.id
+         LEFT JOIN users wu ON mc.warned_user_id = wu.id
+         WHERE mc.match_id = $1`,
+        [matchId]
+      ),
+    ]);
 
     return reply.view('matches/detail.ejs', {
       user: request.user,
       match: matchResult.rows[0],
-      proofs: proofs.rows,
+      proofs: proofsResult.rows,
+      cancellation: cancellationResult.rows[0] || null,
     });
   });
 }

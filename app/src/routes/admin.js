@@ -29,6 +29,54 @@ export async function runAdminMigrations() {
       created_at TIMESTAMP DEFAULT NOW()
     )`,
     `UPDATE users SET role = 'owner' WHERE email = 'admin@stuzzicadenti.ch' AND role = 'user'`,
+
+    // --- Warning system (Task 3) ---
+    `CREATE TABLE IF NOT EXISTS user_warnings (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      admin_id INTEGER NOT NULL REFERENCES users(id),
+      reason VARCHAR(50) NOT NULL,
+      details TEXT,
+      evidence_url TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`,
+
+    // --- Match cancellations (Task 4) ---
+    `CREATE TABLE IF NOT EXISTS match_cancellations (
+      id SERIAL PRIMARY KEY,
+      match_id INTEGER NOT NULL REFERENCES matches(id),
+      admin_id INTEGER NOT NULL REFERENCES users(id),
+      reason VARCHAR(50) NOT NULL,
+      details TEXT,
+      evidence_url TEXT,
+      warned_user_id INTEGER REFERENCES users(id),
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`,
+
+    // --- Anti-evasion IP tracking (Task 5) ---
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS registration_ip VARCHAR(45)`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_ip VARCHAR(45)`,
+
+    // --- KYC (Task 7) ---
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_status VARCHAR(20) DEFAULT 'none'`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_type VARCHAR(50)`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_path VARCHAR(500)`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_submitted_at TIMESTAMP WITH TIME ZONE`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_verified_at TIMESTAMP WITH TIME ZONE`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_rejected_reason TEXT`,
+
+    // --- User activity log (Task 8) ---
+    `CREATE TABLE IF NOT EXISTS user_activity (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      action VARCHAR(100) NOT NULL,
+      ip_address VARCHAR(45),
+      details TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_user_activity_user_id ON user_activity(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_user_activity_created_at ON user_activity(created_at DESC)`,
+    `CREATE INDEX IF NOT EXISTS idx_user_warnings_user_id ON user_warnings(user_id)`,
   ];
 
   for (const sql of migrations) {
@@ -65,6 +113,26 @@ async function logAction(adminId, action, targetType, targetId, details) {
     [adminId, action, targetType, targetId, details]
   );
 }
+
+// Log user activity (Task 8)
+export async function logUserActivity(userId, action, ipAddress, details) {
+  try {
+    await pool.query(
+      `INSERT INTO user_activity (user_id, action, ip_address, details)
+       VALUES ($1, $2, $3, $4)`,
+      [userId, action, ipAddress || null, details || null]
+    );
+  } catch (err) {
+    // Non-critical - don't break the flow
+    console.error('[activity] Failed to log:', err.message);
+  }
+}
+
+// Valid warning reasons
+const WARNING_REASONS = ['cheating', 'toxicity', 'account_sharing', 'match_fixing', 'harassment', 'impersonation', 'exploit_abuse', 'other'];
+
+// Valid cancellation reasons
+const CANCEL_REASONS = ['cheating_confirmed', 'bug_exploit', 'connection_issues', 'player_dispute', 'rule_violation', 'match_fixing', 'other'];
 
 export default async function adminRoutes(app) {
   // All admin routes require admin role
@@ -128,23 +196,27 @@ export default async function adminRoutes(app) {
 
     if (search) {
       params.push(`%${search}%`);
-      where += ` AND (username ILIKE $${params.length} OR email ILIKE $${params.length} OR display_name ILIKE $${params.length})`;
+      where += ` AND (u.username ILIKE $${params.length} OR u.email ILIKE $${params.length} OR u.display_name ILIKE $${params.length})`;
     }
     if (roleFilter) {
       params.push(roleFilter);
-      where += ` AND role = $${params.length}`;
+      where += ` AND u.role = $${params.length}`;
     }
     if (bannedFilter === 'true') {
-      where += ' AND banned = true';
+      where += ' AND u.banned = true';
     } else if (bannedFilter === 'false') {
-      where += ' AND (banned = false OR banned IS NULL)';
+      where += ' AND (u.banned = false OR u.banned IS NULL)';
     }
 
     const users = await pool.query(
-      `SELECT id, email, username, display_name, elo_rating, wallet_balance,
-              role, verified, banned, banned_reason, banned_at, created_at
-       FROM users ${where}
-       ORDER BY created_at DESC LIMIT 100`,
+      `SELECT u.id, u.email, u.username, u.display_name, u.elo_rating, u.wallet_balance,
+              u.role, u.verified, u.banned, u.banned_reason, u.banned_at, u.created_at,
+              u.kyc_status,
+              COALESCE(w.warning_count, 0)::int as warning_count
+       FROM users u
+       LEFT JOIN (SELECT user_id, COUNT(*) as warning_count FROM user_warnings GROUP BY user_id) w ON w.user_id = u.id
+       ${where}
+       ORDER BY u.created_at DESC LIMIT 100`,
       params
     );
 
@@ -308,7 +380,7 @@ export default async function adminRoutes(app) {
   // POST /admin/matches/:id/resolve - Resolve disputed match
   app.post('/matches/:id/resolve', async (request, reply) => {
     const matchId = parseInt(request.params.id);
-    const { winner_id, action } = request.body;
+    const { winner_id, action, cancel_reason, cancel_details, cancel_evidence_url, warn_user_id } = request.body;
 
     const matchResult = await pool.query('SELECT * FROM matches WHERE id = $1', [matchId]);
     if (matchResult.rows.length === 0) return reply.code(404).send('Match not found');
@@ -319,6 +391,12 @@ export default async function adminRoutes(app) {
       await client.query('BEGIN');
 
       if (action === 'cancel') {
+        // Validate cancellation reason
+        const reason = cancel_reason || 'other';
+        if (!CANCEL_REASONS.includes(reason)) {
+          return reply.code(400).send('Invalid cancellation reason');
+        }
+
         // Cancel and refund both players
         const stake = parseFloat(match.stake_amount);
 
@@ -349,7 +427,37 @@ export default async function adminRoutes(app) {
           [matchId]
         );
 
-        await logAction(request.user.id, 'cancel_match', 'match', matchId, 'Cancelled and refunded');
+        // Store cancellation details
+        let warnedUserId = null;
+        if (reason === 'cheating_confirmed' && warn_user_id) {
+          warnedUserId = parseInt(warn_user_id);
+          // Issue a warning to the cheater
+          await client.query(
+            `INSERT INTO user_warnings (user_id, admin_id, reason, details, evidence_url)
+             VALUES ($1, $2, 'cheating', $3, $4)`,
+            [warnedUserId, request.user.id, cancel_details || 'Cheating confirmed in match #' + matchId, cancel_evidence_url || null]
+          );
+          // Check if 3 warnings => auto-ban
+          const warnCount = await client.query(
+            'SELECT COUNT(*) as count FROM user_warnings WHERE user_id = $1',
+            [warnedUserId]
+          );
+          if (parseInt(warnCount.rows[0].count) >= 3) {
+            await client.query(
+              `UPDATE users SET banned = true, banned_reason = $1, banned_at = NOW() WHERE id = $2`,
+              ['Automatically banned: 3 warnings reached', warnedUserId]
+            );
+            await logAction(request.user.id, 'auto_ban_warnings', 'user', warnedUserId, '3 warnings reached');
+          }
+        }
+
+        await client.query(
+          `INSERT INTO match_cancellations (match_id, admin_id, reason, details, evidence_url, warned_user_id)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [matchId, request.user.id, reason, cancel_details || null, cancel_evidence_url || null, warnedUserId]
+        );
+
+        await logAction(request.user.id, 'cancel_match', 'match', matchId, `Reason: ${reason}. ${cancel_details || ''}`);
       } else if (action === 'set_winner' && winner_id) {
         const winnerId = parseInt(winner_id);
         const loserId = winnerId === match.player1_id ? match.player2_id : match.player1_id;
@@ -451,7 +559,30 @@ export default async function adminRoutes(app) {
       [request.user.id, flagId]
     );
 
-    if (action_type === 'ban' && f.reported_user_id) {
+    if (action_type === 'warn' && f.reported_user_id) {
+      // Issue a warning from flag
+      const warnReason = request.body.warn_reason || 'other';
+      if (WARNING_REASONS.includes(warnReason)) {
+        const target = await pool.query('SELECT role, banned FROM users WHERE id = $1', [f.reported_user_id]);
+        if (target.rows.length > 0 && target.rows[0].role !== 'owner') {
+          await pool.query(
+            `INSERT INTO user_warnings (user_id, admin_id, reason, details)
+             VALUES ($1, $2, $3, $4)`,
+            [f.reported_user_id, request.user.id, warnReason, `From flag #${flagId}: ${f.details || ''}`]
+          );
+          // Check 3-warning auto-ban
+          const warnCount = await pool.query('SELECT COUNT(*) as count FROM user_warnings WHERE user_id = $1', [f.reported_user_id]);
+          if (parseInt(warnCount.rows[0].count) >= 3 && !target.rows[0].banned) {
+            await pool.query(
+              `UPDATE users SET banned = true, banned_reason = $1, banned_at = NOW() WHERE id = $2`,
+              ['Automatically banned: 3 warnings reached', f.reported_user_id]
+            );
+            await logAction(request.user.id, 'auto_ban_warnings', 'user', f.reported_user_id, '3 warnings reached');
+          }
+          await logAction(request.user.id, 'warn_from_flag', 'user', f.reported_user_id, `Flag #${flagId}: ${warnReason}`);
+        }
+      }
+    } else if (action_type === 'ban' && f.reported_user_id) {
       // Ban the reported user via the ban route logic
       const target = await pool.query('SELECT role FROM users WHERE id = $1', [f.reported_user_id]);
       if (target.rows.length > 0 && target.rows[0].role !== 'owner') {
@@ -515,5 +646,182 @@ export default async function adminRoutes(app) {
       adminRole: request.adminRole,
       logs: logs.rows,
     });
+  });
+
+  // --- TASK 3: Warning System ---
+
+  // POST /admin/users/:id/warn - Issue a warning
+  app.post('/users/:id/warn', async (request, reply) => {
+    const targetId = parseInt(request.params.id);
+    const { reason, details, evidence_url } = request.body;
+
+    if (!WARNING_REASONS.includes(reason)) {
+      return reply.code(400).send('Invalid warning reason');
+    }
+
+    // Cannot warn yourself
+    if (targetId === request.user.id) {
+      return reply.code(400).send('Cannot warn yourself');
+    }
+
+    const target = await pool.query('SELECT id, role, banned FROM users WHERE id = $1', [targetId]);
+    if (target.rows.length === 0) return reply.code(404).send('User not found');
+    if (target.rows[0].role === 'owner') return reply.code(403).send('Cannot warn an owner');
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      await client.query(
+        `INSERT INTO user_warnings (user_id, admin_id, reason, details, evidence_url)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [targetId, request.user.id, reason, details || null, evidence_url || null]
+      );
+
+      // Check if 3 warnings => auto-ban
+      const warnCount = await client.query(
+        'SELECT COUNT(*) as count FROM user_warnings WHERE user_id = $1',
+        [targetId]
+      );
+
+      if (parseInt(warnCount.rows[0].count) >= 3 && !target.rows[0].banned) {
+        await client.query(
+          `UPDATE users SET banned = true, banned_reason = $1, banned_at = NOW() WHERE id = $2`,
+          ['Automatically banned: 3 warnings reached', targetId]
+        );
+        await logAction(request.user.id, 'auto_ban_warnings', 'user', targetId, '3 warnings reached');
+      }
+
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+
+    await logAction(request.user.id, 'warn_user', 'user', targetId, `Reason: ${reason}. ${details || ''}`);
+    return reply.redirect('/admin/users');
+  });
+
+  // --- TASK 6: Admin User Transaction View ---
+
+  // GET /admin/users/:id/transactions - View user's wallet transactions
+  app.get('/users/:id/transactions', async (request, reply) => {
+    const targetId = parseInt(request.params.id);
+
+    const [userResult, transactions, totals] = await Promise.all([
+      pool.query(
+        'SELECT id, username, display_name, email, wallet_balance, kyc_status FROM users WHERE id = $1',
+        [targetId]
+      ),
+      pool.query(
+        `SELECT * FROM wallet_transactions
+         WHERE user_id = $1
+         ORDER BY created_at DESC
+         LIMIT 200`,
+        [targetId]
+      ),
+      pool.query(
+        `SELECT type, COALESCE(SUM(ABS(amount)), 0) as total
+         FROM wallet_transactions
+         WHERE user_id = $1
+         GROUP BY type`,
+        [targetId]
+      ),
+    ]);
+
+    if (userResult.rows.length === 0) return reply.code(404).send('User not found');
+
+    const totalsByType = {};
+    totals.rows.forEach(r => { totalsByType[r.type] = parseFloat(r.total); });
+
+    return reply.view('admin/user-transactions.ejs', {
+      user: request.user,
+      adminRole: request.adminRole,
+      targetUser: userResult.rows[0],
+      transactions: transactions.rows,
+      totalsByType,
+    });
+  });
+
+  // --- TASK 8: User Activity Log ---
+
+  // GET /admin/users/:id/activity - View user's activity log
+  app.get('/users/:id/activity', async (request, reply) => {
+    const targetId = parseInt(request.params.id);
+
+    const [userResult, activities] = await Promise.all([
+      pool.query('SELECT id, username, display_name, email FROM users WHERE id = $1', [targetId]),
+      pool.query(
+        `SELECT * FROM user_activity
+         WHERE user_id = $1
+         ORDER BY created_at DESC
+         LIMIT 200`,
+        [targetId]
+      ),
+    ]);
+
+    if (userResult.rows.length === 0) return reply.code(404).send('User not found');
+
+    return reply.view('admin/user-activity.ejs', {
+      user: request.user,
+      adminRole: request.adminRole,
+      targetUser: userResult.rows[0],
+      activities: activities.rows,
+    });
+  });
+
+  // --- TASK 7: KYC Admin Queue ---
+
+  // GET /admin/kyc - KYC verification queue
+  app.get('/kyc', async (request, reply) => {
+    const statusFilter = request.query.status || 'pending';
+
+    const submissions = await pool.query(
+      `SELECT id, username, display_name, email, kyc_status, kyc_document_type,
+              kyc_document_path, kyc_submitted_at, kyc_verified_at, kyc_rejected_reason
+       FROM users
+       WHERE kyc_status = $1
+       ORDER BY kyc_submitted_at ASC
+       LIMIT 100`,
+      [statusFilter]
+    );
+
+    return reply.view('admin/kyc.ejs', {
+      user: request.user,
+      adminRole: request.adminRole,
+      submissions: submissions.rows,
+      statusFilter,
+    });
+  });
+
+  // POST /admin/kyc/:id/approve - Approve KYC
+  app.post('/kyc/:id/approve', async (request, reply) => {
+    const targetId = parseInt(request.params.id);
+
+    await pool.query(
+      `UPDATE users SET kyc_status = 'verified', kyc_verified_at = NOW(), kyc_rejected_reason = NULL
+       WHERE id = $1`,
+      [targetId]
+    );
+    await logAction(request.user.id, 'approve_kyc', 'user', targetId, 'KYC approved');
+
+    return reply.redirect('/admin/kyc');
+  });
+
+  // POST /admin/kyc/:id/reject - Reject KYC
+  app.post('/kyc/:id/reject', async (request, reply) => {
+    const targetId = parseInt(request.params.id);
+    const { reason } = request.body;
+
+    await pool.query(
+      `UPDATE users SET kyc_status = 'rejected', kyc_rejected_reason = $1
+       WHERE id = $2`,
+      [reason || 'Document not acceptable', targetId]
+    );
+    await logAction(request.user.id, 'reject_kyc', 'user', targetId, reason || 'Document not acceptable');
+
+    return reply.redirect('/admin/kyc');
   });
 }

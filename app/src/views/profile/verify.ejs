@@ -1,0 +1,97 @@
+<%- include('../partials/head', { title: 'Verify Identity' }) %>
+<%- include('../partials/nav') %>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Identity Verification</h1>
+    <p>Verify your identity to unlock full withdrawal limits and higher stakes.</p>
+  </div>
+
+  <!-- Current status -->
+  <div class="card mb-3" style="text-align: center; padding: 32px;">
+    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Verification Status</div>
+    <div style="margin: 12px 0;">
+      <% if (kyc.kyc_status === 'verified') { %>
+        <span style="font-size: 2rem; color: var(--success);">&#10003;</span>
+        <div style="font-size: 1.2rem; font-weight: 700; color: var(--success); margin-top: 8px;">Verified</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+          Verified on <%= new Date(kyc.kyc_verified_at).toLocaleDateString() %>
+        </div>
+      <% } else if (kyc.kyc_status === 'pending') { %>
+        <span style="font-size: 2rem; color: var(--accent);">&#9203;</span>
+        <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent); margin-top: 8px;">Pending Review</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+          Submitted on <%= new Date(kyc.kyc_submitted_at).toLocaleDateString() %>. We will review your document shortly.
+        </div>
+      <% } else if (kyc.kyc_status === 'rejected') { %>
+        <span style="font-size: 2rem; color: var(--danger);">&#10007;</span>
+        <div style="font-size: 1.2rem; font-weight: 700; color: var(--danger); margin-top: 8px;">Rejected</div>
+        <% if (kyc.kyc_rejected_reason) { %>
+          <div style="font-size: 0.85rem; color: var(--danger); margin-top: 4px;">
+            Reason: <%= kyc.kyc_rejected_reason %>
+          </div>
+        <% } %>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+          You can resubmit a new document below.
+        </div>
+      <% } else { %>
+        <span style="font-size: 2rem; color: var(--text-muted);">&#128100;</span>
+        <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-muted); margin-top: 8px;">Not Verified</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+          Submit a document below to get verified.
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Limits info -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+    <div class="card" style="border-left: 3px solid var(--text-muted);">
+      <h3 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 8px;">Unverified Limits</h3>
+      <ul style="font-size: 0.85rem; color: var(--text-muted); padding-left: 16px; list-style: disc;">
+        <li>Max withdrawal: &euro;100/day</li>
+        <li>Max stake: &euro;50/match</li>
+      </ul>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--success);">
+      <h3 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; color: var(--success);">Verified Benefits</h3>
+      <ul style="font-size: 0.85rem; color: var(--text); padding-left: 16px; list-style: disc;">
+        <li>Unlimited withdrawals (within game limits)</li>
+        <li>Full stake amounts</li>
+        <li>Verified badge on profile</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Upload form -->
+  <% if (kyc.kyc_status !== 'verified' && kyc.kyc_status !== 'pending') { %>
+    <div class="card">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Upload Document</h2>
+      <form action="/profile/verify" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>Document Type</label>
+          <select name="document_type" class="form-control" required>
+            <option value="">Select document type...</option>
+            <option value="passport">Passport</option>
+            <option value="id_card">National ID Card</option>
+            <option value="drivers_license">Driver's License</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Document Image or PDF</label>
+          <div class="file-upload">
+            <span>&#128206; Choose file (JPG, PNG, WebP, or PDF)...</span>
+            <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp,.pdf" required>
+          </div>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
+          Please upload a clear, readable photo or scan of your document. Both sides may be required for ID cards.
+          Your document will be securely stored and only accessed by our verification team.
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Submit for Verification</button>
+      </form>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

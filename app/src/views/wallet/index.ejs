@@ -8,9 +8,13 @@
   </div>
 
   <% if (error === 'insufficient') { %>
-    <div class="alert alert-error">Insufficient balance for this action.</div>
+    <div class="alert alert-error">Insufficient balance. Withdraw amount cannot exceed your current balance.</div>
   <% } else if (error === 'invalid_amount') { %>
     <div class="alert alert-error">Invalid amount. Please enter a valid number.</div>
+  <% } else if (error === 'no_funds') { %>
+    <div class="alert alert-error">No funds available to withdraw.</div>
+  <% } else if (error === 'kyc_limit') { %>
+    <div class="alert alert-error">Unverified accounts are limited to &euro;100/day withdrawals. <a href="/profile/verify" style="color: var(--accent); text-decoration: underline;">Verify your identity</a> to remove limits.</div>
   <% } %>
   <% if (success === 'deposit') { %>
     <div class="alert alert-success">Deposit successful!</div>
@@ -50,14 +54,64 @@
     <!-- Withdraw -->
     <div class="card">
       <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--primary);">Withdraw</h2>
-      <form action="/wallet/withdraw" method="POST">
-        <div class="form-group">
-          <label>Amount (&euro;)</label>
-          <input type="number" name="amount" class="form-control" step="0.01" min="1" max="<%= balance %>" placeholder="25.00" required>
+      <% if (parseFloat(balance) <= 0) { %>
+        <div class="alert" style="background: rgba(138, 138, 154, 0.1); border: 1px solid var(--border); color: var(--text-muted); text-align: center; padding: 24px;">
+          No funds available to withdraw
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Withdraw</button>
-      </form>
+      <% } else { %>
+        <form action="/wallet/withdraw" method="POST">
+          <div class="form-group">
+            <label>Amount (&euro;)</label>
+            <input type="number" name="amount" class="form-control" step="0.01" min="1" max="<%= parseFloat(balance).toFixed(2) %>" placeholder="25.00" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Withdraw</button>
+        </form>
+      <% } %>
     </div>
+  </div>
+
+  <!-- KYC Banner (Task 9) -->
+  <% if (kycStatus !== 'verified') { %>
+    <div class="alert mb-3" style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <strong>Identity not verified.</strong> Unverified accounts are limited to &euro;100/day withdrawals and &euro;50/match stakes.
+      </div>
+      <a href="/profile/verify" class="btn btn-sm btn-accent">Verify Now</a>
+    </div>
+  <% } %>
+
+  <!-- Billing Summary (Task 9) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px;">
+    <div class="card stat">
+      <div class="stat-value text-success" style="font-size: 1.4rem;">&euro;<%= (totalsByType.deposit || 0).toFixed(2) %></div>
+      <div class="stat-label">Total Deposits</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value text-danger" style="font-size: 1.4rem;">&euro;<%= (totalsByType.withdrawal || 0).toFixed(2) %></div>
+      <div class="stat-label">Total Withdrawals</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value text-accent" style="font-size: 1.4rem;">&euro;<%= (totalsByType.win || 0).toFixed(2) %></div>
+      <div class="stat-label">Total Winnings</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value" style="font-size: 1.4rem; color: #60a5fa;">&euro;<%= (totalsByType.stake || 0).toFixed(2) %></div>
+      <div class="stat-label">Total Staked</div>
+    </div>
+  </div>
+
+  <!-- Payment Methods (Task 9 - mock) -->
+  <div class="card mb-3">
+    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Payment Methods</h2>
+    <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--bg); border-radius: var(--radius); border: 1px solid var(--border);">
+      <div style="width: 48px; height: 32px; background: linear-gradient(135deg, #1a1f71, #00579f); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.65rem; font-weight: 700;">VISA</div>
+      <div>
+        <div style="font-weight: 600;">Visa ending in ****1234</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Expires 12/28</div>
+      </div>
+      <span class="badge badge-active" style="margin-left: auto;">Default</span>
+    </div>
+    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 12px;">Payment integration coming soon. Currently using mock deposits.</p>
   </div>
 
   <!-- Transaction history -->

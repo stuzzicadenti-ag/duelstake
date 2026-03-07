@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { pool } from '../db/schema.js';
+import { logUserActivity } from './admin.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,13 +72,40 @@ export default async function authRoutes(app) {
       }
 
       const password_hash = await bcrypt.hash(password, 12);
+      const registrationIp = request.ip;
       const result = await pool.query(
-        `INSERT INTO users (email, username, password_hash, display_name)
-         VALUES ($1, $2, $3, $4) RETURNING id, username, display_name, elo_rating`,
-        [email.toLowerCase(), username.toLowerCase(), password_hash, display_name || username]
+        `INSERT INTO users (email, username, password_hash, display_name, registration_ip, last_login_ip)
+         VALUES ($1, $2, $3, $4, $5, $5) RETURNING id, username, display_name, elo_rating`,
+        [email.toLowerCase(), username.toLowerCase(), password_hash, display_name || username, registrationIp]
       );
 
       const user = result.rows[0];
+
+      // Task 5: Ban evasion check - check if any banned user has same IP
+      try {
+        const ipMatches = await pool.query(
+          `SELECT id, username, email, banned_reason FROM users
+           WHERE banned = true
+             AND id != $1
+             AND (registration_ip = $2 OR last_login_ip = $2)`,
+          [user.id, registrationIp]
+        );
+        if (ipMatches.rows.length > 0) {
+          const matchedUser = ipMatches.rows[0];
+          await pool.query(
+            `INSERT INTO flags (type, user_id, reported_user_id, details)
+             VALUES ('ban_evasion_suspect', $1, $1, $2)`,
+            [user.id, `New registration IP ${registrationIp} matches banned user ${matchedUser.username} (ID: ${matchedUser.id})`]
+          );
+        }
+      } catch (err) {
+        // Non-critical check, don't block registration
+        console.error('[anti-evasion] Check failed:', err.message);
+      }
+
+      // Log activity
+      logUserActivity(user.id, 'register', registrationIp, 'Account created');
+
       const token = jwt.sign(
         { id: user.id, username: user.username, display_name: user.display_name, role: 'user' },
         JWT_SECRET,
@@ -143,6 +171,13 @@ export default async function authRoutes(app) {
           bannedAt: user.banned_at,
         });
       }
+
+      // Update last login IP
+      const loginIp = request.ip;
+      await pool.query('UPDATE users SET last_login_ip = $1 WHERE id = $2', [loginIp, user.id]);
+
+      // Log activity
+      logUserActivity(user.id, 'login', loginIp, 'User logged in');
 
       const token = jwt.sign(
         { id: user.id, username: user.username, display_name: user.display_name, role: user.role || 'user' },
