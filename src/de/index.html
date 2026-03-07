@@ -76,7 +76,17 @@
         <button class="btn btn-ghost" type="button" id="loginBtn">Anmelden</button>
         <button class="btn btn-primary" type="button" id="registerBtn">Registrieren</button>
       </div>
-      <div class="lang-switch"><a href="../">EN</a><a href="../de/" class="active">DE</a><a href="../fr/">FR</a><a href="../it/">IT</a></div>
+      <div class="lang-dropdown">
+        <button type="button" class="lang-dropdown__btn" aria-expanded="false" aria-haspopup="true">
+          &#127760; <span class="lang-dropdown__current">DE</span> &#9662;
+        </button>
+        <ul class="lang-dropdown__menu" role="menu">
+          <li><a href="../" role="menuitem">English</a></li>
+          <li><a href="./" role="menuitem" class="active">Deutsch</a></li>
+          <li><a href="../fr/" role="menuitem">Fran&ccedil;ais</a></li>
+          <li><a href="../it/" role="menuitem">Italiano</a></li>
+        </ul>
+      </div>
     </div>
   </nav>
 
@@ -183,7 +193,7 @@
     <div class="container">
       <div class="section-header">
         <h2 class="section-title">So <span class="accent">funktioniert's</span></h2>
-        <p class="section-sub">Drei Schritte zum Ruhm. Keine Komplexitaet, purer Wettbewerb.</p>
+        <p class="section-sub">Drei Schritte zum Ruhm. Keine Komplexitaet. Purer Wettbewerb.</p>
       </div>
       <div class="steps-grid">
         <div class="step-card">
@@ -315,6 +325,41 @@
           <span class="lb-earnings">&#8364;6.590</span>
           <span class="lb-winrate">77%</span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fair Play & Spielbeweis -->
+  <section class="section" id="fair-play">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Fair Play <span class="accent">garantiert</span></h2>
+        <p class="section-sub">Zertifiziert, transparent und konform mit Schweizer und EU-Vorschriften.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">&#128247;</div>
+          <h3 class="step-title">Spielbeweis erforderlich</h3>
+          <p class="step-desc">Beide Spieler muessen innerhalb von 30 Minuten einen Screenshot oder Videobeweis des Spielergebnisses hochladen. Kein Beweis, keine Auszahlung.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#129302;</div>
+          <h3 class="step-title">KI + menschliche Pruefung</h3>
+          <p class="step-desc">Beweise werden innerhalb von Minuten per KI verifiziert. Streitfaelle werden an menschliche Pruefer eskaliert und innerhalb von 24 Stunden geloest.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#128274;</div>
+          <h3 class="step-title">Plattform-verifizierte Konten</h3>
+          <p class="step-desc">Verknuepfe dein Steam-, Discord- oder Gaming-Plattform-Konto. Ein Konto pro Spieler. Mehrfachkonten fuehren zu einer dauerhaften Sperre und Einzug der Gelder.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#9878;</div>
+          <h3 class="step-title">Schweizer Regulierung</h3>
+          <p class="step-desc">DuelStake ist eine faehigkeitsbasierte Wettbewerbsplattform, kein Gluecksspieldienst. Vollstaendig konform mit dem Schweizer Geldspielgesetz (BGS) und EU-Vorschriften. Gelder werden treuhaenderisch von einem lizenzierten Schweizer Finanzintermediaer verwaltet.</p>
+        </div>
+      </div>
+      <div class="fair-play-note">
+        <p><strong>So funktionieren Auszahlungen:</strong> Einsaetze werden waehrend des Spiels treuhaenderisch verwahrt. Nachdem beide Spieler ihren Beweis eingereicht haben, verifiziert die KI das Ergebnis. Stimmen beide Beweise ueberein, erhaelt der Gewinner die Auszahlung sofort (abzueglich Plattformgebuehr). Bei Streitigkeiten entscheidet ein menschlicher Pruefer innerhalb von 24 Stunden. Alle Transaktionen werden protokolliert und sind pruefbar.</p>
       </div>
     </div>
   </section>
@@ -477,7 +522,7 @@
       </div>
       <div class="footer-bottom">
         <p>&copy; 2026 DuelStake. Alle Rechte vorbehalten.</p>
-        <p class="footer-disclaimer">DuelStake ist eine faehigkeitsbasierte Wettbewerbsplattform. Einsatz-Matches sind moeglicherweise nicht in allen Rechtsgebieten verfuegbar. Nutzer sind selbst dafuer verantwortlich, die lokalen Gesetze zu Online-Gaming und Wetten einzuhalten. Teilnahme an Einsatz-Matches ab 18 Jahren. Wenn Sie oder jemand, den Sie kennen, ein Spielproblem hat, suchen Sie bitte Hilfe unter <a href="https://www.begambleaware.org" rel="noopener noreferrer" target="_blank">BeGambleAware.org</a>. DuelStake foerdert verantwortungsvolles Spielen und bietet Selbstausschluss-Tools fuer alle Nutzer.</p>
+        <p class="footer-disclaimer">DuelStake ist eine faehigkeitsbasierte Wettbewerbsplattform, reguliert nach Schweizer Recht. Es handelt sich nicht um einen Gluecksspiel- oder Wettdienst. Einsatz-Matches beinhalten ausschliesslich E-Sport-Faehigkeitswettbewerbe. Gelder werden treuhaenderisch von einem lizenzierten Finanzintermediaer verwaltet. Verfuegbar in Rechtsgebieten, in denen faehigkeitsbasierte Wettbewerbe legal sind. Teilnahme an Einsatz-Matches ab 18 Jahren. Spielen Sie verantwortungsvoll.</p>
       </div>
     </div>
   </footer>
@@ -502,6 +547,12 @@
           <input type="password" id="loginPassword" placeholder="Gib dein Passwort ein" required>
         </div>
         <button class="btn btn-primary btn-full" type="submit">Anmelden</button>
+        <div class="form-divider"><span>oder</span></div>
+        <div class="social-login-buttons">
+          <button class="btn btn-social btn-steam" type="button">Steam</button>
+          <button class="btn btn-social btn-discord" type="button">Discord</button>
+          <button class="btn btn-social btn-google" type="button">Google</button>
+        </div>
         <p class="form-footer">Noch kein Konto? <a href="#" class="switch-tab" data-tab="register">Hier registrieren</a></p>
       </form>
 
@@ -528,6 +579,12 @@
           <label for="regTerms">Ich stimme den <a href="#">Nutzungsbedingungen</a> zu und bestaetige, dass ich 18+ bin</label>
         </div>
         <button class="btn btn-primary btn-full" type="submit">Konto erstellen</button>
+        <div class="form-divider"><span>oder verbinden mit</span></div>
+        <div class="social-login-buttons">
+          <button class="btn btn-social btn-steam" type="button">Steam</button>
+          <button class="btn btn-social btn-discord" type="button">Discord</button>
+          <button class="btn btn-social btn-google" type="button">Google</button>
+        </div>
         <p class="form-footer">Bereits ein Konto? <a href="#" class="switch-tab" data-tab="login">Hier anmelden</a></p>
       </form>
     </div>
@@ -542,7 +599,36 @@
       } else {
         nav.classList.remove('scrolled');
       }
-    });
+    }, { passive: true });
+
+    // Nav scroll active tracking
+    (function() {
+      var sections = document.querySelectorAll('section[id]');
+      var navLinks = document.querySelectorAll('.nav-link');
+      function updateActive() {
+        var scrollY = window.scrollY + 120;
+        sections.forEach(function(section) {
+          var top = section.offsetTop;
+          var height = section.offsetHeight;
+          var id = section.getAttribute('id');
+          if (scrollY >= top && scrollY < top + height) {
+            navLinks.forEach(function(link) {
+              link.classList.remove('active');
+              if (link.getAttribute('href') === '#' + id) {
+                link.classList.add('active');
+              }
+            });
+          }
+        });
+      }
+      window.addEventListener('scroll', updateActive, { passive: true });
+      navLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+          navLinks.forEach(function(l) { l.classList.remove('active'); });
+          this.classList.add('active');
+        });
+      });
+    })();
 
     // Mobile nav toggle
     document.getElementById('navToggle').addEventListener('click', function() {
@@ -550,57 +636,82 @@
       this.classList.toggle('active');
     });
 
-    // Modal
-    var modal = document.getElementById('authModal');
-    var loginForm = document.getElementById('loginForm');
-    var registerForm = document.getElementById('registerForm');
-    var tabs = document.querySelectorAll('.modal-tab');
-
-    function openModal(tab) {
-      modal.classList.add('open');
-      switchTab(tab);
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      modal.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function switchTab(tab) {
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      document.querySelector('.modal-tab[data-tab="' + tab + '"]').classList.add('active');
-      if (tab === 'login') {
-        loginForm.classList.remove('hidden');
-        registerForm.classList.add('hidden');
-      } else {
-        loginForm.classList.add('hidden');
-        registerForm.classList.remove('hidden');
-      }
-    }
-
-    document.getElementById('loginBtn').addEventListener('click', function() { openModal('login'); });
-    document.getElementById('registerBtn').addEventListener('click', function() { openModal('register'); });
-    document.getElementById('heroCta').addEventListener('click', function() { openModal('register'); });
-    document.getElementById('ctaRegister').addEventListener('click', function() { openModal('register'); });
-    document.getElementById('modalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
-
-    tabs.forEach(function(tab) {
-      tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
-    });
-
-    document.querySelectorAll('.switch-tab').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        switchTab(this.dataset.tab);
+    // Language dropdown
+    (function() {
+      var btn = document.querySelector('.lang-dropdown__btn');
+      var menu = document.querySelector('.lang-dropdown__menu');
+      if (!btn || !menu) return;
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var open = menu.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
       });
-    });
+      document.addEventListener('click', function() {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          menu.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
 
-    // Prevent form submission (demo only)
-    document.querySelectorAll('.modal-form').forEach(function(form) {
-      form.addEventListener('submit', function(e) { e.preventDefault(); });
-    });
+    // Modal
+    (function() {
+      var modal = document.getElementById('authModal');
+      var loginForm = document.getElementById('loginForm');
+      var registerForm = document.getElementById('registerForm');
+      var tabs = document.querySelectorAll('.modal-tab');
+
+      function openModal(tab) {
+        modal.classList.add('open');
+        switchTab(tab);
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      function switchTab(tab) {
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        document.querySelector('.modal-tab[data-tab="' + tab + '"]').classList.add('active');
+        if (tab === 'login') {
+          loginForm.classList.remove('hidden');
+          registerForm.classList.add('hidden');
+        } else {
+          loginForm.classList.add('hidden');
+          registerForm.classList.remove('hidden');
+        }
+      }
+
+      document.getElementById('loginBtn').addEventListener('click', function() { openModal('login'); });
+      document.getElementById('registerBtn').addEventListener('click', function() { openModal('register'); });
+      document.getElementById('heroCta').addEventListener('click', function() { openModal('register'); });
+      document.getElementById('ctaRegister').addEventListener('click', function() { openModal('register'); });
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+      modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+      document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
+      });
+
+      document.querySelectorAll('.switch-tab').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          switchTab(this.dataset.tab);
+        });
+      });
+
+      // Prevent form submission (demo only)
+      document.querySelectorAll('.modal-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) { e.preventDefault(); });
+      });
+    })();
 
     // Smooth scroll for nav links
     document.querySelectorAll('a[href^="#"]').forEach(function(link) {
@@ -614,6 +725,11 @@
         }
       });
     });
+
+    // Already on a localized page, just mark language as chosen
+    (function() {
+      sessionStorage.setItem('lang-chosen', '1');
+    })();
   </script>
 
 </body>

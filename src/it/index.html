@@ -76,7 +76,17 @@
         <button class="btn btn-ghost" type="button" id="loginBtn">Accedi</button>
         <button class="btn btn-primary" type="button" id="registerBtn">Registrati</button>
       </div>
-      <div class="lang-switch"><a href="../">EN</a><a href="../de/">DE</a><a href="../fr/">FR</a><a href="../it/" class="active">IT</a></div>
+      <div class="lang-dropdown">
+        <button type="button" class="lang-dropdown__btn" aria-expanded="false" aria-haspopup="true">
+          &#127760; <span class="lang-dropdown__current">IT</span> &#9662;
+        </button>
+        <ul class="lang-dropdown__menu" role="menu">
+          <li><a href="../" role="menuitem">English</a></li>
+          <li><a href="../de/" role="menuitem">Deutsch</a></li>
+          <li><a href="../fr/" role="menuitem">Français</a></li>
+          <li><a href="./" role="menuitem" class="active">Italiano</a></li>
+        </ul>
+      </div>
     </div>
   </nav>
 
@@ -183,7 +193,7 @@
     <div class="container">
       <div class="section-header">
         <h2 class="section-title">Come <span class="accent">funziona</span></h2>
-        <p class="section-sub">Tre passi verso la gloria. Nessuna complessit&agrave;, pura competizione.</p>
+        <p class="section-sub">Tre passi verso la gloria. Nessuna complessit&agrave;. Pura competizione.</p>
       </div>
       <div class="steps-grid">
         <div class="step-card">
@@ -315,6 +325,41 @@
           <span class="lb-earnings">&#8364;6.590</span>
           <span class="lb-winrate">77%</span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fair Play & Prova partita -->
+  <section class="section" id="fair-play">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Fair Play <span class="accent">garantito</span></h2>
+        <p class="section-sub">Certificato, trasparente e conforme alle normative svizzere e UE.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">&#128247;</div>
+          <h3 class="step-title">Prova della partita obbligatoria</h3>
+          <p class="step-desc">Entrambi i giocatori devono caricare uno screenshot o una prova video del risultato entro 30 minuti. Nessuna prova, nessun pagamento.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#129302;</div>
+          <h3 class="step-title">Verifica IA + umana</h3>
+          <p class="step-desc">Le prove vengono verificate dall'IA in pochi minuti. I risultati contestati vengono inoltrati a revisori umani e risolti entro 24 ore.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#128274;</div>
+          <h3 class="step-title">Account verificati dalla piattaforma</h3>
+          <p class="step-desc">Collega il tuo account Steam, Discord o della piattaforma di gioco. Un account per giocatore. I multi-account comportano il ban permanente e la confisca dei fondi.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#9878;</div>
+          <h3 class="step-title">Regolamentato in Svizzera</h3>
+          <p class="step-desc">DuelStake &egrave; una piattaforma di competizione basata sulle abilit&agrave;, non un servizio di gioco d'azzardo. Pienamente conforme alla Legge federale svizzera sui giochi in denaro (LGD) e alle normative UE. I fondi sono detenuti in deposito fiduciario da un intermediario finanziario svizzero autorizzato.</p>
+        </div>
+      </div>
+      <div class="fair-play-note">
+        <p><strong>Come funzionano i pagamenti:</strong> Le poste in gioco sono detenute in deposito fiduciario durante la partita. Dopo che entrambi i giocatori hanno inviato la prova, l'IA verifica il risultato. Se entrambe le prove concordano, il vincitore riceve il pagamento istantaneamente (meno la commissione della piattaforma). In caso di controversia, un revisore umano decide entro 24 ore. Tutte le transazioni sono registrate e verificabili.</p>
       </div>
     </div>
   </section>
@@ -477,7 +522,7 @@
       </div>
       <div class="footer-bottom">
         <p>&copy; 2026 DuelStake. Tutti i diritti riservati.</p>
-        <p class="footer-disclaimer">DuelStake &egrave; una piattaforma competitiva basata sulle abilit&agrave;. Le partite con posta in palio potrebbero non essere disponibili in tutte le giurisdizioni. Gli utenti sono responsabili del rispetto delle leggi locali relative al gioco online e alle scommesse. &Egrave; necessario avere almeno 18 anni per partecipare alle partite con posta in palio. Se tu o qualcuno che conosci ha un problema con il gioco d'azzardo, cerca aiuto su <a href="https://www.begambleaware.org" rel="noopener noreferrer" target="_blank">BeGambleAware.org</a>. DuelStake promuove il gioco responsabile e fornisce strumenti di autoesclusione per tutti gli utenti.</p>
+        <p class="footer-disclaimer">DuelStake &egrave; una piattaforma competitiva basata sulle abilit&agrave;, regolamentata dal diritto svizzero. Non &egrave; un servizio di gioco d'azzardo o scommesse. Le partite con posta in palio coinvolgono esclusivamente competizioni esports basate sulle abilit&agrave;. I fondi sono detenuti in deposito fiduciario da un intermediario finanziario autorizzato. Disponibile nelle giurisdizioni in cui le competizioni basate sulle abilit&agrave; sono legali. &Egrave; necessario avere almeno 18 anni per partecipare alle partite con posta in palio. Gioca responsabilmente.</p>
       </div>
     </div>
   </footer>
@@ -502,6 +547,12 @@
           <input type="password" id="loginPassword" placeholder="Inserisci la tua password" required>
         </div>
         <button class="btn btn-primary btn-full" type="submit">Accedi</button>
+        <div class="form-divider"><span>oppure</span></div>
+        <div class="social-login-buttons">
+          <button class="btn btn-social btn-steam" type="button">Steam</button>
+          <button class="btn btn-social btn-discord" type="button">Discord</button>
+          <button class="btn btn-social btn-google" type="button">Google</button>
+        </div>
         <p class="form-footer">Non hai un account? <a href="#" class="switch-tab" data-tab="register">Registrati qui</a></p>
       </form>
 
@@ -528,6 +579,12 @@
           <label for="regTerms">Accetto i <a href="#">Termini di servizio</a> e confermo di avere almeno 18 anni</label>
         </div>
         <button class="btn btn-primary btn-full" type="submit">Crea account</button>
+        <div class="form-divider"><span>oppure collegati con</span></div>
+        <div class="social-login-buttons">
+          <button class="btn btn-social btn-steam" type="button">Steam</button>
+          <button class="btn btn-social btn-discord" type="button">Discord</button>
+          <button class="btn btn-social btn-google" type="button">Google</button>
+        </div>
         <p class="form-footer">Hai gi&agrave; un account? <a href="#" class="switch-tab" data-tab="login">Accedi qui</a></p>
       </form>
     </div>
@@ -542,6 +599,22 @@
       } else {
         nav.classList.remove('scrolled');
       }
+
+      // Update active nav link on scroll
+      var sections = document.querySelectorAll('section[id]');
+      var scrollPos = window.scrollY + 100;
+      sections.forEach(function(section) {
+        var top = section.offsetTop;
+        var height = section.offsetHeight;
+        var id = section.getAttribute('id');
+        var link = document.querySelector('.nav-link[href="#' + id + '"]');
+        if (link) {
+          if (scrollPos >= top && scrollPos < top + height) {
+            document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+            link.classList.add('active');
+          }
+        }
+      });
     });
 
     // Mobile nav toggle
@@ -585,6 +658,7 @@
     document.getElementById('ctaRegister').addEventListener('click', function() { openModal('register'); });
     document.getElementById('modalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
 
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
@@ -615,6 +689,29 @@
       });
     });
   </script>
+
+<script>
+// Language dropdown
+(function() {
+  var btn = document.querySelector('.lang-dropdown__btn');
+  var menu = document.querySelector('.lang-dropdown__menu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var open = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('click', function() {
+    menu.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+  });
+})();
+// Auto-detect (no redirect on localized page)
+(function() { sessionStorage.setItem('lang-chosen', '1'); })();
+</script>
 
 </body>
 </html>

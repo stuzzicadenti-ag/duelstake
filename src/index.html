@@ -76,7 +76,17 @@
         <button class="btn btn-ghost" type="button" id="loginBtn">Login</button>
         <button class="btn btn-primary" type="button" id="registerBtn">Register</button>
       </div>
-      <div class="lang-switch"><a href="./" class="active">EN</a><a href="de/">DE</a><a href="fr/">FR</a><a href="it/">IT</a></div>
+      <div class="lang-dropdown">
+        <button type="button" class="lang-dropdown__btn" aria-expanded="false" aria-haspopup="true">
+          &#127760; <span class="lang-dropdown__current">EN</span> &#9662;
+        </button>
+        <ul class="lang-dropdown__menu" role="menu">
+          <li><a href="./" role="menuitem" class="active">English</a></li>
+          <li><a href="de/" role="menuitem">Deutsch</a></li>
+          <li><a href="fr/" role="menuitem">Fran&ccedil;ais</a></li>
+          <li><a href="it/" role="menuitem">Italiano</a></li>
+        </ul>
+      </div>
     </div>
   </nav>
 
@@ -183,7 +193,7 @@
     <div class="container">
       <div class="section-header">
         <h2 class="section-title">How It <span class="accent">Works</span></h2>
-        <p class="section-sub">Three steps to glory. No complexity, pure competition.</p>
+        <p class="section-sub">Three steps to glory. No complexity. Pure competition.</p>
       </div>
       <div class="steps-grid">
         <div class="step-card">
@@ -315,6 +325,41 @@
           <span class="lb-earnings">&#8364;6,590</span>
           <span class="lb-winrate">77%</span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fair Play & Match Proof -->
+  <section class="section" id="fair-play">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Fair Play <span class="accent">Guaranteed</span></h2>
+        <p class="section-sub">Certified, transparent, and compliant with Swiss and EU regulations.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">&#128247;</div>
+          <h3 class="step-title">Match Proof Required</h3>
+          <p class="step-desc">Both players must upload a screenshot or video proof of the match result within 30 minutes. No proof, no payout.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#129302;</div>
+          <h3 class="step-title">AI + Human Review</h3>
+          <p class="step-desc">Proofs are verified by AI within minutes. Disputed results are escalated to human reviewers and resolved within 24 hours.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#128274;</div>
+          <h3 class="step-title">Platform Verified Accounts</h3>
+          <p class="step-desc">Link your Steam, Discord, or gaming platform account. One account per player. Multi-accounting results in a permanent ban and forfeiture of funds.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">&#9878;</div>
+          <h3 class="step-title">Swiss Regulated</h3>
+          <p class="step-desc">DuelStake is a skill-based competition platform, not a gambling service. Fully compliant with Swiss Federal Gaming Act (BGS) and EU regulations. Funds held in escrow by a licensed Swiss financial intermediary.</p>
+        </div>
+      </div>
+      <div class="fair-play-note">
+        <p><strong>How payouts work:</strong> Stakes are held in escrow during the match. After both players submit proof, the AI verifies the result. If both proofs agree, the winner receives the payout instantly (minus platform fee). If there's a dispute, a human reviewer decides within 24 hours. All transactions are logged and auditable.</p>
       </div>
     </div>
   </section>
@@ -477,7 +522,7 @@
       </div>
       <div class="footer-bottom">
         <p>&copy; 2026 DuelStake. All rights reserved.</p>
-        <p class="footer-disclaimer">DuelStake is a skill-based competitive platform. Staked matches may not be available in all jurisdictions. Users are responsible for complying with local laws regarding online gaming and wagering. Must be 18+ to participate in staked matches. If you or someone you know has a gambling problem, please seek help at <a href="https://www.begambleaware.org" rel="noopener noreferrer" target="_blank">BeGambleAware.org</a>. DuelStake promotes responsible gaming and provides self-exclusion tools for all users.</p>
+        <p class="footer-disclaimer">DuelStake is a skill-based competitive platform regulated under Swiss law. It is not a gambling or betting service. Staked matches involve esports skill competitions only. Funds are held in escrow by a licensed financial intermediary. Available in jurisdictions where skill-based competitions are legal. Must be 18+ to participate in staked matches. Play responsibly.</p>
       </div>
     </div>
   </footer>
@@ -502,6 +547,12 @@
           <input type="password" id="loginPassword" placeholder="Enter your password" required>
         </div>
         <button class="btn btn-primary btn-full" type="submit">Login</button>
+        <div class="form-divider"><span>or</span></div>
+        <div class="social-login-buttons">
+          <button class="btn btn-social btn-steam" type="button">Steam</button>
+          <button class="btn btn-social btn-discord" type="button">Discord</button>
+          <button class="btn btn-social btn-google" type="button">Google</button>
+        </div>
         <p class="form-footer">Don't have an account? <a href="#" class="switch-tab" data-tab="register">Register here</a></p>
       </form>
 
@@ -528,6 +579,12 @@
           <label for="regTerms">I agree to the <a href="#">Terms of Service</a> and confirm I am 18+</label>
         </div>
         <button class="btn btn-primary btn-full" type="submit">Create Account</button>
+        <div class="form-divider"><span>or connect with</span></div>
+        <div class="social-login-buttons">
+          <button class="btn btn-social btn-steam" type="button">Steam</button>
+          <button class="btn btn-social btn-discord" type="button">Discord</button>
+          <button class="btn btn-social btn-google" type="button">Google</button>
+        </div>
         <p class="form-footer">Already have an account? <a href="#" class="switch-tab" data-tab="login">Login here</a></p>
       </form>
     </div>
@@ -542,7 +599,36 @@
       } else {
         nav.classList.remove('scrolled');
       }
-    });
+    }, { passive: true });
+
+    // Nav scroll active tracking
+    (function() {
+      var sections = document.querySelectorAll('section[id]');
+      var navLinks = document.querySelectorAll('.nav-link');
+      function updateActive() {
+        var scrollY = window.scrollY + 120;
+        sections.forEach(function(section) {
+          var top = section.offsetTop;
+          var height = section.offsetHeight;
+          var id = section.getAttribute('id');
+          if (scrollY >= top && scrollY < top + height) {
+            navLinks.forEach(function(link) {
+              link.classList.remove('active');
+              if (link.getAttribute('href') === '#' + id) {
+                link.classList.add('active');
+              }
+            });
+          }
+        });
+      }
+      window.addEventListener('scroll', updateActive, { passive: true });
+      navLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+          navLinks.forEach(function(l) { l.classList.remove('active'); });
+          this.classList.add('active');
+        });
+      });
+    })();
 
     // Mobile nav toggle
     document.getElementById('navToggle').addEventListener('click', function() {
@@ -550,57 +636,82 @@
       this.classList.toggle('active');
     });
 
-    // Modal
-    var modal = document.getElementById('authModal');
-    var loginForm = document.getElementById('loginForm');
-    var registerForm = document.getElementById('registerForm');
-    var tabs = document.querySelectorAll('.modal-tab');
-
-    function openModal(tab) {
-      modal.classList.add('open');
-      switchTab(tab);
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      modal.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function switchTab(tab) {
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      document.querySelector('.modal-tab[data-tab="' + tab + '"]').classList.add('active');
-      if (tab === 'login') {
-        loginForm.classList.remove('hidden');
-        registerForm.classList.add('hidden');
-      } else {
-        loginForm.classList.add('hidden');
-        registerForm.classList.remove('hidden');
-      }
-    }
-
-    document.getElementById('loginBtn').addEventListener('click', function() { openModal('login'); });
-    document.getElementById('registerBtn').addEventListener('click', function() { openModal('register'); });
-    document.getElementById('heroCta').addEventListener('click', function() { openModal('register'); });
-    document.getElementById('ctaRegister').addEventListener('click', function() { openModal('register'); });
-    document.getElementById('modalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
-
-    tabs.forEach(function(tab) {
-      tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
-    });
-
-    document.querySelectorAll('.switch-tab').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        switchTab(this.dataset.tab);
+    // Language dropdown
+    (function() {
+      var btn = document.querySelector('.lang-dropdown__btn');
+      var menu = document.querySelector('.lang-dropdown__menu');
+      if (!btn || !menu) return;
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var open = menu.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
       });
-    });
+      document.addEventListener('click', function() {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          menu.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
 
-    // Prevent form submission (demo only)
-    document.querySelectorAll('.modal-form').forEach(function(form) {
-      form.addEventListener('submit', function(e) { e.preventDefault(); });
-    });
+    // Modal
+    (function() {
+      var modal = document.getElementById('authModal');
+      var loginForm = document.getElementById('loginForm');
+      var registerForm = document.getElementById('registerForm');
+      var tabs = document.querySelectorAll('.modal-tab');
+
+      function openModal(tab) {
+        modal.classList.add('open');
+        switchTab(tab);
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      function switchTab(tab) {
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        document.querySelector('.modal-tab[data-tab="' + tab + '"]').classList.add('active');
+        if (tab === 'login') {
+          loginForm.classList.remove('hidden');
+          registerForm.classList.add('hidden');
+        } else {
+          loginForm.classList.add('hidden');
+          registerForm.classList.remove('hidden');
+        }
+      }
+
+      document.getElementById('loginBtn').addEventListener('click', function() { openModal('login'); });
+      document.getElementById('registerBtn').addEventListener('click', function() { openModal('register'); });
+      document.getElementById('heroCta').addEventListener('click', function() { openModal('register'); });
+      document.getElementById('ctaRegister').addEventListener('click', function() { openModal('register'); });
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+      modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+      document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
+      });
+
+      document.querySelectorAll('.switch-tab').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          switchTab(this.dataset.tab);
+        });
+      });
+
+      // Prevent form submission (demo only)
+      document.querySelectorAll('.modal-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) { e.preventDefault(); });
+      });
+    })();
 
     // Smooth scroll for nav links
     document.querySelectorAll('a[href^="#"]').forEach(function(link) {
@@ -614,6 +725,18 @@
         }
       });
     });
+
+    // Auto-redirect to user's preferred language (only on first visit)
+    (function() {
+      if (sessionStorage.getItem('lang-chosen')) return;
+      var lang = (navigator.language || '').substring(0, 2).toLowerCase();
+      var supported = {de: 'de/', fr: 'fr/', it: 'it/'};
+      if (supported[lang] && !window.location.pathname.includes('/' + lang + '/')) {
+        sessionStorage.setItem('lang-chosen', '1');
+        window.location.href = supported[lang];
+      }
+      sessionStorage.setItem('lang-chosen', '1');
+    })();
   </script>
 
 </body>
