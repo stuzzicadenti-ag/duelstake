@@ -279,7 +279,7 @@ export default async function matchesRoutes(app) {
     const isHonest = winnerId !== userId;
 
     if (isHonest) {
-      // Opponent reported as winner — complete the match
+      // Opponent reported as winner - complete the match
       const loserId = winnerId === match.player1_id ? match.player2_id : match.player1_id;
       const stake = parseFloat(match.stake_amount);
       const payout = stake * 2;
@@ -344,7 +344,7 @@ export default async function matchesRoutes(app) {
         client.release();
       }
     } else {
-      // Self-reported as winner — mark disputed
+      // Self-reported as winner - mark disputed
       await pool.query("UPDATE matches SET status = 'disputed' WHERE id = $1", [matchId]);
     }
 

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { pool } from '../db/schema.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COOKIE_OPTS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
@@ -28,6 +29,13 @@ export default async function authRoutes(app) {
       });
     }
 
+    if (!EMAIL_RE.test(email) || email.length > 255) {
+      return reply.view('auth/register.ejs', {
+        user: request.user,
+        error: 'Invalid email format.',
+      });
+    }
+
     if (username.length < 3 || username.length > 50) {
       return reply.view('auth/register.ejs', {
         user: request.user,
@@ -35,10 +43,10 @@ export default async function authRoutes(app) {
       });
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       return reply.view('auth/register.ejs', {
         user: request.user,
-        error: 'Password must be at least 6 characters.',
+        error: 'Password must be at least 8 characters.',
       });
     }
 

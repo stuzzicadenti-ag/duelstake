@@ -9,7 +9,7 @@
       </div>
       <div>
         <h1><%= profile.display_name || profile.username %></h1>
-        <p>@<%= profile.username %> &mdash; Joined <%= new Date(profile.created_at).toLocaleDateString() %></p>
+        <p>@<%= profile.username %> - Joined <%= new Date(profile.created_at).toLocaleDateString() %></p>
       </div>
     </div>
   </div>
@@ -55,7 +55,7 @@
                   <span style="color: var(--success);"><%= gs.wins %>W</span> /
                   <span style="color: var(--danger);"><%= gs.losses %>L</span>
                   <% if (gs.win_streak > 0) { %>
-                    &mdash; <span style="color: var(--accent);"><%= gs.win_streak %> streak</span>
+                    - <span style="color: var(--accent);"><%= gs.win_streak %> streak</span>
                   <% } %>
                 </div>
               </div>
