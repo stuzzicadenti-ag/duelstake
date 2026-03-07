@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DuelStake - Plateforme de matchmaking gaming comp&eacute;titif</title>
+  <meta name="description" content="Trouvez des adversaires, misez et prouvez votre talent sur DuelStake. La plateforme ultime de matchmaking gaming comp&eacute;titif pour les duels 1v1, tournois et classements.">
+  <meta name="keywords" content="gaming comp&eacute;titif, matchmaking, esports, 1v1, tournois, mises, FIFA, Call of Duty, Fortnite, Valorant">
+  <link rel="canonical" href="https://stuzzicadenti-ag.github.io/duelstake/fr/">
+
+  <!-- Hreflang -->
+  <link rel="alternate" hreflang="en" href="https://stuzzicadenti-ag.github.io/duelstake/">
+  <link rel="alternate" hreflang="de" href="https://stuzzicadenti-ag.github.io/duelstake/de/">
+  <link rel="alternate" hreflang="fr" href="https://stuzzicadenti-ag.github.io/duelstake/fr/">
+  <link rel="alternate" hreflang="it" href="https://stuzzicadenti-ag.github.io/duelstake/it/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="DuelStake - Trouvez des adversaires. Misez. Prouvez votre talent.">
+  <meta property="og:description" content="La plateforme ultime de matchmaking gaming comp&eacute;titif. Duels 1v1, tournois, classements et plus encore.">
+  <meta property="og:url" content="https://stuzzicadenti-ag.github.io/duelstake/fr/">
+  <meta property="og:image" content="https://stuzzicadenti-ag.github.io/duelstake/og-image.png">
+  <meta property="og:site_name" content="DuelStake">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DuelStake - Trouvez des adversaires. Misez. Prouvez votre talent.">
+  <meta name="twitter:description" content="La plateforme ultime de matchmaking gaming comp&eacute;titif. Duels 1v1, tournois, classements et plus encore.">
+  <meta name="twitter:image" content="https://stuzzicadenti-ag.github.io/duelstake/og-image.png">
+  <meta name="theme-color" content="#ff4136">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://cloud.umami.is; frame-ancestors 'none';">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "DuelStake",
+    "url": "https://stuzzicadenti-ag.github.io/duelstake/",
+    "description": "Plateforme de matchmaking gaming comp\u00e9titif pour les duels 1v1, tournois et classements.",
+    "sameAs": [
+      "https://twitter.com/duelstake",
+      "https://discord.gg/duelstake"
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+
+  <!-- Analytics (Umami Cloud - replace data-website-id when ready) -->
+  <!-- <script defer src="https://cloud.umami.is/script.js" data-website-id="YOUR_WEBSITE_ID"></script> -->
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="../" class="nav-logo">
+        <span class="logo-icon">&#9876;</span>
+        <span class="logo-text">Duel<span class="accent">Stake</span></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Basculer le menu de navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#hero" class="nav-link active">Accueil</a></li>
+        <li><a href="#games" class="nav-link">Jeux</a></li>
+        <li><a href="#tournaments" class="nav-link">Tournois</a></li>
+        <li><a href="#leaderboard" class="nav-link">Classement</a></li>
+        <li><a href="#pricing" class="nav-link">Tarifs</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn btn-ghost" type="button" id="loginBtn">Connexion</button>
+        <button class="btn btn-primary" type="button" id="registerBtn">S'inscrire</button>
+      </div>
+      <div class="lang-switch"><a href="../">EN</a><a href="../de/">DE</a><a href="../fr/" class="active">FR</a><a href="../it/">IT</a></div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+      <div class="hero-badge">&#9889; Saison 1 en cours</div>
+      <h1 class="hero-title">
+        <span class="logo-icon-large">&#9876;</span>
+        Duel<span class="accent">Stake</span>
+      </h1>
+      <p class="hero-tagline">Trouvez des adversaires. Misez. Prouvez votre talent.</p>
+      <p class="hero-sub">La plateforme de gaming comp&eacute;titif o&ugrave; chaque match compte. Misez de l'argent r&eacute;el, grimpez dans les classements et devenez une l&eacute;gende.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" type="button" id="heroCta">Commencer &agrave; jouer</button>
+        <button class="btn btn-outline btn-lg" type="button">Voir la d&eacute;mo</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">50K+</span>
+          <span class="stat-label">Joueurs actifs</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">&#8364;2,5M</span>
+          <span class="stat-label">Total des gains</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">1M+</span>
+          <span class="stat-label">Matchs jou&eacute;s</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Games -->
+  <section class="section" id="games">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Jeux <span class="accent">populaires</span></h2>
+        <p class="section-sub">Choisissez votre champ de bataille. Dominez vos adversaires.</p>
+      </div>
+      <div class="games-grid">
+        <div class="game-card">
+          <div class="game-icon">&#9917;</div>
+          <h3 class="game-title">FIFA 26</h3>
+          <div class="game-meta">
+            <span class="game-players">&#128101; 12,4K en ligne</span>
+            <span class="game-stakes">&#9876; &#8364;1 - &#8364;500</span>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button">Trouver un match</button>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">&#128163;</div>
+          <h3 class="game-title">Battlefield 6</h3>
+          <div class="game-meta">
+            <span class="game-players">&#128101; 8,7K en ligne</span>
+            <span class="game-stakes">&#9876; &#8364;2 - &#8364;250</span>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button">Trouver un match</button>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">&#127919;</div>
+          <h3 class="game-title">Call of Duty</h3>
+          <div class="game-meta">
+            <span class="game-players">&#128101; 15,1K en ligne</span>
+            <span class="game-stakes">&#9876; &#8364;1 - &#8364;1000</span>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button">Trouver un match</button>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">&#9935;</div>
+          <h3 class="game-title">Fortnite</h3>
+          <div class="game-meta">
+            <span class="game-players">&#128101; 22,3K en ligne</span>
+            <span class="game-stakes">&#9876; &#8364;1 - &#8364;300</span>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button">Trouver un match</button>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">&#128664;</div>
+          <h3 class="game-title">Rocket League</h3>
+          <div class="game-meta">
+            <span class="game-players">&#128101; 6,9K en ligne</span>
+            <span class="game-stakes">&#9876; &#8364;1 - &#8364;200</span>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button">Trouver un match</button>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">&#128299;</div>
+          <h3 class="game-title">Valorant</h3>
+          <div class="game-meta">
+            <span class="game-players">&#128101; 18,6K en ligne</span>
+            <span class="game-stakes">&#9876; &#8364;2 - &#8364;750</span>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button">Trouver un match</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section section-dark" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Comment &ccedil;a <span class="accent">marche</span></h2>
+        <p class="section-sub">Trois &eacute;tapes vers la gloire. Pas de complexit&eacute;, que de la comp&eacute;tition.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">&#128100;</div>
+          <h3 class="step-title">Cr&eacute;er un compte</h3>
+          <p class="step-desc">Inscrivez-vous en quelques secondes. Liez vos profils gaming. V&eacute;rifiez votre identit&eacute; pour d&eacute;bloquer les matchs avec mise et les retraits.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">&#128269;</div>
+          <h3 class="step-title">Trouver un match</h3>
+          <p class="step-desc">Choisissez votre jeu, fixez votre mise et notre algorithme de matchmaking vous associe &agrave; un adversaire de niveau &eacute;gal.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">&#127942;</div>
+          <h3 class="step-title">Jouer &amp; Gagner</h3>
+          <p class="step-desc">Jouez le match, soumettez vos r&eacute;sultats. Les gagnants sont pay&eacute;s instantan&eacute;ment. Grimpez dans le classement et forgez votre r&eacute;putation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Match Types -->
+  <section class="section" id="tournaments">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Types de <span class="accent">match</span></h2>
+        <p class="section-sub">Plusieurs fa&ccedil;ons de concourir. Choisissez votre ar&egrave;ne.</p>
+      </div>
+      <div class="match-types-grid">
+        <div class="match-card match-card-featured">
+          <div class="match-badge">Le plus populaire</div>
+          <div class="match-icon">&#9876;</div>
+          <h3 class="match-title">Duels 1v1</h3>
+          <p class="match-desc">Comp&eacute;tition en t&ecirc;te-&agrave;-t&ecirc;te avec de l'argent r&eacute;el en jeu. Fixez votre mise de &#8364;1 &agrave; &#8364;1000. Le gagnant remporte tout.</p>
+          <ul class="match-features">
+            <li>&#10003; Montants de mise personnalis&eacute;s</li>
+            <li>&#10003; Paiements instantan&eacute;s</li>
+            <li>&#10003; Matchmaking bas&eacute; sur le niveau</li>
+            <li>&#10003; Protection anti-triche</li>
+          </ul>
+        </div>
+        <div class="match-card">
+          <div class="match-icon">&#127942;</div>
+          <h3 class="match-title">Tournois</h3>
+          <p class="match-desc">Comp&eacute;titions par tableaux avec frais d'entr&eacute;e et cagnottes massives. &Eacute;limination simple, &eacute;limination double ou round-robin.</p>
+          <ul class="match-features">
+            <li>&#10003; Frais d'entr&eacute;e + cagnotte</li>
+            <li>&#10003; 8 &agrave; 256 joueurs</li>
+            <li>&#10003; Plusieurs formats</li>
+            <li>&#10003; Tableaux en direct</li>
+          </ul>
+        </div>
+        <div class="match-card">
+          <div class="match-icon">&#128200;</div>
+          <h3 class="match-title">Classements</h3>
+          <p class="match-desc">Jeu comp&eacute;titif gratuit. Gagnez de l'XP, grimpez les divisions de Bronze &agrave; Champion. Prouvez votre valeur sans risquer un centime.</p>
+          <ul class="match-features">
+            <li>&#10003; 100% gratuit</li>
+            <li>&#10003; Progression bas&eacute;e sur l'XP</li>
+            <li>&#10003; R&eacute;compenses saisonni&egrave;res</li>
+            <li>&#10003; Niveaux de division</li>
+          </ul>
+        </div>
+        <div class="match-card">
+          <div class="match-icon">&#127918;</div>
+          <h3 class="match-title">Jeu libre</h3>
+          <p class="match-desc">Matchs d&eacute;contract&eacute;s sans mise. Parfait pour s'&eacute;chauffer, tester de nouvelles strat&eacute;gies ou simplement s'amuser avec la communaut&eacute;.</p>
+          <ul class="match-features">
+            <li>&#10003; Aucune mise requise</li>
+            <li>&#10003; Tous les jeux disponibles</li>
+            <li>&#10003; Matchmaking d&eacute;contract&eacute;</li>
+            <li>&#10003; Mode entra&icirc;nement</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leaderboard Preview -->
+  <section class="section section-dark" id="leaderboard">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Meilleurs <span class="accent">joueurs</span></h2>
+        <p class="section-sub">Les comp&eacute;titeurs d'&eacute;lite de cette semaine.</p>
+      </div>
+      <div class="leaderboard-table">
+        <div class="leaderboard-row leaderboard-header">
+          <span class="lb-rank">Rang</span>
+          <span class="lb-player">Joueur</span>
+          <span class="lb-wins">Victoires</span>
+          <span class="lb-earnings">Gains</span>
+          <span class="lb-winrate">Taux</span>
+        </div>
+        <div class="leaderboard-row gold">
+          <span class="lb-rank">&#127941; 1</span>
+          <span class="lb-player">xDarkSlayer99</span>
+          <span class="lb-wins">247</span>
+          <span class="lb-earnings">&#8364;12 450</span>
+          <span class="lb-winrate">89%</span>
+        </div>
+        <div class="leaderboard-row silver">
+          <span class="lb-rank">&#129352; 2</span>
+          <span class="lb-player">NightHawk_Pro</span>
+          <span class="lb-wins">231</span>
+          <span class="lb-earnings">&#8364;9 820</span>
+          <span class="lb-winrate">85%</span>
+        </div>
+        <div class="leaderboard-row bronze">
+          <span class="lb-rank">&#129353; 3</span>
+          <span class="lb-player">ShadowBlade_X</span>
+          <span class="lb-wins">198</span>
+          <span class="lb-earnings">&#8364;8 340</span>
+          <span class="lb-winrate">82%</span>
+        </div>
+        <div class="leaderboard-row">
+          <span class="lb-rank">4</span>
+          <span class="lb-player">VelocityKing</span>
+          <span class="lb-wins">186</span>
+          <span class="lb-earnings">&#8364;7 120</span>
+          <span class="lb-winrate">79%</span>
+        </div>
+        <div class="leaderboard-row">
+          <span class="lb-rank">5</span>
+          <span class="lb-player">IceStorm_GG</span>
+          <span class="lb-wins">174</span>
+          <span class="lb-earnings">&#8364;6 590</span>
+          <span class="lb-winrate">77%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="section" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title"><span class="accent">Tarifs</span></h2>
+        <p class="section-sub">Am&eacute;liorez votre avantage comp&eacute;titif.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-tier">Gratuit</div>
+          <div class="pricing-price">&#8364;0<span>/mois</span></div>
+          <ul class="pricing-features">
+            <li>&#10003; 3 matchs par jour</li>
+            <li>&#10003; Acc&egrave;s au classement</li>
+            <li>&#10003; Matchmaking de base</li>
+            <li>&#10003; Chat communautaire</li>
+            <li class="disabled">&#10007; Matchmaking prioritaire</li>
+            <li class="disabled">&#10007; Tableau de bord statistiques</li>
+            <li class="disabled">&#10007; Gestion d'&eacute;quipe</li>
+          </ul>
+          <button class="btn btn-outline" type="button">Commencer</button>
+        </div>
+        <div class="pricing-card pricing-card-featured">
+          <div class="pricing-badge">Meilleur rapport</div>
+          <div class="pricing-tier">Pro</div>
+          <div class="pricing-price">&#8364;9,99<span>/mois</span></div>
+          <ul class="pricing-features">
+            <li>&#10003; Matchs illimit&eacute;s</li>
+            <li>&#10003; Acc&egrave;s au classement</li>
+            <li>&#10003; Matchmaking prioritaire</li>
+            <li>&#10003; Tableau de bord avanc&eacute;</li>
+            <li>&#10003; Analyse des replays</li>
+            <li>&#10003; Badge de profil personnalis&eacute;</li>
+            <li class="disabled">&#10007; Gestion d'&eacute;quipe</li>
+          </ul>
+          <button class="btn btn-primary" type="button">Passer Pro</button>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-tier">&Eacute;quipe</div>
+          <div class="pricing-price">&#8364;29,99<span>/mois</span></div>
+          <ul class="pricing-features">
+            <li>&#10003; Tout inclus dans Pro</li>
+            <li>&#10003; Gestion d'&eacute;quipe (jusqu'&agrave; 10)</li>
+            <li>&#10003; Tournois priv&eacute;s</li>
+            <li>&#10003; Acc&egrave;s API</li>
+            <li>&#10003; Analyses d'&eacute;quipe</li>
+            <li>&#10003; Support d&eacute;di&eacute;</li>
+            <li>&#10003; Image de marque personnalis&eacute;e</li>
+          </ul>
+          <button class="btn btn-outline" type="button">Contacter les ventes</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section section-dark" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Ce que disent les <span class="accent">joueurs</span></h2>
+        <p class="section-sub">De vrais joueurs. De vraies victoires. De la vraie comp&eacute;tition.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"DuelStake a chang&eacute; ma fa&ccedil;on de jouer &agrave; FIFA. Le matchmaking est incroyablement rapide et savoir qu'il y a de l'argent r&eacute;el en jeu rend chaque but 10 fois plus intense. J'ai retir&eacute; &#8364;2 400 le mois dernier."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MZ</div>
+            <div>
+              <div class="testimonial-name">Marco Z.</div>
+              <div class="testimonial-role">FIFA 26 &bull; Division Diamant</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"Le syst&egrave;me de tournois est incroyable. J'ai particip&eacute; &agrave; un bracket CoD de 64 joueurs avec &#8364;10 d'entr&eacute;e et je suis reparti avec &#8364;380. L'anti-triche fonctionne vraiment et aucun litige n'a pris plus de 5 minutes."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">SK</div>
+            <div>
+              <div class="testimonial-name">Sarah K.</div>
+              <div class="testimonial-role">Call of Duty &bull; Division Platine</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"J'ai commenc&eacute; en jeu libre pour m'entra&icirc;ner, je suis pass&eacute; aux classements et maintenant je joue des duels 1v1 &agrave; &#8364;100 tous les jours. La progression est naturelle et les paiements sont instantan&eacute;s. La meilleure plateforme gaming."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">JR</div>
+            <div>
+              <div class="testimonial-name">Jake R.</div>
+              <div class="testimonial-role">Valorant &bull; Division Champion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="section cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Pr&ecirc;t &agrave; prouver votre talent ?</h2>
+        <p class="cta-sub">Rejoignez plus de 50 000 joueurs comp&eacute;titifs. Vos 3 premiers matchs sont gratuits.</p>
+        <button class="btn btn-primary btn-lg" type="button" id="ctaRegister">Cr&eacute;er un compte gratuit</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <span class="logo-icon">&#9876;</span>
+            <span class="logo-text">Duel<span class="accent">Stake</span></span>
+          </div>
+          <p class="footer-desc">La plateforme ultime de matchmaking gaming comp&eacute;titif. Jouez, rivalisez et gagnez.</p>
+          <div class="footer-socials">
+            <a href="#" class="social-link" aria-label="Twitter">&#120143;</a>
+            <a href="#" class="social-link" aria-label="Discord">&#9672;</a>
+            <a href="#" class="social-link" aria-label="YouTube">&#9654;</a>
+            <a href="#" class="social-link" aria-label="Twitch">&#8801;</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Plateforme</h4>
+          <ul>
+            <li><a href="#games">Jeux</a></li>
+            <li><a href="#tournaments">Tournois</a></li>
+            <li><a href="#leaderboard">Classement</a></li>
+            <li><a href="#pricing">Tarifs</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Aide</h4>
+          <ul>
+            <li><a href="#">Centre d'aide</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Nous contacter</a></li>
+            <li><a href="#">Signaler un bug</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>L&eacute;gal</h4>
+          <ul>
+            <li><a href="#">Conditions d'utilisation</a></li>
+            <li><a href="#">Politique de confidentialit&eacute;</a></li>
+            <li><a href="#">Jeu responsable</a></li>
+            <li><a href="#">Politique de cookies</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 DuelStake. Tous droits r&eacute;serv&eacute;s.</p>
+        <p class="footer-disclaimer">DuelStake est une plateforme comp&eacute;titive bas&eacute;e sur les comp&eacute;tences. Les matchs avec mise peuvent ne pas &ecirc;tre disponibles dans toutes les juridictions. Les utilisateurs sont responsables du respect des lois locales concernant les jeux en ligne et les paris. Vous devez avoir 18 ans ou plus pour participer aux matchs avec mise. Si vous ou quelqu'un que vous connaissez a un probl&egrave;me de jeu, veuillez chercher de l'aide sur <a href="https://www.begambleaware.org" rel="noopener noreferrer" target="_blank">BeGambleAware.org</a>. DuelStake promeut le jeu responsable et fournit des outils d'auto-exclusion pour tous les utilisateurs.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Login/Register Modal -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal">
+      <button class="modal-close" type="button" id="modalClose" aria-label="Fermer la fen&ecirc;tre">&times;</button>
+      <div class="modal-tabs">
+        <button class="modal-tab active" type="button" data-tab="login">Connexion</button>
+        <button class="modal-tab" type="button" data-tab="register">S'inscrire</button>
+      </div>
+
+      <!-- Login Form -->
+      <form class="modal-form" id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">E-mail</label>
+          <input type="email" id="loginEmail" placeholder="votre@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Mot de passe</label>
+          <input type="password" id="loginPassword" placeholder="Entrez votre mot de passe" required>
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Connexion</button>
+        <p class="form-footer">Pas encore de compte ? <a href="#" class="switch-tab" data-tab="register">Inscrivez-vous ici</a></p>
+      </form>
+
+      <!-- Register Form -->
+      <form class="modal-form hidden" id="registerForm">
+        <div class="form-group">
+          <label for="regUsername">Nom d'utilisateur</label>
+          <input type="text" id="regUsername" placeholder="Choisissez un nom d'utilisateur" required>
+        </div>
+        <div class="form-group">
+          <label for="regEmail">E-mail</label>
+          <input type="email" id="regEmail" placeholder="votre@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Mot de passe</label>
+          <input type="password" id="regPassword" placeholder="Cr&eacute;ez un mot de passe" required>
+        </div>
+        <div class="form-group">
+          <label for="regConfirm">Confirmer le mot de passe</label>
+          <input type="password" id="regConfirm" placeholder="Confirmez votre mot de passe" required>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="regTerms" required>
+          <label for="regTerms">J'accepte les <a href="#">Conditions d'utilisation</a> et confirme avoir 18 ans ou plus</label>
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Cr&eacute;er un compte</button>
+        <p class="form-footer">D&eacute;j&agrave; un compte ? <a href="#" class="switch-tab" data-tab="login">Connectez-vous ici</a></p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      var nav = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile nav toggle
+    document.getElementById('navToggle').addEventListener('click', function() {
+      document.getElementById('navLinks').classList.toggle('open');
+      this.classList.toggle('active');
+    });
+
+    // Modal
+    var modal = document.getElementById('authModal');
+    var loginForm = document.getElementById('loginForm');
+    var registerForm = document.getElementById('registerForm');
+    var tabs = document.querySelectorAll('.modal-tab');
+
+    function openModal(tab) {
+      modal.classList.add('open');
+      switchTab(tab);
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function switchTab(tab) {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      document.querySelector('.modal-tab[data-tab="' + tab + '"]').classList.add('active');
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+      } else {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', function() { openModal('login'); });
+    document.getElementById('registerBtn').addEventListener('click', function() { openModal('register'); });
+    document.getElementById('heroCta').addEventListener('click', function() { openModal('register'); });
+    document.getElementById('ctaRegister').addEventListener('click', function() { openModal('register'); });
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
+    });
+
+    document.querySelectorAll('.switch-tab').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        switchTab(this.dataset.tab);
+      });
+    });
+
+    // Prevent form submission (demo only)
+    document.querySelectorAll('.modal-form').forEach(function(form) {
+      form.addEventListener('submit', function(e) { e.preventDefault(); });
+    });
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          document.getElementById('navLinks').classList.remove('open');
+          document.getElementById('navToggle').classList.remove('active');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
