@@ -1,0 +1,87 @@
+<%- include('../partials/head', { title: 'Create Match' }) %>
+<%- include('../partials/nav') %>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Create Match</h1>
+    <p>Set up a 1v1 duel and wait for an opponent to accept.</p>
+  </div>
+
+  <div style="max-width: 560px; margin: 0 auto;">
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <div class="card">
+      <form action="/matches/create" method="POST">
+        <div class="form-group">
+          <label>Game</label>
+          <select name="game_id" class="form-control" required id="gameSelect">
+            <option value="">Select a game...</option>
+            <% games.forEach(function(g) { %>
+              <option value="<%= g.id %>"
+                      data-min="<%= g.min_stake %>"
+                      data-max="<%= g.max_stake %>"
+                      data-icon="<%= g.icon %>"
+                      <%= selectedGame && selectedGame.id === g.id ? 'selected' : '' %>>
+                <%= g.icon %> <%= g.name %> (&euro;<%= g.min_stake %> - &euro;<%= g.max_stake %>)
+              </option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Stake Amount (&euro;)</label>
+          <input type="number" name="stake_amount" class="form-control" id="stakeInput"
+                 step="0.01"
+                 min="<%= selectedGame ? selectedGame.min_stake : 1 %>"
+                 max="<%= selectedGame ? selectedGame.max_stake : 1000 %>"
+                 placeholder="Enter stake amount"
+                 required>
+          <div id="stakeHint" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+            <% if (selectedGame) { %>
+              Min: &euro;<%= selectedGame.min_stake %> | Max: &euro;<%= selectedGame.max_stake %>
+            <% } else { %>
+              Select a game to see stake range
+            <% } %>
+          </div>
+        </div>
+
+        <div class="card" style="background: var(--bg); margin-bottom: 20px;">
+          <h3 style="font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">Match Rules</h3>
+          <ul style="font-size: 0.85rem; color: var(--text-muted); padding-left: 18px; list-style: disc;">
+            <li>Both players stake the same amount</li>
+            <li>Winner takes the full pot (2x stake)</li>
+            <li>Upload proof of your match result (screenshot/video)</li>
+            <li>Both players must agree on the winner</li>
+            <li>Disputes are reviewed by administrators</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px;">
+          Create Match
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const gameSelect = document.getElementById('gameSelect');
+  const stakeInput = document.getElementById('stakeInput');
+  const stakeHint = document.getElementById('stakeHint');
+
+  gameSelect.addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    if (opt.value) {
+      const min = opt.dataset.min;
+      const max = opt.dataset.max;
+      stakeInput.min = min;
+      stakeInput.max = max;
+      stakeInput.placeholder = `${min} - ${max}`;
+      stakeHint.innerHTML = `Min: &euro;${min} | Max: &euro;${max}`;
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

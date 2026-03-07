@@ -1,0 +1,103 @@
+<%- include('../partials/head', { title: 'Wallet' }) %>
+<%- include('../partials/nav') %>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Wallet</h1>
+    <p>Manage your balance, deposits and withdrawals.</p>
+  </div>
+
+  <% if (error === 'insufficient') { %>
+    <div class="alert alert-error">Insufficient balance for this action.</div>
+  <% } else if (error === 'invalid_amount') { %>
+    <div class="alert alert-error">Invalid amount. Please enter a valid number.</div>
+  <% } %>
+  <% if (success === 'deposit') { %>
+    <div class="alert alert-success">Deposit successful!</div>
+  <% } else if (success === 'withdraw') { %>
+    <div class="alert alert-success">Withdrawal successful!</div>
+  <% } %>
+
+  <!-- Balance display -->
+  <div class="card mb-3" style="text-align: center; padding: 40px;">
+    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Available Balance</div>
+    <div style="font-size: 3rem; font-weight: 900; color: var(--accent); margin: 8px 0;">
+      &euro;<%= parseFloat(balance).toFixed(2) %>
+    </div>
+    <div style="font-size: 0.85rem; color: var(--text-muted);">Mock balance &mdash; no real payments in MVP</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+    <!-- Deposit -->
+    <div class="card">
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--success);">Deposit</h2>
+      <form action="/wallet/deposit" method="POST">
+        <div class="form-group">
+          <label>Amount (&euro;)</label>
+          <input type="number" name="amount" class="form-control" step="0.01" min="1" max="10000" placeholder="50.00" required>
+        </div>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.form.amount.value='10'">+10</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.form.amount.value='25'">+25</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.form.amount.value='50'">+50</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.form.amount.value='100'">+100</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.form.amount.value='500'">+500</button>
+        </div>
+        <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center;">Deposit</button>
+      </form>
+    </div>
+
+    <!-- Withdraw -->
+    <div class="card">
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--primary);">Withdraw</h2>
+      <form action="/wallet/withdraw" method="POST">
+        <div class="form-group">
+          <label>Amount (&euro;)</label>
+          <input type="number" name="amount" class="form-control" step="0.01" min="1" max="<%= balance %>" placeholder="25.00" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Withdraw</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Transaction history -->
+  <div class="card">
+    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Transaction History</h2>
+    <% if (transactions.length > 0) { %>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Description</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% transactions.forEach(function(tx) { %>
+            <tr>
+              <td>
+                <span class="badge badge-<%= tx.type === 'deposit' || tx.type === 'win' || tx.type === 'refund' ? 'active' : tx.type === 'stake' ? 'waiting' : 'disputed' %>">
+                  <%= tx.type %>
+                </span>
+              </td>
+              <td style="font-weight: 700; color: <%= parseFloat(tx.amount) >= 0 ? 'var(--success)' : 'var(--danger)' %>;">
+                <%= parseFloat(tx.amount) >= 0 ? '+' : '' %>&euro;<%= parseFloat(tx.amount).toFixed(2) %>
+              </td>
+              <td class="text-muted"><%= tx.description || '-' %></td>
+              <td class="text-muted"><%= new Date(tx.created_at).toLocaleString() %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="empty-state" style="padding: 40px;">
+        <p>No transactions yet. Make a deposit to get started!</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,71 @@
+<%- include('../partials/head', { title: 'My Matches' }) %>
+<%- include('../partials/nav') %>
+
+<div class="container">
+  <div class="page-header flex items-center justify-between">
+    <div>
+      <h1>My Matches</h1>
+      <p>Track your active duels and match history.</p>
+    </div>
+    <a href="/matches/create" class="btn btn-primary">Create Match</a>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <a href="/matches?tab=active" class="tab <%= tab === 'active' ? 'active' : '' %>">Active</a>
+    <a href="/matches?tab=completed" class="tab <%= tab === 'completed' ? 'active' : '' %>">Completed</a>
+    <a href="/matches?tab=disputed" class="tab <%= tab === 'disputed' ? 'active' : '' %>">Disputed</a>
+  </div>
+
+  <% if (matches.length > 0) { %>
+    <div class="grid grid-2">
+      <% matches.forEach(function(m) { %>
+        <a href="/matches/<%= m.id %>" class="card" style="text-decoration: none; color: var(--text);">
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-1">
+              <span style="font-size: 1.3rem;"><%= m.game_icon %></span>
+              <span style="font-weight: 700;"><%= m.game_name %></span>
+            </div>
+            <span class="badge badge-<%= m.status %>"><%= m.status %></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; margin: 16px 0;">
+            <div style="flex: 1; text-align: center;">
+              <div style="font-weight: 700; font-size: 1rem;"><%= m.player1_name %></div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Player 1</div>
+            </div>
+            <div style="padding: 8px 16px; background: var(--bg); border-radius: var(--radius);">
+              <span style="color: var(--accent); font-weight: 800; font-size: 1.1rem;">
+                &euro;<%= parseFloat(m.stake_amount).toFixed(2) %>
+              </span>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <% if (m.player2_name) { %>
+                <div style="font-weight: 700; font-size: 1rem;"><%= m.player2_name %></div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Player 2</div>
+              <% } else { %>
+                <div style="font-weight: 700; font-size: 1rem; color: var(--text-muted);">Waiting...</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">No opponent</div>
+              <% } %>
+            </div>
+          </div>
+          <% if (m.winner_name) { %>
+            <div style="text-align: center; padding-top: 8px; border-top: 1px solid var(--border);">
+              <span style="color: var(--success); font-weight: 600;">Winner: <%= m.winner_name %></span>
+            </div>
+          <% } %>
+          <div style="text-align: right; margin-top: 8px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted);"><%= new Date(m.created_at).toLocaleDateString() %></span>
+          </div>
+        </a>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="icon">&#9876;</div>
+      <p>No <%= tab %> matches found.</p>
+      <a href="/games" class="btn btn-primary">Find a Game</a>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

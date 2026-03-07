@@ -1,0 +1,115 @@
+<%- include('../partials/head', { title: profile.display_name || profile.username }) %>
+<%- include('../partials/nav') %>
+
+<div class="container">
+  <div class="page-header">
+    <div class="flex items-center gap-2">
+      <div style="width: 80px; height: 80px; background: var(--surface-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 3px solid var(--primary); flex-shrink: 0;">
+        &#128100;
+      </div>
+      <div>
+        <h1><%= profile.display_name || profile.username %></h1>
+        <p>@<%= profile.username %> &mdash; Joined <%= new Date(profile.created_at).toLocaleDateString() %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats overview -->
+  <div class="grid grid-3 mb-3" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card stat">
+      <div class="stat-value text-accent"><%= profile.elo_rating %></div>
+      <div class="stat-label">Global ELO</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value text-success"><%= totalWins %></div>
+      <div class="stat-label">Total Wins</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value text-danger"><%= totalLosses %></div>
+      <div class="stat-label">Total Losses</div>
+    </div>
+    <div class="card stat">
+      <%
+        const totalGames = totalWins + totalLosses;
+        const winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : '0.0';
+      %>
+      <div class="stat-value" style="color: <%= parseFloat(winRate) >= 50 ? 'var(--success)' : 'var(--danger)' %>;">
+        <%= winRate %>%
+      </div>
+      <div class="stat-label">Win Rate</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <!-- Game stats -->
+    <div class="card">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Game Stats</h2>
+      <% if (gameStats.length > 0) { %>
+        <% gameStats.forEach(function(gs) { %>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+            <div class="flex items-center gap-1">
+              <span style="font-size: 1.3rem;"><%= gs.icon %></span>
+              <div>
+                <a href="/games/<%= gs.slug %>" style="font-weight: 600;"><%= gs.name %></a>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  <span style="color: var(--success);"><%= gs.wins %>W</span> /
+                  <span style="color: var(--danger);"><%= gs.losses %>L</span>
+                  <% if (gs.win_streak > 0) { %>
+                    &mdash; <span style="color: var(--accent);"><%= gs.win_streak %> streak</span>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 800; font-size: 1.1rem;"><%= gs.elo %></div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">ELO</div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p class="text-muted" style="padding: 20px 0;">No games played yet.</p>
+      <% } %>
+    </div>
+
+    <!-- Recent matches -->
+    <div class="card">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Recent Matches</h2>
+      <% if (recentMatches.length > 0) { %>
+        <% recentMatches.forEach(function(m) { %>
+          <a href="/matches/<%= m.id %>" style="display: block; padding: 10px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text);">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1">
+                <span><%= m.game_icon %></span>
+                <div>
+                  <span style="font-weight: 600;"><%= m.player1_name %></span>
+                  <span class="text-muted"> vs </span>
+                  <span style="font-weight: 600;"><%= m.player2_name %></span>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="color: var(--accent); font-weight: 700; font-size: 0.9rem;">
+                  &euro;<%= parseFloat(m.stake_amount).toFixed(2) %>
+                </div>
+                <div style="font-size: 0.75rem; color: <%= m.winner_name === profile.username ? 'var(--success)' : 'var(--danger)' %>; font-weight: 600;">
+                  <%= m.winner_name === profile.username ? 'WON' : 'LOST' %>
+                </div>
+              </div>
+            </div>
+          </a>
+        <% }); %>
+      <% } else { %>
+        <p class="text-muted" style="padding: 20px 0;">No completed matches yet.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- ELO Chart placeholder -->
+  <div class="card mt-3" style="text-align: center; padding: 40px;">
+    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">ELO History</div>
+    <div style="height: 200px; background: var(--bg); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; border: 1px dashed var(--border);">
+      <span class="text-muted">Chart coming soon</span>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

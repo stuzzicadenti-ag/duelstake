@@ -1,0 +1,44 @@
+<%- include('../partials/head', { title: 'Games' }) %>
+<%- include('../partials/nav') %>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Games</h1>
+    <p>Choose your arena. Challenge opponents across multiple titles.</p>
+  </div>
+
+  <div class="grid grid-3">
+    <% games.forEach(function(game) { %>
+      <div class="card">
+        <div style="font-size: 3rem; margin-bottom: 16px;"><%= game.icon %></div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;"><%= game.name %></h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+          <%= game.description %>
+        </p>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Stakes</span><br>
+            <span style="color: var(--accent); font-weight: 700;">&euro;<%= game.min_stake %> - &euro;<%= game.max_stake %></span>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Online</span><br>
+            <span style="color: var(--success); font-weight: 700;"><%= game.player_count %> players</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <a href="/games/<%= game.slug %>" class="btn btn-secondary" style="flex: 1; justify-content: center;">Details</a>
+          <a href="/matches/create?game=<%= game.slug %>" class="btn btn-primary" style="flex: 1; justify-content: center;">Find Match</a>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+
+  <% if (games.length === 0) { %>
+    <div class="empty-state">
+      <div class="icon">&#127918;</div>
+      <p>No games available yet. Check back soon!</p>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

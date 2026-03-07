@@ -1,0 +1,18 @@
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Duel<span>Stake</span></a>
+    <div class="nav-links">
+      <a href="/games">Games</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <% if (typeof user !== 'undefined' && user) { %>
+        <a href="/matches">My Matches</a>
+        <a href="/wallet">Wallet</a>
+        <a href="/profile/<%= user.username %>" class="hide-mobile"><%= user.display_name || user.username %></a>
+        <a href="/auth/logout" class="btn btn-secondary btn-sm">Logout</a>
+      <% } else { %>
+        <a href="/auth/login" class="btn btn-secondary btn-sm">Login</a>
+        <a href="/auth/register" class="btn btn-primary btn-sm">Sign Up</a>
+      <% } %>
+    </div>
+  </div>
+</nav>

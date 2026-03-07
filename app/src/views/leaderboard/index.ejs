@@ -1,0 +1,83 @@
+<%- include('../partials/head', { title: 'Leaderboard' }) %>
+<%- include('../partials/nav') %>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Leaderboard</h1>
+    <p>Top 50 players ranked by global ELO rating.</p>
+  </div>
+
+  <!-- Game filter tabs -->
+  <div class="tabs">
+    <a href="/leaderboard" class="tab active">Global</a>
+    <% games.forEach(function(g) { %>
+      <a href="/leaderboard/<%= g.slug %>" class="tab"><%= g.icon %> <%= g.name %></a>
+    <% }); %>
+  </div>
+
+  <% if (players.length > 0) { %>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th>Player</th>
+              <th>ELO</th>
+              <th>Wins</th>
+              <th>Losses</th>
+              <th>Win Rate</th>
+              <th>Best Streak</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% players.forEach(function(p, i) { %>
+            <tr>
+              <td>
+                <% if (i === 0) { %>
+                  <span style="font-size: 1.2rem;">&#127942;</span>
+                <% } else if (i === 1) { %>
+                  <span style="font-size: 1.2rem;">&#129352;</span>
+                <% } else if (i === 2) { %>
+                  <span style="font-size: 1.2rem;">&#129353;</span>
+                <% } else { %>
+                  <span style="font-weight: 700; color: var(--text-muted);"><%= i + 1 %></span>
+                <% } %>
+              </td>
+              <td>
+                <a href="/profile/<%= p.username %>" style="font-weight: 600;">
+                  <%= p.display_name || p.username %>
+                </a>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">@<%= p.username %></div>
+              </td>
+              <td style="font-weight: 800; font-size: 1.1rem;"><%= p.elo_rating %></td>
+              <td style="color: var(--success); font-weight: 600;"><%= p.total_wins %></td>
+              <td style="color: var(--danger); font-weight: 600;"><%= p.total_losses %></td>
+              <td>
+                <%
+                  const total = parseInt(p.total_wins) + parseInt(p.total_losses);
+                  const rate = total > 0 ? ((parseInt(p.total_wins) / total) * 100).toFixed(1) : '0.0';
+                %>
+                <span style="color: <%= parseFloat(rate) >= 50 ? 'var(--success)' : 'var(--danger)' %>; font-weight: 600;">
+                  <%= rate %>%
+                </span>
+              </td>
+              <td>
+                <span style="color: var(--accent); font-weight: 600;"><%= p.best_streak || 0 %></span>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="icon">&#127942;</div>
+      <p>No players ranked yet. Be the first to compete!</p>
+      <a href="/games" class="btn btn-primary">Find a Match</a>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>
