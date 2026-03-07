@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create a Duel - DuelStake</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --surface2: #252540;
+      --border: #2d2d4a; --text: #e2e2f0; --text2: #8888aa;
+      --primary: #6c5ce7; --primary-hover: #7d6ff0;
+      --success: #00b894; --danger: #e74c3c; --warning: #f39c12;
+      --font: system-ui, -apple-system, sans-serif;
+      --radius: 12px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* --- Toolbar --- */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .toolbar__logo { font-weight: 700; font-size: 1.1rem; color: var(--primary); text-decoration: none; }
+    .toolbar__nav { display: flex; gap: 1rem; }
+    .toolbar__tab { padding: .4rem 1rem; border: 1px solid var(--border); border-radius: 999px; background: none; color: var(--text2); cursor: pointer; font-size: .85rem; transition: .2s; }
+    .toolbar__tab:hover, .toolbar__tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .toolbar__btn { padding: .4rem 1rem; border: none; border-radius: var(--radius); background: var(--primary); color: #fff; cursor: pointer; font-weight: 600; font-size: .85rem; }
+    .toolbar__btn:hover { background: var(--primary-hover); }
+
+    /* --- Screens --- */
+    .screen { display: none; max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .screen.active { display: block; }
+    .screen__title { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
+    .screen__sub { color: var(--text2); margin-bottom: 1.5rem; font-size: .9rem; }
+
+    /* --- Create Duel Form --- */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text2); margin-bottom: .3rem; }
+    .form-group select, .form-group input {
+      width: 100%; padding: .6rem .8rem; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: .9rem; font-family: var(--font);
+    }
+    .form-group select:focus, .form-group input:focus { outline: none; border-color: var(--primary); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .stake-display { text-align: center; padding: 1.5rem; background: var(--surface2); border-radius: var(--radius); margin: 1rem 0; }
+    .stake-display__amount { font-size: 2rem; font-weight: 700; color: var(--success); }
+    .stake-display__label { color: var(--text2); font-size: .8rem; margin-top: .25rem; }
+
+    .btn-create { display: block; width: 100%; padding: .8rem; background: var(--primary); color: #fff; border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 700; cursor: pointer; transition: .2s; }
+    .btn-create:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+    /* --- Browse Duels --- */
+    .filters { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-chip { padding: .3rem .8rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 999px; color: var(--text2); cursor: pointer; font-size: .8rem; transition: .2s; }
+    .filter-chip:hover, .filter-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .duel-list { display: flex; flex-direction: column; gap: .75rem; }
+    .duel-card {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center;
+      padding: 1rem 1.25rem; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); transition: .2s; cursor: pointer;
+    }
+    .duel-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .duel-card__game { font-size: 1.5rem; }
+    .duel-card__info h3 { font-size: .95rem; margin-bottom: .15rem; }
+    .duel-card__info p { font-size: .8rem; color: var(--text2); }
+    .duel-card__stake { text-align: right; }
+    .duel-card__amount { font-size: 1.1rem; font-weight: 700; color: var(--success); }
+    .duel-card__rules { font-size: .75rem; color: var(--text2); }
+
+    /* --- Lobby --- */
+    .lobby { text-align: center; }
+    .lobby__vs { display: flex; align-items: center; justify-content: center; gap: 2rem; margin: 2rem 0; }
+    .lobby__player { text-align: center; }
+    .lobby__avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--surface2); border: 3px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto .5rem; }
+    .lobby__name { font-weight: 600; font-size: .95rem; }
+    .lobby__rank { font-size: .8rem; color: var(--text2); }
+    .lobby__divider { font-size: 1.5rem; font-weight: 700; color: var(--danger); }
+    .lobby__countdown { font-size: 3rem; font-weight: 700; color: var(--warning); margin: 1.5rem 0; }
+    .lobby__status { color: var(--text2); font-size: .9rem; }
+    .lobby__actions { margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; }
+    .btn-ready { padding: .6rem 2rem; border: none; border-radius: var(--radius); font-size: .9rem; font-weight: 600; cursor: pointer; }
+    .btn-ready--confirm { background: var(--success); color: #fff; }
+    .btn-ready--cancel { background: var(--surface2); color: var(--danger); border: 1px solid var(--danger); }
+
+    /* --- Result --- */
+    .result { text-align: center; padding: 3rem 1.5rem; }
+    .result__icon { font-size: 4rem; margin-bottom: 1rem; }
+    .result__title { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
+    .result__payout { font-size: 2rem; font-weight: 700; color: var(--success); margin: 1rem 0; }
+    .result__details { color: var(--text2); font-size: .85rem; }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .lobby__vs { gap: 1rem; }
+      .lobby__avatar { width: 60px; height: 60px; font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="toolbar">
+    <a href="./" class="toolbar__logo">&#9876; DuelStake</a>
+    <nav class="toolbar__nav">
+      <button class="toolbar__tab active" data-screen="create">Create</button>
+      <button class="toolbar__tab" data-screen="browse">Browse</button>
+      <button class="toolbar__tab" data-screen="lobby">Lobby</button>
+    </nav>
+  </header>
+
+  <!-- Screen: Create Duel -->
+  <div class="screen active" id="screen-create">
+    <h1 class="screen__title">Create a Duel</h1>
+    <p class="screen__sub">Set your game, rules, and stake. Your opponent will match it.</p>
+
+    <div class="form-group">
+      <label>Game</label>
+      <select id="gameSelect">
+        <option>FIFA 25</option>
+        <option>Call of Duty: Warzone</option>
+        <option>Fortnite</option>
+        <option>Valorant</option>
+        <option>Rocket League</option>
+        <option>Chess.com</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Format</label>
+        <select>
+          <option>Best of 1</option>
+          <option>Best of 3</option>
+          <option>Best of 5</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Skill Level</label>
+        <select>
+          <option>Any</option>
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+          <option>Pro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Stake Amount (CHF)</label>
+      <input type="range" id="stakeRange" min="5" max="200" step="5" value="25">
+    </div>
+
+    <div class="stake-display">
+      <div class="stake-display__amount" id="stakeValue">CHF 25</div>
+      <div class="stake-display__label">Winner takes CHF <span id="winnerTakes">47.50</span> (5% platform fee)</div>
+    </div>
+
+    <div class="form-group">
+      <label>Additional Rules (optional)</label>
+      <input type="text" placeholder="e.g., No items, 10 min halves...">
+    </div>
+
+    <button class="btn-create" id="createDuel">&#9876; Create Duel &amp; Find Opponent</button>
+  </div>
+
+  <!-- Screen: Browse Duels -->
+  <div class="screen" id="screen-browse">
+    <h1 class="screen__title">Open Duels</h1>
+    <p class="screen__sub">Find an opponent and jump in.</p>
+
+    <div class="filters">
+      <span class="filter-chip active">All Games</span>
+      <span class="filter-chip">FIFA 25</span>
+      <span class="filter-chip">Warzone</span>
+      <span class="filter-chip">Fortnite</span>
+      <span class="filter-chip">Valorant</span>
+    </div>
+
+    <div class="duel-list">
+      <div class="duel-card">
+        <div class="duel-card__game">&#9917;</div>
+        <div class="duel-card__info">
+          <h3>FIFA 25  - Best of 3</h3>
+          <p>by ProGamer99 &bull; Advanced &bull; 10 min halves</p>
+        </div>
+        <div class="duel-card__stake">
+          <div class="duel-card__amount">CHF 50</div>
+          <div class="duel-card__rules">Win CHF 95</div>
+        </div>
+      </div>
+      <div class="duel-card">
+        <div class="duel-card__game">&#127918;</div>
+        <div class="duel-card__info">
+          <h3>Warzone  - Best of 1</h3>
+          <p>by SniperKing &bull; Any level &bull; Verdansk</p>
+        </div>
+        <div class="duel-card__stake">
+          <div class="duel-card__amount">CHF 10</div>
+          <div class="duel-card__rules">Win CHF 19</div>
+        </div>
+      </div>
+      <div class="duel-card">
+        <div class="duel-card__game">&#9823;</div>
+        <div class="duel-card__info">
+          <h3>Chess.com  - Best of 5</h3>
+          <p>by GrandMaster42 &bull; Pro &bull; 5 min blitz</p>
+        </div>
+        <div class="duel-card__stake">
+          <div class="duel-card__amount">CHF 25</div>
+          <div class="duel-card__rules">Win CHF 47.50</div>
+        </div>
+      </div>
+      <div class="duel-card">
+        <div class="duel-card__game">&#128640;</div>
+        <div class="duel-card__info">
+          <h3>Rocket League  - Best of 3</h3>
+          <p>by AerialAce &bull; Intermediate &bull; No mutators</p>
+        </div>
+        <div class="duel-card__stake">
+          <div class="duel-card__amount">CHF 15</div>
+          <div class="duel-card__rules">Win CHF 28.50</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Lobby -->
+  <div class="screen" id="screen-lobby">
+    <div class="lobby">
+      <h1 class="screen__title">Match Lobby</h1>
+      <p class="screen__sub">FIFA 25  - Best of 3  - CHF 50 stake</p>
+
+      <div class="lobby__vs">
+        <div class="lobby__player">
+          <div class="lobby__avatar">&#128568;</div>
+          <div class="lobby__name">You</div>
+          <div class="lobby__rank">&#11088; 1,450 ELO</div>
+        </div>
+        <div class="lobby__divider">VS</div>
+        <div class="lobby__player">
+          <div class="lobby__avatar">&#128526;</div>
+          <div class="lobby__name">ProGamer99</div>
+          <div class="lobby__rank">&#11088; 1,520 ELO</div>
+        </div>
+      </div>
+
+      <div class="lobby__countdown" id="countdown">0:30</div>
+      <div class="lobby__status">Both players must confirm to start the match</div>
+
+      <div class="lobby__actions">
+        <button class="btn-ready btn-ready--confirm" id="readyBtn">&#10003; Ready</button>
+        <button class="btn-ready btn-ready--cancel">&#10005; Withdraw</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    // Tab navigation
+    document.querySelectorAll('[data-screen]').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.toolbar__tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('screen-' + tab.dataset.screen).classList.add('active');
+      });
+    });
+
+    // Stake slider
+    var stakeRange = document.getElementById('stakeRange');
+    stakeRange.addEventListener('input', function() {
+      var val = parseInt(stakeRange.value);
+      document.getElementById('stakeValue').textContent = 'CHF ' + val;
+      document.getElementById('winnerTakes').textContent = (val * 2 * 0.95).toFixed(2);
+    });
+
+    // Filter chips
+    document.querySelectorAll('.filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+      });
+    });
+
+    // Create duel → go to lobby
+    document.getElementById('createDuel').addEventListener('click', function() {
+      document.querySelectorAll('.toolbar__tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+      document.querySelector('[data-screen="lobby"]').classList.add('active');
+      document.getElementById('screen-lobby').classList.add('active');
+    });
+
+    // Countdown
+    var seconds = 30;
+    var countdownEl = document.getElementById('countdown');
+    setInterval(function() {
+      if (seconds > 0) seconds--;
+      countdownEl.textContent = '0:' + (seconds < 10 ? '0' : '') + seconds;
+    }, 1000);
+
+    // Ready button
+    document.getElementById('readyBtn').addEventListener('click', function() {
+      this.textContent = '\u2714 Ready!';
+      this.style.opacity = '.6';
+      this.disabled = true;
+    });
+
+    // Duel cards → go to lobby
+    document.querySelectorAll('.duel-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.toolbar__tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+        document.querySelector('[data-screen="lobby"]').classList.add('active');
+        document.getElementById('screen-lobby').classList.add('active');
+      });
+    });
+  })();
+  </script>
+
+</body>
+</html>
