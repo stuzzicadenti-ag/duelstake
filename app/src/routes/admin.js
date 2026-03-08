@@ -76,6 +76,7 @@ export async function runAdminMigrations() {
     )`,
     `CREATE INDEX IF NOT EXISTS idx_user_activity_user_id ON user_activity(user_id)`,
     `CREATE INDEX IF NOT EXISTS idx_user_activity_created_at ON user_activity(created_at DESC)`,
+    `ALTER TABLE user_warnings ADD COLUMN IF NOT EXISTS expired BOOLEAN DEFAULT false`,
     `CREATE INDEX IF NOT EXISTS idx_user_warnings_user_id ON user_warnings(user_id)`,
   ];
 
@@ -678,18 +679,26 @@ export default async function adminRoutes(app) {
         [targetId, request.user.id, reason, details || null, evidence_url || null]
       );
 
-      // Check if 3 warnings => auto-ban
+      // Expire old warnings (6+ months of good conduct)
+      await client.query(
+        `UPDATE user_warnings SET expired = true
+         WHERE user_id = $1 AND expired = false
+           AND created_at < NOW() - INTERVAL '6 months'`,
+        [targetId]
+      );
+
+      // Check if 3 active warnings => auto-ban
       const warnCount = await client.query(
-        'SELECT COUNT(*) as count FROM user_warnings WHERE user_id = $1',
+        'SELECT COUNT(*) as count FROM user_warnings WHERE user_id = $1 AND expired = false',
         [targetId]
       );
 
       if (parseInt(warnCount.rows[0].count) >= 3 && !target.rows[0].banned) {
         await client.query(
           `UPDATE users SET banned = true, banned_reason = $1, banned_at = NOW() WHERE id = $2`,
-          ['Automatically banned: 3 warnings reached', targetId]
+          ['Account suspended: 3 active warnings for misconduct', targetId]
         );
-        await logAction(request.user.id, 'auto_ban_warnings', 'user', targetId, '3 warnings reached');
+        await logAction(request.user.id, 'auto_ban_warnings', 'user', targetId, '3 active warnings reached');
       }
 
       await client.query('COMMIT');
