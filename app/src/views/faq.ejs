@@ -1,4 +1,4 @@
-<%- include('partials/head', { title: 'FAQ & Rules' }) %>
+<%- include('partials/head', { title: t('nav.faq') }) %>
 <%- include('partials/nav') %>
 
 <style>
@@ -64,13 +64,13 @@
 
 <div class="container">
   <div class="page-header">
-    <h1>FAQ & Platform Rules</h1>
-    <p>Everything you need to know about DuelStake</p>
+    <h1><%- t('faq.title') %></h1>
+    <p><%- t('faq.subtitle') %></p>
   </div>
 
   <!-- How DuelStake Works -->
   <div class="faq-section">
-    <h2><span class="icon">&#9876;</span> How DuelStake Works</h2>
+    <h2><span class="icon">&#9876;</span> <%- t('faq.how_works') %></h2>
 
     <details>
       <summary>What is DuelStake?</summary>
@@ -104,7 +104,7 @@
 
   <!-- Match Rules -->
   <div class="faq-section">
-    <h2><span class="icon">&#127918;</span> Match Rules</h2>
+    <h2><span class="icon">&#127918;</span> <%- t('faq.match_rules') %></h2>
 
     <details>
       <summary>How do I create a match?</summary>
@@ -153,7 +153,7 @@
 
   <!-- Wallet & Payments -->
   <div class="faq-section">
-    <h2><span class="icon">&#128176;</span> Wallet & Payments</h2>
+    <h2><span class="icon">&#128176;</span> <%- t('faq.wallet_payments') %></h2>
 
     <details>
       <summary>How do I deposit funds?</summary>
@@ -185,7 +185,7 @@
 
   <!-- Anti-Cheat & Fair Play -->
   <div class="faq-section">
-    <h2><span class="icon">&#128737;</span> Anti-Cheat & Fair Play</h2>
+    <h2><span class="icon">&#128737;</span> <%- t('faq.anti_cheat') %></h2>
 
     <details>
       <summary>What counts as cheating?</summary>
@@ -221,7 +221,7 @@
 
   <!-- Account Rules -->
   <div class="faq-section">
-    <h2><span class="icon">&#128100;</span> Account Rules</h2>
+    <h2><span class="icon">&#128100;</span> <%- t('faq.account_rules') %></h2>
 
     <details>
       <summary>Account requirements</summary>
@@ -251,7 +251,7 @@
 
   <!-- Ban Policy -->
   <div class="faq-section">
-    <h2><span class="icon">&#128683;</span> Ban Policy</h2>
+    <h2><span class="icon">&#128683;</span> <%- t('faq.ban_policy') %></h2>
 
     <details>
       <summary>What can get me banned?</summary>
@@ -284,7 +284,7 @@
 
   <!-- Swiss Regulations -->
   <div class="faq-section">
-    <h2><span class="icon">&#127464;&#127469;</span> Swiss Regulations</h2>
+    <h2><span class="icon">&#127464;&#127469;</span> <%- t('faq.regulations') %></h2>
 
     <details>
       <summary>Legal framework</summary>

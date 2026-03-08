@@ -10,6 +10,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
 
+import { registerI18n } from './i18n.js';
 import authRoutes from './routes/auth.js';
 import gamesRoutes from './routes/games.js';
 import matchesRoutes from './routes/matches.js';
@@ -125,6 +126,9 @@ app.addHook('preHandler', async (request, reply) => {
   if (reply.locals === undefined) reply.locals = {};
   reply.locals.user = request.user;
 });
+
+// i18n: load locale, inject t() and lang into all views
+registerI18n(app);
 
 // Routes
 await app.register(authRoutes, { prefix: '/auth' });

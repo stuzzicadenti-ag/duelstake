@@ -22,40 +22,41 @@ export default async function authRoutes(app) {
   // POST /auth/register
   app.post('/register', async (request, reply) => {
     if (app.checkAuthRateLimit && !app.checkAuthRateLimit(request, reply)) return;
+    const t = reply.locals.t;
     const { email, username, password, display_name } = request.body;
 
     if (!email || !username || !password) {
       return reply.view('auth/register.ejs', {
         user: request.user,
-        error: 'Email, username, and password are required.',
+        error: t('auth.err_fields_required'),
       });
     }
 
     if (!EMAIL_RE.test(email) || email.length > 255) {
       return reply.view('auth/register.ejs', {
         user: request.user,
-        error: 'Invalid email format.',
+        error: t('auth.err_invalid_email'),
       });
     }
 
     if (username.length < 3 || username.length > 50) {
       return reply.view('auth/register.ejs', {
         user: request.user,
-        error: 'Username must be 3-50 characters.',
+        error: t('auth.err_username_length'),
       });
     }
 
     if (password.length < 8 || password.length > 1000) {
       return reply.view('auth/register.ejs', {
         user: request.user,
-        error: 'Password must be 8-1000 characters.',
+        error: t('auth.err_password_length'),
       });
     }
 
     if (display_name && display_name.length > 100) {
       return reply.view('auth/register.ejs', {
         user: request.user,
-        error: 'Display name must be under 100 characters.',
+        error: t('auth.err_display_name_length'),
       });
     }
 
@@ -67,7 +68,7 @@ export default async function authRoutes(app) {
       if (existing.rows.length > 0) {
         return reply.view('auth/register.ejs', {
           user: request.user,
-          error: 'Email or username already taken.',
+          error: t('auth.err_already_taken'),
         });
       }
 
@@ -81,7 +82,7 @@ export default async function authRoutes(app) {
 
       const user = result.rows[0];
 
-      // Task 5: Ban evasion check - check if any banned user has same IP
+      // Ban evasion check - check if any banned user has same IP
       try {
         const ipMatches = await pool.query(
           `SELECT id, username, email, banned_reason FROM users
@@ -118,7 +119,7 @@ export default async function authRoutes(app) {
       app.log.error(err);
       return reply.view('auth/register.ejs', {
         user: request.user,
-        error: 'Registration failed. Please try again.',
+        error: t('auth.err_registration_failed'),
       });
     }
   });
@@ -131,12 +132,13 @@ export default async function authRoutes(app) {
   // POST /auth/login
   app.post('/login', async (request, reply) => {
     if (app.checkAuthRateLimit && !app.checkAuthRateLimit(request, reply)) return;
+    const t = reply.locals.t;
     const { email, password } = request.body;
 
     if (!email || !password) {
       return reply.view('auth/login.ejs', {
         user: request.user,
-        error: 'Email and password are required.',
+        error: t('auth.err_email_password_required'),
       });
     }
 
@@ -149,7 +151,7 @@ export default async function authRoutes(app) {
       if (result.rows.length === 0) {
         return reply.view('auth/login.ejs', {
           user: request.user,
-          error: 'Invalid email or password.',
+          error: t('auth.err_invalid_credentials'),
         });
       }
 
@@ -159,7 +161,7 @@ export default async function authRoutes(app) {
       if (!valid) {
         return reply.view('auth/login.ejs', {
           user: request.user,
-          error: 'Invalid email or password.',
+          error: t('auth.err_invalid_credentials'),
         });
       }
 
@@ -191,7 +193,7 @@ export default async function authRoutes(app) {
       app.log.error(err);
       return reply.view('auth/login.ejs', {
         user: request.user,
-        error: 'Login failed. Please try again.',
+        error: t('auth.err_login_failed'),
       });
     }
   });

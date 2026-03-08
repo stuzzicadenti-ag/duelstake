@@ -1,35 +1,35 @@
-<%- include('../partials/head', { title: 'Login' }) %>
+<%- include('../partials/head', { title: t('nav.login') }) %>
 <%- include('../partials/nav') %>
 
 <div class="container" style="display: flex; justify-content: center; padding-top: 60px;">
   <div style="width: 100%; max-width: 420px;">
     <div style="text-align: center; margin-bottom: 32px;">
-      <h1 style="font-size: 1.8rem; font-weight: 800;">Welcome Back</h1>
-      <p class="text-muted">Sign in to your DuelStake account.</p>
+      <h1 style="font-size: 1.8rem; font-weight: 800;"><%- t('auth.welcome_back') %></h1>
+      <p class="text-muted"><%- t('auth.sign_in_to') %></p>
     </div>
 
     <% if (error) { %>
-      <div class="alert alert-error"><%= error %></div>
+      <div class="alert alert-error"><%- error %></div>
     <% } %>
 
     <div class="card">
       <form action="/auth/login" method="POST">
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" class="form-control" placeholder="you@example.com" required autofocus>
+          <label><%= t('auth.email') %></label>
+          <input type="email" name="email" class="form-control" placeholder="<%= t('auth.email_placeholder') %>" required autofocus>
         </div>
         <div class="form-group">
-          <label>Password</label>
-          <input type="password" name="password" class="form-control" placeholder="Your password" required>
+          <label><%= t('auth.password') %></label>
+          <input type="password" name="password" class="form-control" placeholder="<%= t('auth.password_placeholder') %>" required>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
-          Sign In
+          <%- t('auth.sign_in') %>
         </button>
       </form>
     </div>
 
     <p style="text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 0.9rem;">
-      Don't have an account? <a href="/auth/register">Sign Up</a>
+      <%- t('auth.no_account') %> <a href="/auth/register"><%= t('nav.signup') %></a>
     </p>
   </div>
 </div>

@@ -6,16 +6,16 @@
         <span style="font-weight: 700; color: var(--text);">Duel<span style="color: var(--primary);">Stake</span></span>
       </div>
       <div style="display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; flex-wrap: wrap;">
-        <a href="/games">Games</a>
-        <a href="/leaderboard">Leaderboard</a>
-        <a href="/matches">Matches</a>
-        <a href="/faq">FAQ & Rules</a>
-        <a href="#">Terms</a>
-        <a href="#">Privacy</a>
+        <a href="/games"><%= t('footer.games') %></a>
+        <a href="/leaderboard"><%= t('footer.leaderboard') %></a>
+        <a href="/matches"><%= t('footer.matches') %></a>
+        <a href="/faq"><%- t('footer.faq') %></a>
+        <a href="#"><%- t('footer.terms') %></a>
+        <a href="#"><%- t('footer.privacy') %></a>
       </div>
-      <p>&copy; 2026 DuelStake. All rights reserved. Stuzzicadenti AG</p>
+      <p><%- t('footer.rights') %></p>
       <p style="margin-top: 8px; font-size: 0.75rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-        DuelStake is a skill-based competitive platform regulated under Swiss law. It is not a gambling or betting service. Funds are held in escrow by a licensed financial intermediary. Must be 18+ to participate in staked matches. Play responsibly.
+        <%- t('footer.legal') %>
       </p>
     </div>
   </footer>

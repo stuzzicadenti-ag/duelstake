@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= typeof lang !== 'undefined' ? lang : 'en' %>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -464,6 +464,25 @@
       .container { max-width: 1600px; }
       body { font-size: 1.05rem; }
     }
+    /* Language switcher */
+    .lang-switcher {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      margin-left: 8px;
+      font-size: 0.75rem;
+    }
+    .lang-link {
+      color: var(--text-muted) !important;
+      padding: 3px 5px !important;
+      border-radius: 3px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      font-size: 0.72rem !important;
+      transition: color 0.2s, background 0.2s;
+    }
+    .lang-link:hover { color: var(--text) !important; background: rgba(255,255,255,0.06); }
+    .lang-link.active { color: var(--primary) !important; }
   </style>
 </head>
 <body>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= typeof lang !== 'undefined' ? lang : 'en' %>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +7,11 @@
   <meta name="description" content="Find opponents, set stakes, and prove your skill on DuelStake. The ultimate competitive gaming matchmaking platform for 1v1 duels, tournaments, and ranked ladders.">
   <meta name="keywords" content="competitive gaming, matchmaking, esports, 1v1, tournaments, staking, FIFA, Call of Duty, Fortnite, Valorant">
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="DuelStake - Find Opponents. Set Stakes. Prove Your Skill.">
   <meta property="og:description" content="The ultimate competitive gaming matchmaking platform. 1v1 duels, tournaments, ranked ladders and more.">
   <meta property="og:site_name" content="DuelStake">
 
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="DuelStake - Find Opponents. Set Stakes. Prove Your Skill.">
   <meta name="twitter:description" content="The ultimate competitive gaming matchmaking platform. 1v1 duels, tournaments, ranked ladders and more.">
@@ -21,10 +19,15 @@
 
   <link rel="stylesheet" href="/public/landing.css">
   <link rel="icon" type="image/svg+xml" href="/public/favicon.svg">
+  <style>
+    .lang-switcher-landing { display: inline-flex; align-items: center; gap: 2px; margin-left: 12px; font-size: 0.75rem; }
+    .lang-switcher-landing a { color: rgba(255,255,255,0.5) !important; padding: 3px 5px; border-radius: 3px; font-weight: 600; letter-spacing: 0.5px; font-size: 0.72rem; transition: color 0.2s, background 0.2s; text-decoration: none; }
+    .lang-switcher-landing a:hover { color: #fff !important; background: rgba(255,255,255,0.08); }
+    .lang-switcher-landing a.active { color: #e63946 !important; }
+  </style>
 </head>
 <body>
 
-  <!-- Navigation -->
   <nav class="navbar" id="navbar">
     <div class="container nav-container">
       <a href="/" class="nav-logo">
@@ -38,81 +41,74 @@
         <span></span>
       </label>
       <ul class="nav-links" id="navLinks">
-        <li><a href="#hero" class="nav-link active">Home</a></li>
-        <li><a href="#games" class="nav-link">Games</a></li>
-        <li><a href="#tournaments" class="nav-link">Tournaments</a></li>
-        <li><a href="#leaderboard" class="nav-link">Leaderboard</a></li>
-        <li><a href="#pricing" class="nav-link">Pricing</a></li>
+        <li><a href="#hero" class="nav-link active"><%= t('nav.home') %></a></li>
+        <li><a href="#games" class="nav-link"><%= t('nav.games') %></a></li>
+        <li><a href="#tournaments" class="nav-link"><%= t('nav.tournaments') %></a></li>
+        <li><a href="#leaderboard" class="nav-link"><%= t('nav.leaderboard') %></a></li>
+        <li><a href="#pricing" class="nav-link"><%= t('nav.pricing') %></a></li>
       </ul>
       <div class="nav-actions">
         <% if (typeof user !== 'undefined' && user) { %>
-          <a href="/games" class="btn btn-ghost">Games</a>
-          <a href="/matches" class="btn btn-ghost">My Matches</a>
-          <a href="/wallet" class="btn btn-ghost">Wallet</a>
+          <a href="/games" class="btn btn-ghost"><%= t('nav.games') %></a>
+          <a href="/matches" class="btn btn-ghost"><%= t('nav.matches') %></a>
+          <a href="/wallet" class="btn btn-ghost"><%= t('nav.wallet') %></a>
           <a href="/profile/<%= user.username %>" class="btn btn-ghost"><%= user.display_name || user.username %></a>
-          <a href="/auth/logout" class="btn btn-outline btn-sm">Logout</a>
+          <a href="/auth/logout" class="btn btn-outline btn-sm"><%= t('nav.logout') %></a>
         <% } else { %>
-          <a href="/auth/login" class="btn btn-ghost" id="loginBtn">Login</a>
-          <a href="/auth/register" class="btn btn-primary" id="registerBtn">Register</a>
+          <a href="/auth/login" class="btn btn-ghost" id="loginBtn"><%= t('nav.login') %></a>
+          <a href="/auth/register" class="btn btn-primary" id="registerBtn"><%= t('nav.register') %></a>
         <% } %>
       </div>
-      <div class="lang-dropdown">
-        <button type="button" class="lang-dropdown__btn" aria-expanded="false" aria-haspopup="true">
-          &#127760; <span class="lang-dropdown__current">EN</span> &#9662;
-        </button>
-        <ul class="lang-dropdown__menu" role="menu">
-          <li><a href="/" role="menuitem" class="active">English</a></li>
-          <li><a href="#" role="menuitem">Deutsch</a></li>
-          <li><a href="#" role="menuitem">Fran&ccedil;ais</a></li>
-          <li><a href="#" role="menuitem">Italiano</a></li>
-        </ul>
-      </div>
+      <span class="lang-switcher-landing">
+        <a href="/lang/en" class="<%= lang === 'en' ? 'active' : '' %>">EN</a>
+        <a href="/lang/it" class="<%= lang === 'it' ? 'active' : '' %>">IT</a>
+        <a href="/lang/de" class="<%= lang === 'de' ? 'active' : '' %>">DE</a>
+        <a href="/lang/fr" class="<%= lang === 'fr' ? 'active' : '' %>">FR</a>
+      </span>
     </div>
   </nav>
 
-  <!-- Hero Section -->
   <section class="hero" id="hero">
     <div class="hero-bg"></div>
     <div class="container hero-content">
-      <div class="hero-badge">&#9889; Season 1 Now Live</div>
+      <div class="hero-badge"><%- t('hero.badge') %></div>
       <h1 class="hero-title">
         <span class="logo-icon-large">&#9876;</span>
         Duel<span class="accent">Stake</span>
       </h1>
-      <p class="hero-tagline">Find opponents. Set stakes. Prove your skill.</p>
-      <p class="hero-sub">The competitive gaming platform where every match matters. Stake real money, climb the ranks, and become a legend.</p>
+      <p class="hero-tagline"><%- t('hero.tagline') %></p>
+      <p class="hero-sub"><%- t('hero.sub') %></p>
       <div class="hero-cta">
         <% if (typeof user !== 'undefined' && user) { %>
-          <a href="/games" class="btn btn-primary btn-lg">Find a Match</a>
-          <a href="/matches" class="btn btn-outline btn-lg">My Matches</a>
+          <a href="/games" class="btn btn-primary btn-lg"><%- t('hero.find_match') %></a>
+          <a href="/matches" class="btn btn-outline btn-lg"><%- t('hero.my_matches') %></a>
         <% } else { %>
-          <a href="/auth/register" class="btn btn-primary btn-lg">Start Competing Now</a>
-          <a href="/games" class="btn btn-outline btn-lg">Browse Games</a>
+          <a href="/auth/register" class="btn btn-primary btn-lg"><%- t('hero.start_competing') %></a>
+          <a href="/games" class="btn btn-outline btn-lg"><%- t('hero.browse_games') %></a>
         <% } %>
       </div>
       <div class="hero-stats">
         <div class="stat">
           <span class="stat-number"><%= activeMatchCount %></span>
-          <span class="stat-label">Active Matches</span>
+          <span class="stat-label"><%- t('hero.active_matches') %></span>
         </div>
         <div class="stat">
           <span class="stat-number"><%= games.length %></span>
-          <span class="stat-label">Games Available</span>
+          <span class="stat-label"><%- t('hero.games_available') %></span>
         </div>
         <div class="stat">
           <span class="stat-number"><%= topPlayers.length %>+</span>
-          <span class="stat-label">Top Players</span>
+          <span class="stat-label"><%- t('hero.top_players') %></span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Featured Games -->
   <section class="section" id="games">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Featured <span class="accent">Games</span></h2>
-        <p class="section-sub">Choose your battlefield. Dominate your opponents.</p>
+        <h2 class="section-title"><%- t('home.featured_games') %> <span class="accent"><%- t('home.featured_games_accent') %></span></h2>
+        <p class="section-sub"><%- t('home.featured_games_sub') %></p>
       </div>
       <% if (games.length > 0) { %>
         <div class="games-grid">
@@ -121,10 +117,10 @@
               <div class="game-icon"><%= game.icon %></div>
               <h3 class="game-title"><%= game.name %></h3>
               <div class="game-meta">
-                <span class="game-players">&#128101; <%= game.player_count || 0 %> online</span>
+                <span class="game-players">&#128101; <%= game.player_count || 0 %> <%= t('home.online') %></span>
                 <span class="game-stakes">&#9876; &euro;<%= game.min_stake %> - &euro;<%= game.max_stake %></span>
               </div>
-              <a href="/games/<%= game.slug %>" class="btn btn-primary btn-sm">Find Match</a>
+              <a href="/games/<%= game.slug %>" class="btn btn-primary btn-sm"><%- t('home.find_match') %></a>
             </div>
           <% }); %>
         </div>
@@ -134,104 +130,102 @@
             <div class="game-icon">&#9917;</div>
             <h3 class="game-title">FIFA 26</h3>
             <div class="game-meta">
-              <span class="game-players">&#128101; 12.4K online</span>
+              <span class="game-players">&#128101; 12.4K <%= t('home.online') %></span>
               <span class="game-stakes">&#9876; &#8364;1 - &#8364;500</span>
             </div>
-            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+            <a href="/games" class="btn btn-primary btn-sm"><%- t('home.find_match') %></a>
           </div>
           <div class="game-card">
             <div class="game-icon">&#128163;</div>
             <h3 class="game-title">Battlefield 6</h3>
             <div class="game-meta">
-              <span class="game-players">&#128101; 8.7K online</span>
+              <span class="game-players">&#128101; 8.7K <%= t('home.online') %></span>
               <span class="game-stakes">&#9876; &#8364;2 - &#8364;250</span>
             </div>
-            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+            <a href="/games" class="btn btn-primary btn-sm"><%- t('home.find_match') %></a>
           </div>
           <div class="game-card">
             <div class="game-icon">&#127919;</div>
             <h3 class="game-title">Call of Duty</h3>
             <div class="game-meta">
-              <span class="game-players">&#128101; 15.1K online</span>
+              <span class="game-players">&#128101; 15.1K <%= t('home.online') %></span>
               <span class="game-stakes">&#9876; &#8364;1 - &#8364;1000</span>
             </div>
-            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+            <a href="/games" class="btn btn-primary btn-sm"><%- t('home.find_match') %></a>
           </div>
           <div class="game-card">
             <div class="game-icon">&#9935;</div>
             <h3 class="game-title">Fortnite</h3>
             <div class="game-meta">
-              <span class="game-players">&#128101; 22.3K online</span>
+              <span class="game-players">&#128101; 22.3K <%= t('home.online') %></span>
               <span class="game-stakes">&#9876; &#8364;1 - &#8364;300</span>
             </div>
-            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+            <a href="/games" class="btn btn-primary btn-sm"><%- t('home.find_match') %></a>
           </div>
           <div class="game-card">
             <div class="game-icon">&#128664;</div>
             <h3 class="game-title">Rocket League</h3>
             <div class="game-meta">
-              <span class="game-players">&#128101; 6.9K online</span>
+              <span class="game-players">&#128101; 6.9K <%= t('home.online') %></span>
               <span class="game-stakes">&#9876; &#8364;1 - &#8364;200</span>
             </div>
-            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+            <a href="/games" class="btn btn-primary btn-sm"><%- t('home.find_match') %></a>
           </div>
           <div class="game-card">
             <div class="game-icon">&#128299;</div>
             <h3 class="game-title">Valorant</h3>
             <div class="game-meta">
-              <span class="game-players">&#128101; 18.6K online</span>
+              <span class="game-players">&#128101; 18.6K <%= t('home.online') %></span>
               <span class="game-stakes">&#9876; &#8364;2 - &#8364;750</span>
             </div>
-            <a href="/games" class="btn btn-primary btn-sm">Find Match</a>
+            <a href="/games" class="btn btn-primary btn-sm"><%- t('home.find_match') %></a>
           </div>
         </div>
       <% } %>
     </div>
   </section>
 
-  <!-- How It Works -->
   <section class="section section-dark" id="how-it-works">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">How It <span class="accent">Works</span></h2>
-        <p class="section-sub">Three steps to glory. No complexity. Pure competition.</p>
+        <h2 class="section-title"><%- t('home.how_title') %> <span class="accent"><%- t('home.how_accent') %></span></h2>
+        <p class="section-sub"><%- t('home.how_sub') %></p>
       </div>
       <div class="steps-grid">
         <div class="step-card">
           <div class="step-number">01</div>
           <div class="step-icon">&#128100;</div>
-          <h3 class="step-title">Create Account</h3>
-          <p class="step-desc">Sign up in seconds. Link your gaming profiles. Verify your identity to unlock staked matches and withdrawals.</p>
+          <h3 class="step-title"><%- t('home.step1_title') %></h3>
+          <p class="step-desc"><%- t('home.step1_desc') %></p>
         </div>
         <div class="step-card">
           <div class="step-number">02</div>
           <div class="step-icon">&#128269;</div>
-          <h3 class="step-title">Find Match</h3>
-          <p class="step-desc">Choose your game, set your stake, and our matchmaking algorithm pairs you with an opponent of equal skill.</p>
+          <h3 class="step-title"><%- t('home.step2_title') %></h3>
+          <p class="step-desc"><%- t('home.step2_desc') %></p>
         </div>
         <div class="step-card">
           <div class="step-number">03</div>
           <div class="step-icon">&#127942;</div>
-          <h3 class="step-title">Compete &amp; Win</h3>
-          <p class="step-desc">Play the match, submit your results. Winners get paid instantly. Climb the leaderboard and earn your reputation.</p>
+          <h3 class="step-title"><%- t('home.step3_title') %></h3>
+          <p class="step-desc"><%- t('home.step3_desc') %></p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Match Types -->
   <section class="section" id="tournaments">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Match <span class="accent">Types</span></h2>
-        <p class="section-sub">Multiple ways to compete. Choose your arena.</p>
+        <h2 class="section-title"><%- t('home.match_types') %> <span class="accent"><%- t('home.match_types_accent') %></span></h2>
+        <p class="section-sub"><%- t('home.match_types_sub') %></p>
       </div>
       <div class="match-types-grid">
         <div class="match-card match-card-featured">
-          <div class="match-badge">Most Popular</div>
+          <div class="match-badge"><%- t('home.most_popular') %></div>
           <div class="match-icon">&#9876;</div>
-          <h3 class="match-title">1v1 Duels</h3>
-          <p class="match-desc">Head-to-head competition with real money on the line. Set your own stake from &#8364;1 to &#8364;1000. Winner takes all.</p>
+          <h3 class="match-title"><%- t('home.duels_title') %></h3>
+          <p class="match-desc"><%- t('home.duels_desc') %></p>
           <ul class="match-features">
             <li>&#10003; Custom stake amounts</li>
             <li>&#10003; Instant payouts</li>
@@ -241,8 +235,8 @@
         </div>
         <div class="match-card">
           <div class="match-icon">&#127942;</div>
-          <h3 class="match-title">Tournaments</h3>
-          <p class="match-desc">Bracket-style competitions with entry fees and massive prize pools. Single elimination, double elimination, or round robin.</p>
+          <h3 class="match-title"><%- t('home.tournaments_title') %></h3>
+          <p class="match-desc"><%- t('home.tournaments_desc') %></p>
           <ul class="match-features">
             <li>&#10003; Entry fee + prize pool</li>
             <li>&#10003; 8 to 256 players</li>
@@ -252,8 +246,8 @@
         </div>
         <div class="match-card">
           <div class="match-icon">&#128200;</div>
-          <h3 class="match-title">Ranked Ladders</h3>
-          <p class="match-desc">Free competitive play. Earn XP, climb divisions from Bronze to Champion. Prove your worth without risking a cent.</p>
+          <h3 class="match-title"><%- t('home.ladders_title') %></h3>
+          <p class="match-desc"><%- t('home.ladders_desc') %></p>
           <ul class="match-features">
             <li>&#10003; 100% free to play</li>
             <li>&#10003; XP-based progression</li>
@@ -263,8 +257,8 @@
         </div>
         <div class="match-card">
           <div class="match-icon">&#127918;</div>
-          <h3 class="match-title">Free Play</h3>
-          <p class="match-desc">Casual matches with no stakes. Perfect for warming up, practicing new strategies, or just having fun with the community.</p>
+          <h3 class="match-title"><%- t('home.freeplay_title') %></h3>
+          <p class="match-desc"><%- t('home.freeplay_desc') %></p>
           <ul class="match-features">
             <li>&#10003; No stakes required</li>
             <li>&#10003; All games available</li>
@@ -276,20 +270,19 @@
     </div>
   </section>
 
-  <!-- Leaderboard Preview -->
   <section class="section section-dark" id="leaderboard">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Top <span class="accent">Players</span></h2>
-        <p class="section-sub">This week's elite competitors.</p>
+        <h2 class="section-title"><%- t('home.top_players') %> <span class="accent"><%- t('home.top_players_accent') %></span></h2>
+        <p class="section-sub"><%- t('home.top_players_sub') %></p>
       </div>
       <% if (topPlayers.length > 0) { %>
         <div class="leaderboard-table">
           <div class="leaderboard-row leaderboard-header">
-            <span class="lb-rank">Rank</span>
-            <span class="lb-player">Player</span>
-            <span class="lb-wins">ELO</span>
-            <span class="lb-earnings">Profile</span>
+            <span class="lb-rank"><%= t('home.rank') %></span>
+            <span class="lb-player"><%= t('home.player') %></span>
+            <span class="lb-wins"><%= t('home.elo') %></span>
+            <span class="lb-earnings"><%= t('home.profile') %></span>
             <span class="lb-winrate"></span>
           </div>
           <% topPlayers.forEach(function(p, i) { %>
@@ -297,7 +290,7 @@
               <span class="lb-rank"><%= i === 0 ? '&#127941; ' : i === 1 ? '&#129352; ' : i === 2 ? '&#129353; ' : '' %><%= i + 1 %></span>
               <span class="lb-player"><%= p.display_name || p.username %></span>
               <span class="lb-wins"><%= p.elo_rating %></span>
-              <span class="lb-earnings"><a href="/profile/<%= p.username %>">View</a></span>
+              <span class="lb-earnings"><a href="/profile/<%= p.username %>"><%= t('home.view') %></a></span>
               <span class="lb-winrate"></span>
             </div>
           <% }); %>
@@ -305,11 +298,11 @@
       <% } else { %>
         <div class="leaderboard-table">
           <div class="leaderboard-row leaderboard-header">
-            <span class="lb-rank">Rank</span>
-            <span class="lb-player">Player</span>
-            <span class="lb-wins">Wins</span>
-            <span class="lb-earnings">Earnings</span>
-            <span class="lb-winrate">Win Rate</span>
+            <span class="lb-rank"><%= t('home.rank') %></span>
+            <span class="lb-player"><%= t('home.player') %></span>
+            <span class="lb-wins"><%= t('home.wins') %></span>
+            <span class="lb-earnings"><%= t('home.earnings') %></span>
+            <span class="lb-winrate"><%= t('home.winrate') %></span>
           </div>
           <div class="leaderboard-row gold">
             <span class="lb-rank">&#127941; 1</span>
@@ -349,56 +342,54 @@
         </div>
       <% } %>
       <div style="text-align: center; margin-top: 32px;">
-        <a href="/leaderboard" class="btn btn-outline">View Full Leaderboard</a>
+        <a href="/leaderboard" class="btn btn-outline"><%- t('home.view_leaderboard') %></a>
       </div>
     </div>
   </section>
 
-  <!-- Fair Play & Match Proof -->
   <section class="section" id="fair-play">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Fair Play <span class="accent">Guaranteed</span></h2>
-        <p class="section-sub">Certified, transparent, and compliant with Swiss and EU regulations.</p>
+        <h2 class="section-title"><%- t('home.fair_play') %> <span class="accent"><%- t('home.fair_play_accent') %></span></h2>
+        <p class="section-sub"><%- t('home.fair_play_sub') %></p>
       </div>
       <div class="steps-grid">
         <div class="step-card">
           <div class="step-icon">&#128247;</div>
-          <h3 class="step-title">Match Proof Required</h3>
-          <p class="step-desc">Both players must upload a screenshot or video proof of the match result within 30 minutes. No proof, no payout.</p>
+          <h3 class="step-title"><%- t('home.proof_title') %></h3>
+          <p class="step-desc"><%- t('home.proof_desc') %></p>
         </div>
         <div class="step-card">
           <div class="step-icon">&#129302;</div>
-          <h3 class="step-title">AI + Human Review</h3>
-          <p class="step-desc">Proofs are verified by AI within minutes. Disputed results are escalated to human reviewers and resolved within 24 hours.</p>
+          <h3 class="step-title"><%- t('home.review_title') %></h3>
+          <p class="step-desc"><%- t('home.review_desc') %></p>
         </div>
         <div class="step-card">
           <div class="step-icon">&#128274;</div>
-          <h3 class="step-title">Platform Verified Accounts</h3>
-          <p class="step-desc">Link your Steam, Discord, or gaming platform account. One account per player. Multi-accounting results in a permanent ban and forfeiture of funds.</p>
+          <h3 class="step-title"><%- t('home.verified_title') %></h3>
+          <p class="step-desc"><%- t('home.verified_desc') %></p>
         </div>
         <div class="step-card">
           <div class="step-icon">&#9878;</div>
-          <h3 class="step-title">Swiss Regulated</h3>
-          <p class="step-desc">DuelStake is a skill-based competition platform, not a gambling service. Fully compliant with Swiss Federal Gaming Act (BGS) and EU regulations. Funds held in escrow by a licensed Swiss financial intermediary.</p>
+          <h3 class="step-title"><%- t('home.regulated_title') %></h3>
+          <p class="step-desc"><%- t('home.regulated_desc') %></p>
         </div>
       </div>
       <div class="fair-play-note">
-        <p><strong>How payouts work:</strong> Stakes are held in escrow during the match. After both players submit proof, the AI verifies the result. If both proofs agree, the winner receives the payout instantly (minus platform fee). If there's a dispute, a human reviewer decides within 24 hours. All transactions are logged and auditable.</p>
+        <p><%- t('home.payout_note') %></p>
       </div>
     </div>
   </section>
 
-  <!-- Pricing -->
   <section class="section" id="pricing">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title"><span class="accent">Pricing</span> Plans</h2>
-        <p class="section-sub">Upgrade your competitive edge.</p>
+        <h2 class="section-title"><span class="accent"><%- t('home.pricing_accent') %></span> <%- t('home.pricing_title') %></h2>
+        <p class="section-sub"><%- t('home.pricing_sub') %></p>
       </div>
       <div class="pricing-grid">
         <div class="pricing-card">
-          <div class="pricing-tier">Free</div>
+          <div class="pricing-tier"><%- t('home.free') %></div>
           <div class="pricing-price">&#8364;0<span>/mo</span></div>
           <ul class="pricing-features">
             <li>&#10003; 3 matches per day</li>
@@ -409,11 +400,11 @@
             <li class="disabled">&#10007; Stats dashboard</li>
             <li class="disabled">&#10007; Team management</li>
           </ul>
-          <a href="/auth/register" class="btn btn-outline">Get Started</a>
+          <a href="/auth/register" class="btn btn-outline"><%- t('home.get_started') %></a>
         </div>
         <div class="pricing-card pricing-card-featured">
-          <div class="pricing-badge">Best Value</div>
-          <div class="pricing-tier">Pro</div>
+          <div class="pricing-badge"><%- t('home.best_value') %></div>
+          <div class="pricing-tier"><%- t('home.pro') %></div>
           <div class="pricing-price">&#8364;9.99<span>/mo</span></div>
           <ul class="pricing-features">
             <li>&#10003; Unlimited matches</li>
@@ -424,10 +415,10 @@
             <li>&#10003; Custom profile badge</li>
             <li class="disabled">&#10007; Team management</li>
           </ul>
-          <a href="/auth/register" class="btn btn-primary">Go Pro</a>
+          <a href="/auth/register" class="btn btn-primary"><%- t('home.go_pro') %></a>
         </div>
         <div class="pricing-card">
-          <div class="pricing-tier">Team</div>
+          <div class="pricing-tier"><%- t('home.team') %></div>
           <div class="pricing-price">&#8364;29.99<span>/mo</span></div>
           <ul class="pricing-features">
             <li>&#10003; Everything in Pro</li>
@@ -438,18 +429,17 @@
             <li>&#10003; Dedicated support</li>
             <li>&#10003; Custom branding</li>
           </ul>
-          <a href="/auth/register" class="btn btn-outline">Contact Sales</a>
+          <a href="/auth/register" class="btn btn-outline"><%- t('home.contact_sales') %></a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Testimonials -->
   <section class="section section-dark" id="testimonials">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">What Players <span class="accent">Say</span></h2>
-        <p class="section-sub">Real players. Real wins. Real competition.</p>
+        <h2 class="section-title"><%- t('home.testimonials_title') %> <span class="accent"><%- t('home.testimonials_accent') %></span></h2>
+        <p class="section-sub"><%- t('home.testimonials_sub') %></p>
       </div>
       <div class="testimonials-grid">
         <div class="testimonial-card">
@@ -489,22 +479,20 @@
     </div>
   </section>
 
-  <!-- CTA Banner -->
   <section class="section cta-section">
     <div class="container">
       <div class="cta-content">
-        <h2 class="cta-title">Ready to Prove Your Skill?</h2>
-        <p class="cta-sub">Join 50,000+ competitive gamers. Your first 3 matches are free.</p>
+        <h2 class="cta-title"><%- t('home.cta_title') %></h2>
+        <p class="cta-sub"><%- t('home.cta_sub') %></p>
         <% if (typeof user !== 'undefined' && user) { %>
-          <a href="/games" class="btn btn-primary btn-lg">Find a Match</a>
+          <a href="/games" class="btn btn-primary btn-lg"><%- t('hero.find_match') %></a>
         <% } else { %>
-          <a href="/auth/register" class="btn btn-primary btn-lg">Create Free Account</a>
+          <a href="/auth/register" class="btn btn-primary btn-lg"><%- t('home.cta_create') %></a>
         <% } %>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -513,7 +501,7 @@
             <span class="logo-icon">&#9876;</span>
             <span class="logo-text">Duel<span class="accent">Stake</span></span>
           </div>
-          <p class="footer-desc">The ultimate competitive gaming matchmaking platform. Play, compete, and win.</p>
+          <p class="footer-desc"><%- t('footer.desc') %></p>
           <div class="footer-socials">
             <a href="#" class="social-link" aria-label="Twitter">&#120143;</a>
             <a href="#" class="social-link" aria-label="Discord">&#9672;</a>
@@ -522,36 +510,36 @@
           </div>
         </div>
         <div class="footer-col">
-          <h4>Platform</h4>
+          <h4><%= t('footer.platform') %></h4>
           <ul>
-            <li><a href="/games">Games</a></li>
-            <li><a href="#tournaments">Tournaments</a></li>
-            <li><a href="/leaderboard">Leaderboard</a></li>
-            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="/games"><%= t('footer.games') %></a></li>
+            <li><a href="#tournaments"><%= t('nav.tournaments') %></a></li>
+            <li><a href="/leaderboard"><%= t('footer.leaderboard') %></a></li>
+            <li><a href="#pricing"><%= t('nav.pricing') %></a></li>
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Support</h4>
+          <h4><%= t('footer.support') %></h4>
           <ul>
-            <li><a href="#">Help Center</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">Report a Bug</a></li>
+            <li><a href="#"><%= t('footer.help_center') %></a></li>
+            <li><a href="#"><%= t('footer.faqs') %></a></li>
+            <li><a href="#"><%= t('footer.contact') %></a></li>
+            <li><a href="#"><%= t('footer.report_bug') %></a></li>
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Legal</h4>
+          <h4><%= t('footer.legal_title') %></h4>
           <ul>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Responsible Gaming</a></li>
-            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="#"><%- t('footer.terms_of_service') %></a></li>
+            <li><a href="#"><%- t('footer.privacy_policy') %></a></li>
+            <li><a href="#"><%- t('footer.responsible_gaming') %></a></li>
+            <li><a href="#"><%- t('footer.cookie_policy') %></a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 DuelStake. All rights reserved.</p>
-        <p class="footer-disclaimer">DuelStake is a skill-based competitive platform regulated under Swiss law. It is not a gambling or betting service. Staked matches involve esports skill competitions only. Funds are held in escrow by a licensed financial intermediary. Available in jurisdictions where skill-based competitions are legal. Must be 18+ to participate in staked matches. Play responsibly.</p>
+        <p><%- t('footer.rights_short') %></p>
+        <p class="footer-disclaimer"><%- t('footer.disclaimer') %></p>
       </div>
     </div>
   </footer>
@@ -593,28 +581,6 @@
           navLinks.forEach(function(l) { l.classList.remove('active'); });
           this.classList.add('active');
         });
-      });
-    })();
-
-    // Language dropdown
-    (function() {
-      var btn = document.querySelector('.lang-dropdown__btn');
-      var menu = document.querySelector('.lang-dropdown__menu');
-      if (!btn || !menu) return;
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        var open = menu.classList.toggle('open');
-        btn.setAttribute('aria-expanded', open);
-      });
-      document.addEventListener('click', function() {
-        menu.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-      });
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          menu.classList.remove('open');
-          btn.setAttribute('aria-expanded', 'false');
-        }
       });
     })();
 

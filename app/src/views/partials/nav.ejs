@@ -6,21 +6,27 @@
       <span></span><span></span><span></span>
     </label>
     <div class="nav-links">
-      <a href="/games">Games</a>
-      <a href="/leaderboard">Leaderboard</a>
-      <a href="/faq">FAQ</a>
+      <a href="/games"><%= t('nav.games') %></a>
+      <a href="/leaderboard"><%= t('nav.leaderboard') %></a>
+      <a href="/faq"><%= t('nav.faq') %></a>
       <% if (typeof user !== 'undefined' && user) { %>
-        <a href="/matches">My Matches</a>
-        <a href="/wallet">Wallet</a>
+        <a href="/matches"><%= t('nav.matches') %></a>
+        <a href="/wallet"><%= t('nav.wallet') %></a>
         <% if (typeof user.role !== 'undefined' && (user.role === 'admin' || user.role === 'owner')) { %>
-          <a href="/admin" style="color: var(--accent);">Admin</a>
+          <a href="/admin" style="color: var(--accent);"><%= t('nav.admin') %></a>
         <% } %>
         <a href="/profile/<%= user.username %>" class="hide-mobile"><%= user.display_name || user.username %></a>
-        <a href="/auth/logout" class="btn btn-outline btn-sm">Logout</a>
+        <a href="/auth/logout" class="btn btn-outline btn-sm"><%= t('nav.logout') %></a>
       <% } else { %>
-        <a href="/auth/login" class="btn btn-secondary btn-sm">Login</a>
-        <a href="/auth/register" class="btn btn-primary btn-sm">Sign Up</a>
+        <a href="/auth/login" class="btn btn-secondary btn-sm"><%= t('nav.login') %></a>
+        <a href="/auth/register" class="btn btn-primary btn-sm"><%= t('nav.signup') %></a>
       <% } %>
+      <span class="lang-switcher">
+        <a href="/lang/en" class="lang-link<%= lang === 'en' ? ' active' : '' %>">EN</a>
+        <a href="/lang/it" class="lang-link<%= lang === 'it' ? ' active' : '' %>">IT</a>
+        <a href="/lang/de" class="lang-link<%= lang === 'de' ? ' active' : '' %>">DE</a>
+        <a href="/lang/fr" class="lang-link<%= lang === 'fr' ? ' active' : '' %>">FR</a>
+      </span>
     </div>
   </div>
 </nav>
