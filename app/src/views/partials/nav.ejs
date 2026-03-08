@@ -9,21 +9,47 @@
       <div class="nav-group">
         <a href="/games"><%= t('nav.games') %></a>
         <a href="/leaderboard"><%= t('nav.leaderboard') %></a>
-        <a href="/faq"><%= t('nav.faq') %></a>
+        <% if (typeof user === 'undefined' || !user) { %>
+          <a href="/faq"><%= t('nav.faq') %></a>
+        <% } %>
       </div>
+
       <% if (typeof user !== 'undefined' && user) { %>
-        <span class="nav-divider"></span>
-        <div class="nav-group">
+        <%/* --- Mobile-only profile items --- */ %>
+        <span class="nav-divider mobile-divider"></span>
+        <div class="nav-group mobile-profile-section">
+          <div style="padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;">
+            <%= user.display_name || user.username %>
+          </div>
           <a href="/matches"><%= t('nav.matches') %></a>
           <a href="/wallet"><%= t('nav.wallet') %></a>
           <% if (typeof user.role !== 'undefined' && (user.role === 'admin' || user.role === 'owner')) { %>
             <a href="/admin" style="color: var(--accent);"><%= t('nav.admin') %></a>
           <% } %>
+          <span class="nav-divider"></span>
+          <a href="/auth/logout" class="text-danger"><%= t('nav.logout') %></a>
         </div>
-        <span class="nav-divider"></span>
-        <div class="nav-group">
-          <a href="/profile/<%= user.username %>" class="hide-mobile"><%= user.display_name || user.username %></a>
-          <a href="/auth/logout" class="btn btn-outline btn-sm"><%= t('nav.logout') %></a>
+
+        <%/* --- Desktop profile dropdown --- */ %>
+        <div class="nav-group nav-group--right">
+          <div class="nav-dropdown profile-dropdown">
+            <button type="button" class="nav-dropdown-btn" aria-expanded="false" aria-haspopup="true">
+              <span class="profile-avatar"><%= (user.display_name || user.username).charAt(0).toUpperCase() %></span>
+              <span class="hide-mobile"><%= user.display_name || user.username %></span>
+              <span class="caret">&#9662;</span>
+            </button>
+            <div class="nav-dropdown-menu">
+              <div class="dropdown-header"><%= user.display_name || user.username %></div>
+              <div class="dropdown-divider"></div>
+              <a href="/matches"><%= t('nav.matches') %></a>
+              <a href="/wallet"><%= t('nav.wallet') %></a>
+              <% if (typeof user.role !== 'undefined' && (user.role === 'admin' || user.role === 'owner')) { %>
+                <a href="/admin" class="text-accent"><%= t('nav.admin') %></a>
+              <% } %>
+              <div class="dropdown-divider"></div>
+              <a href="/auth/logout" class="text-danger"><%= t('nav.logout') %></a>
+            </div>
+          </div>
         </div>
       <% } else { %>
         <div class="nav-group nav-group--right">
@@ -31,13 +57,68 @@
           <a href="/auth/register" class="btn btn-primary btn-sm"><%= t('nav.signup') %></a>
         </div>
       <% } %>
-      <span class="lang-switcher">
-        <a href="/lang/en" class="lang-link<%= lang === 'en' ? ' active' : '' %>">EN</a>
-        <a href="/lang/it" class="lang-link<%= lang === 'it' ? ' active' : '' %>">IT</a>
-        <a href="/lang/de" class="lang-link<%= lang === 'de' ? ' active' : '' %>">DE</a>
-        <a href="/lang/fr" class="lang-link<%= lang === 'fr' ? ' active' : '' %>">FR</a>
-      </span>
+
+      <%/* --- Language dropdown --- */ %>
+      <div class="nav-dropdown lang-dropdown">
+        <button type="button" class="nav-dropdown-btn" aria-expanded="false" aria-haspopup="true">
+          <%= (typeof lang !== 'undefined' ? lang : 'en').toUpperCase() %> <span class="caret">&#9662;</span>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="/lang/en" class="<%= lang === 'en' ? 'active' : '' %>">English</a>
+          <a href="/lang/it" class="<%= lang === 'it' ? 'active' : '' %>">Italiano</a>
+          <a href="/lang/de" class="<%= lang === 'de' ? 'active' : '' %>">Deutsch</a>
+          <a href="/lang/fr" class="<%= lang === 'fr' ? 'active' : '' %>">Fran&ccedil;ais</a>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 <div class="main-content">
+
+<script>
+(function() {
+  // Toggle dropdowns on click
+  document.querySelectorAll('.nav-dropdown-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var dropdown = btn.closest('.nav-dropdown');
+      var isOpen = dropdown.classList.contains('open');
+      // Close all dropdowns first
+      document.querySelectorAll('.nav-dropdown.open').forEach(function(d) {
+        d.classList.remove('open');
+        d.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
+      });
+      // Toggle the clicked one
+      if (!isOpen) {
+        dropdown.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.nav-dropdown.open').forEach(function(d) {
+      d.classList.remove('open');
+      d.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
+    });
+  });
+  // Prevent dropdown menu clicks from closing the dropdown (except actual links)
+  document.querySelectorAll('.nav-dropdown-menu').forEach(function(menu) {
+    menu.addEventListener('click', function(e) {
+      if (!e.target.closest('a')) {
+        e.stopPropagation();
+      }
+    });
+  });
+  // Close dropdowns when hamburger menu toggles
+  var toggle = document.getElementById('nav-toggle');
+  if (toggle) {
+    toggle.addEventListener('change', function() {
+      document.querySelectorAll('.nav-dropdown.open').forEach(function(d) {
+        d.classList.remove('open');
+        d.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+})();
+</script>
