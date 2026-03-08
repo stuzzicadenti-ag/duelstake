@@ -7,7 +7,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COOKIE_OPTS = {
   httpOnly: true,
-  secure: false, // behind Caddy reverse proxy on HTTP/Tailscale
+  // secure=true in production (HTTPS); false in dev behind Caddy reverse proxy on HTTP/Tailscale
+  secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
   path: '/',
   maxAge: 7 * 24 * 60 * 60, // 7 days

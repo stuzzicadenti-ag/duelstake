@@ -80,6 +80,7 @@ export default async function matchesRoutes(app) {
   // POST /matches/create - Create a match
   app.post('/create', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const { game_id, stake_amount } = request.body;
     const userId = request.user.id;
@@ -184,6 +185,7 @@ export default async function matchesRoutes(app) {
   // POST /matches/:id/join - Join a waiting match
   app.post('/:id/join', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const matchId = request.params.id;
     const userId = request.user.id;
@@ -452,7 +454,7 @@ export default async function matchesRoutes(app) {
     return reply.redirect(`/matches/${matchId}`);
   });
 
-  // GET /matches/:id - Match detail
+  // GET /matches/:id - Match detail (participants and admins only, except waiting matches)
   app.get('/:id', async (request, reply) => {
     const matchId = request.params.id;
 
@@ -474,6 +476,21 @@ export default async function matchesRoutes(app) {
       return reply.code(404).send('Match not found');
     }
 
+    const match = matchResult.rows[0];
+
+    // Allow anyone to see waiting matches (so opponents can join).
+    // For all other statuses, restrict to participants and admins.
+    if (match.status !== 'waiting') {
+      if (!request.user) {
+        return reply.redirect('/auth/login');
+      }
+      const isParticipant = request.user.id === match.player1_id || request.user.id === match.player2_id;
+      const isAdmin = request.user.role === 'admin';
+      if (!isParticipant && !isAdmin) {
+        return reply.code(403).send('Access denied: you are not a participant in this match');
+      }
+    }
+
     const [proofsResult, cancellationResult] = await Promise.all([
       pool.query(
         `SELECT mp.*, u.username FROM match_proofs mp
@@ -493,7 +510,7 @@ export default async function matchesRoutes(app) {
 
     return reply.view('matches/detail.ejs', {
       user: request.user,
-      match: matchResult.rows[0],
+      match,
       proofs: proofsResult.rows,
       cancellation: cancellationResult.rows[0] || null,
     });

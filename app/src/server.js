@@ -32,11 +32,14 @@ const app = Fastify({
 
 // Security headers
 app.addHook('onSend', async (request, reply) => {
+  reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   reply.header('X-Content-Type-Options', 'nosniff');
   reply.header('X-Frame-Options', 'DENY');
   reply.header('X-XSS-Protection', '0');
   reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  reply.header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'");
+  reply.removeHeader('X-Powered-By');
 });
 
 // Rate limiting for auth routes (in-memory, per IP)
@@ -62,6 +65,34 @@ app.decorate('checkAuthRateLimit', (request, reply) => {
   entry.count++;
   if (entry.count > RATE_LIMIT_MAX) {
     reply.code(429).send('Too many attempts. Please try again later.');
+    return false;
+  }
+  return true;
+});
+
+// Rate limiting for action routes (match create/join, wallet deposit/withdraw)
+const actionAttempts = new Map();
+const ACTION_RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const ACTION_RATE_LIMIT_MAX = 15; // 15 actions per minute
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of actionAttempts) {
+    if (now - entry.windowStart > ACTION_RATE_LIMIT_WINDOW) actionAttempts.delete(key);
+  }
+}, 30 * 1000);
+
+app.decorate('checkActionRateLimit', (request, reply) => {
+  const ip = request.ip;
+  const now = Date.now();
+  let entry = actionAttempts.get(ip);
+  if (!entry || now - entry.windowStart > ACTION_RATE_LIMIT_WINDOW) {
+    entry = { count: 0, windowStart: now };
+    actionAttempts.set(ip, entry);
+  }
+  entry.count++;
+  if (entry.count > ACTION_RATE_LIMIT_MAX) {
+    reply.code(429).send('Too many requests. Please slow down.');
     return false;
   }
   return true;

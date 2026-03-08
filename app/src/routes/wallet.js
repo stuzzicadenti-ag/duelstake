@@ -48,6 +48,7 @@ export default async function walletRoutes(app) {
   // POST /wallet/deposit - Mock deposit
   app.post('/deposit', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const userId = request.user.id;
     const { amount } = request.body;
@@ -86,6 +87,7 @@ export default async function walletRoutes(app) {
   // POST /wallet/withdraw - Mock withdraw
   app.post('/withdraw', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const userId = request.user.id;
     const { amount } = request.body;
