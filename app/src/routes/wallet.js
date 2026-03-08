@@ -95,40 +95,43 @@ export default async function walletRoutes(app) {
       return reply.redirect('/wallet?error=invalid_amount');
     }
 
-    const balance = await pool.query(
-      'SELECT wallet_balance FROM users WHERE id = $1',
-      [userId]
-    );
-
-    const currentBalance = parseFloat(balance.rows[0].wallet_balance);
-
-    if (currentBalance <= 0) {
-      return reply.redirect('/wallet?error=no_funds');
-    }
-
-    if (currentBalance < withdrawAmount) {
-      return reply.redirect('/wallet?error=insufficient');
-    }
-
-    // KYC limit check: unverified users max 100/day
-    const kycResult = await pool.query('SELECT kyc_status FROM users WHERE id = $1', [userId]);
-    const kycStatus = kycResult.rows[0]?.kyc_status || 'none';
-    if (kycStatus !== 'verified') {
-      const todayWithdrawals = await pool.query(
-        `SELECT COALESCE(SUM(ABS(amount)), 0) as total
-         FROM wallet_transactions
-         WHERE user_id = $1 AND type = 'withdrawal' AND created_at >= CURRENT_DATE`,
-        [userId]
-      );
-      const todayTotal = parseFloat(todayWithdrawals.rows[0].total);
-      if (todayTotal + withdrawAmount > 100) {
-        return reply.redirect('/wallet?error=kyc_limit');
-      }
-    }
-
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+
+      // Lock user row to prevent race conditions on concurrent withdrawals
+      const balance = await client.query(
+        'SELECT wallet_balance, kyc_status FROM users WHERE id = $1 FOR UPDATE',
+        [userId]
+      );
+
+      const currentBalance = parseFloat(balance.rows[0].wallet_balance);
+      const kycStatus = balance.rows[0].kyc_status || 'none';
+
+      if (currentBalance <= 0) {
+        await client.query('ROLLBACK');
+        return reply.redirect('/wallet?error=no_funds');
+      }
+
+      if (currentBalance < withdrawAmount) {
+        await client.query('ROLLBACK');
+        return reply.redirect('/wallet?error=insufficient');
+      }
+
+      // KYC limit check: unverified users max 100/day
+      if (kycStatus !== 'verified') {
+        const todayWithdrawals = await client.query(
+          `SELECT COALESCE(SUM(ABS(amount)), 0) as total
+           FROM wallet_transactions
+           WHERE user_id = $1 AND type = 'withdrawal' AND created_at >= CURRENT_DATE`,
+          [userId]
+        );
+        const todayTotal = parseFloat(todayWithdrawals.rows[0].total);
+        if (todayTotal + withdrawAmount > 100) {
+          await client.query('ROLLBACK');
+          return reply.redirect('/wallet?error=kyc_limit');
+        }
+      }
 
       await client.query(
         'UPDATE users SET wallet_balance = wallet_balance - $1 WHERE id = $2',

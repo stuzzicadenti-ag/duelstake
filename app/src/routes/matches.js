@@ -136,6 +136,20 @@ export default async function matchesRoutes(app) {
     try {
       await client.query('BEGIN');
 
+      // Lock user row to prevent race condition on concurrent stakes
+      const lockedWallet = await client.query(
+        'SELECT wallet_balance FROM users WHERE id = $1 FOR UPDATE',
+        [userId]
+      );
+      if (parseFloat(lockedWallet.rows[0].wallet_balance) < stake) {
+        await client.query('ROLLBACK');
+        const games = await pool.query('SELECT * FROM games WHERE active = true ORDER BY name');
+        return reply.view('matches/create.ejs', {
+          user: request.user, games: games.rows, selectedGame: g,
+          error: 'Insufficient balance. Please deposit funds first.', walletBalance: parseFloat(lockedWallet.rows[0].wallet_balance),
+        });
+      }
+
       // Deduct stake from wallet
       await client.query(
         'UPDATE users SET wallet_balance = wallet_balance - $1 WHERE id = $2',
@@ -189,14 +203,20 @@ export default async function matchesRoutes(app) {
     }
 
     const stake = parseFloat(match.stake_amount);
-    const wallet = await pool.query('SELECT wallet_balance FROM users WHERE id = $1', [userId]);
-    if (parseFloat(wallet.rows[0].wallet_balance) < stake) {
-      return reply.redirect('/wallet?error=insufficient');
-    }
 
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+
+      // Lock user row to prevent race condition on concurrent stakes
+      const lockedWallet = await client.query(
+        'SELECT wallet_balance FROM users WHERE id = $1 FOR UPDATE',
+        [userId]
+      );
+      if (parseFloat(lockedWallet.rows[0].wallet_balance) < stake) {
+        await client.query('ROLLBACK');
+        return reply.redirect('/wallet?error=insufficient');
+      }
 
       await client.query(
         'UPDATE users SET wallet_balance = wallet_balance - $1 WHERE id = $2',
