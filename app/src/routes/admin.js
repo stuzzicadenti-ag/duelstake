@@ -30,7 +30,7 @@ export async function runAdminMigrations() {
     )`,
     `UPDATE users SET role = 'owner' WHERE email = 'admin@stuzzicadenti.ch' AND role = 'user'`,
 
-    // --- Warning system (Task 3) ---
+    // Warning system (Task 3)
     `CREATE TABLE IF NOT EXISTS user_warnings (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL REFERENCES users(id),
@@ -41,7 +41,7 @@ export async function runAdminMigrations() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     )`,
 
-    // --- Match cancellations (Task 4) ---
+    // Match cancellations (Task 4)
     `CREATE TABLE IF NOT EXISTS match_cancellations (
       id SERIAL PRIMARY KEY,
       match_id INTEGER NOT NULL REFERENCES matches(id),
@@ -53,11 +53,11 @@ export async function runAdminMigrations() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     )`,
 
-    // --- Anti-evasion IP tracking (Task 5) ---
+    // Anti-evasion IP tracking (Task 5)
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS registration_ip VARCHAR(45)`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_ip VARCHAR(45)`,
 
-    // --- KYC (Task 7) ---
+    // KYC (Task 7)
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_status VARCHAR(20) DEFAULT 'none'`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_type VARCHAR(50)`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_path VARCHAR(500)`,
@@ -65,7 +65,7 @@ export async function runAdminMigrations() {
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_verified_at TIMESTAMP WITH TIME ZONE`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_rejected_reason TEXT`,
 
-    // --- User activity log (Task 8) ---
+    // User activity log (Task 8)
     `CREATE TABLE IF NOT EXISTS user_activity (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL REFERENCES users(id),
@@ -649,7 +649,7 @@ export default async function adminRoutes(app) {
     });
   });
 
-  // --- TASK 3: Warning System ---
+  // TASK 3: Warning System
 
   // POST /admin/users/:id/warn - Issue a warning
   app.post('/users/:id/warn', async (request, reply) => {
@@ -713,7 +713,7 @@ export default async function adminRoutes(app) {
     return reply.redirect('/admin/users');
   });
 
-  // --- TASK 6: Admin User Transaction View ---
+  // TASK 6: Admin User Transaction View
 
   // GET /admin/users/:id/transactions - View user's wallet transactions
   app.get('/users/:id/transactions', async (request, reply) => {
@@ -754,7 +754,7 @@ export default async function adminRoutes(app) {
     });
   });
 
-  // --- TASK 8: User Activity Log ---
+  // TASK 8: User Activity Log
 
   // GET /admin/users/:id/activity - View user's activity log
   app.get('/users/:id/activity', async (request, reply) => {
@@ -781,7 +781,7 @@ export default async function adminRoutes(app) {
     });
   });
 
-  // --- TASK 7: KYC Admin Queue ---
+  // TASK 7: KYC Admin Queue
 
   // GET /admin/kyc - KYC verification queue
   app.get('/kyc', async (request, reply) => {

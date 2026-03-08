@@ -6,7 +6,7 @@ import fs from 'fs/promises';
 
 export default async function profileRoutes(app) {
 
-  // --- TASK 7: KYC Verification ---
+  // TASK 7: KYC Verification
 
   // GET /profile/verify - KYC upload form
   app.get('/verify', async (request, reply) => {

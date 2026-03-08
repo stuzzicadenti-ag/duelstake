@@ -76,7 +76,7 @@ app.setErrorHandler((error, request, reply) => {
   reply.code(statusCode).send({ error: message });
 });
 
-// --- Plugins ---
+// Plugins
 await app.register(fastifyFormbody);
 await app.register(fastifyCookie, {
   secret: process.env.COOKIE_SECRET || 'change-me',
@@ -99,7 +99,7 @@ await app.register(fastifyStatic, {
 // NOTE: Removed /static/ route that exposed entire src/ directory (security risk).
 // If static assets beyond /public/ are needed, serve a specific subdirectory instead.
 
-// --- Auth decorator ---
+// Auth decorator
 app.decorateRequest('user', null);
 app.addHook('onRequest', async (request, reply) => {
   const token = request.cookies.token;
@@ -126,7 +126,7 @@ app.addHook('preHandler', async (request, reply) => {
   reply.locals.user = request.user;
 });
 
-// --- Routes ---
+// Routes
 await app.register(authRoutes, { prefix: '/auth' });
 await app.register(gamesRoutes, { prefix: '/games' });
 await app.register(matchesRoutes, { prefix: '/matches' });
@@ -136,12 +136,12 @@ await app.register(profileRoutes, { prefix: '/profile' });
 await app.register(adminRoutes, { prefix: '/admin' });
 await app.register(wsRoutes);
 
-// --- FAQ ---
+// FAQ
 app.get('/faq', async (request, reply) => {
   return reply.view('faq.ejs', { user: request.user });
 });
 
-// --- Homepage ---
+// Homepage
 app.get('/', async (request, reply) => {
   try {
     const [gamesResult, matchCountResult, topPlayersResult] = await Promise.all([
@@ -168,12 +168,12 @@ app.get('/', async (request, reply) => {
   }
 });
 
-// --- Health check ---
+// Health check
 app.get('/health', async () => {
   return { status: 'ok', service: 'duelstake', timestamp: new Date().toISOString() };
 });
 
-// --- Graceful shutdown ---
+// Graceful shutdown
 const shutdown = async () => {
   await app.close();
   await pool.end();
@@ -182,7 +182,7 @@ const shutdown = async () => {
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
-// --- Start ---
+// Start
 await runAdminMigrations();
 
 const PORT = parseInt(process.env.PORT || '4004', 10);
