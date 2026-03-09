@@ -5,7 +5,7 @@
   <div class="page-header">
     <div class="flex items-center gap-2">
       <div>
-        <h1><%= profile.display_name || profile.username %> &mdash; <%= t('stats.title') %></h1>
+        <h1><%= profile.display_name || profile.username %> | <%= t('stats.title') %></h1>
         <p><a href="/profile/<%= profile.username %>" style="color: var(--text-muted);">&larr; <%= t('stats.back_to_profile') %></a></p>
       </div>
     </div>
