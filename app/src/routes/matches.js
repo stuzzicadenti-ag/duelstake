@@ -5,6 +5,105 @@ import { logUserActivity } from './admin.js';
 import path from 'path';
 import fs from 'fs/promises';
 
+// Achievement definitions
+export const ACHIEVEMENTS = {
+  first_win: { name: 'First Win', description: 'Win your first match', icon: '&#127942;' },
+  win_streak_5: { name: '5 Win Streak', description: 'Win 5 matches in a row', icon: '&#128293;' },
+  high_roller: { name: 'High Roller', description: 'Stake 100+ CHF in a single match', icon: '&#128176;' },
+  veteran: { name: 'Veteran', description: 'Complete 50+ matches', icon: '&#127894;' },
+  perfect_week: { name: 'Perfect Week', description: 'Win 7 matches in 7 days', icon: '&#11088;' },
+  centurion: { name: 'Centurion', description: 'Reach 1100+ ELO rating', icon: '&#9876;' },
+  underdog: { name: 'Underdog', description: 'Beat a player 200+ ELO above you', icon: '&#128170;' },
+  diversified: { name: 'Diversified', description: 'Play 3 different games', icon: '&#127918;' },
+  big_winner: { name: 'Big Winner', description: 'Win 500+ CHF total', icon: '&#128081;' },
+  dedicated: { name: 'Dedicated', description: 'Play 10 matches in one game', icon: '&#127919;' },
+};
+
+async function checkAchievements(client, userId, gameId, stakeAmount) {
+  try {
+    // Get current user stats
+    const [totalMatches, totalWins, winStreak, eloResult, distinctGames, totalEarnings, recentWins] = await Promise.all([
+      client.query(
+        `SELECT COUNT(*) as count FROM matches
+         WHERE (player1_id = $1 OR player2_id = $1) AND status = 'completed'`,
+        [userId]
+      ),
+      client.query(
+        `SELECT COUNT(*) as count FROM matches
+         WHERE winner_id = $1 AND status = 'completed'`,
+        [userId]
+      ),
+      client.query(
+        `SELECT COALESCE(MAX(win_streak), 0) as streak FROM leaderboard WHERE user_id = $1`,
+        [userId]
+      ),
+      client.query('SELECT elo_rating FROM users WHERE id = $1', [userId]),
+      client.query(
+        `SELECT COUNT(DISTINCT game_id) as count FROM leaderboard WHERE user_id = $1`,
+        [userId]
+      ),
+      client.query(
+        `SELECT COALESCE(SUM(amount), 0) as total FROM wallet_transactions
+         WHERE user_id = $1 AND type = 'win'`,
+        [userId]
+      ),
+      client.query(
+        `SELECT COUNT(*) as count FROM matches
+         WHERE winner_id = $1 AND status = 'completed'
+           AND completed_at >= NOW() - INTERVAL '7 days'`,
+        [userId]
+      ),
+    ]);
+
+    const matchCount = parseInt(totalMatches.rows[0].count);
+    const winCount = parseInt(totalWins.rows[0].count);
+    const streak = parseInt(winStreak.rows[0].streak);
+    const elo = eloResult.rows[0].elo_rating;
+    const gameCount = parseInt(distinctGames.rows[0].count);
+    const earnings = parseFloat(totalEarnings.rows[0].total);
+    const weekWins = parseInt(recentWins.rows[0].count);
+    const gameMatches = await client.query(
+      `SELECT COUNT(*) as count FROM matches
+       WHERE (player1_id = $1 OR player2_id = $1) AND game_id = $2 AND status = 'completed'`,
+      [userId, gameId]
+    );
+    const gameMatchCount = parseInt(gameMatches.rows[0].count);
+
+    const earned = [];
+    if (winCount >= 1) earned.push('first_win');
+    if (streak >= 5) earned.push('win_streak_5');
+    if (stakeAmount >= 100) earned.push('high_roller');
+    if (matchCount >= 50) earned.push('veteran');
+    if (weekWins >= 7) earned.push('perfect_week');
+    if (elo >= 1100) earned.push('centurion');
+    if (gameCount >= 3) earned.push('diversified');
+    if (earnings >= 500) earned.push('big_winner');
+    if (gameMatchCount >= 10) earned.push('dedicated');
+
+    for (const key of earned) {
+      const result = await client.query(
+        `INSERT INTO achievements (user_id, achievement_key)
+         VALUES ($1, $2)
+         ON CONFLICT (user_id, achievement_key) DO NOTHING
+         RETURNING id`,
+        [userId, key]
+      );
+      // If newly inserted, create a notification
+      if (result.rows.length > 0) {
+        const achievement = ACHIEVEMENTS[key];
+        await client.query(
+          `INSERT INTO notifications (user_id, type, title, message, link)
+           VALUES ($1, 'achievement', $2, $3, $4)`,
+          [userId, `Achievement Unlocked: ${achievement.name}`, achievement.description, `/profile/${userId}/stats`]
+        );
+      }
+    }
+  } catch (err) {
+    // Non-critical, don't break match flow
+    console.error('[achievements] Check failed:', err.message);
+  }
+}
+
 function requireAuth(request, reply) {
   if (!request.user) {
     return reply.redirect('/auth/login');
@@ -387,6 +486,34 @@ export default async function matchesRoutes(app) {
         await client.query('UPDATE users SET elo_rating = $1 WHERE id = $2', [winnerNew, winnerId]);
         await client.query('UPDATE users SET elo_rating = $1 WHERE id = $2', [loserNew, loserId]);
 
+        // Record ELO history
+        await client.query(
+          `INSERT INTO elo_history (user_id, game_id, match_id, elo_before, elo_after)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [winnerId, match.game_id, matchId, winnerData.rows[0].elo_rating, winnerNew]
+        );
+        await client.query(
+          `INSERT INTO elo_history (user_id, game_id, match_id, elo_before, elo_after)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [loserId, match.game_id, matchId, loserData.rows[0].elo_rating, loserNew]
+        );
+
+        // Create notifications for match result
+        await client.query(
+          `INSERT INTO notifications (user_id, type, title, message, link)
+           VALUES ($1, 'match_result', 'Match Won!', $2, $3)`,
+          [winnerId, `You won the match and earned ${winnerNew - winnerData.rows[0].elo_rating} ELO!`, `/matches/${matchId}`]
+        );
+        await client.query(
+          `INSERT INTO notifications (user_id, type, title, message, link)
+           VALUES ($1, 'match_result', 'Match Lost', $2, $3)`,
+          [loserId, `You lost the match and lost ${loserData.rows[0].elo_rating - loserNew} ELO.`, `/matches/${matchId}`]
+        );
+
+        // Check achievements for both players
+        await checkAchievements(client, winnerId, match.game_id, stake);
+        await checkAchievements(client, loserId, match.game_id, stake);
+
         // Update leaderboard
         const gameId = match.game_id;
         await client.query(
@@ -455,6 +582,82 @@ export default async function matchesRoutes(app) {
     }
 
     return reply.redirect(`/matches/${matchId}`);
+  });
+
+  // GET /matches/history - Paginated match history with filters
+  app.get('/history', async (request, reply) => {
+    if (!request.user) return reply.redirect('/auth/login');
+
+    const userId = request.user.id;
+    const page = Math.max(1, parseInt(request.query.page) || 1);
+    const limit = 20;
+    const offset = (page - 1) * limit;
+    const gameFilter = request.query.game || '';
+    const resultFilter = request.query.result || '';
+    const dateFrom = request.query.from || '';
+    const dateTo = request.query.to || '';
+
+    let where = `WHERE (m.player1_id = $1 OR m.player2_id = $1) AND m.status = 'completed'`;
+    const params = [userId];
+
+    if (gameFilter) {
+      params.push(parseInt(gameFilter));
+      where += ` AND m.game_id = $${params.length}`;
+    }
+    if (resultFilter === 'won') {
+      where += ` AND m.winner_id = $1`;
+    } else if (resultFilter === 'lost') {
+      where += ` AND m.winner_id != $1 AND m.winner_id IS NOT NULL`;
+    }
+    if (dateFrom) {
+      params.push(dateFrom);
+      where += ` AND m.completed_at >= $${params.length}::date`;
+    }
+    if (dateTo) {
+      params.push(dateTo);
+      where += ` AND m.completed_at <= ($${params.length}::date + INTERVAL '1 day')`;
+    }
+
+    const [matchesResult, countResult, gamesResult] = await Promise.all([
+      pool.query(
+        `SELECT m.*, g.name as game_name, g.icon as game_icon, g.slug as game_slug,
+                u1.username as player1_name, u2.username as player2_name,
+                uw.username as winner_name,
+                eh.elo_before, eh.elo_after,
+                (eh.elo_after - eh.elo_before) as elo_change
+         FROM matches m
+         JOIN games g ON m.game_id = g.id
+         JOIN users u1 ON m.player1_id = u1.id
+         LEFT JOIN users u2 ON m.player2_id = u2.id
+         LEFT JOIN users uw ON m.winner_id = uw.id
+         LEFT JOIN elo_history eh ON eh.match_id = m.id AND eh.user_id = $1
+         ${where}
+         ORDER BY m.completed_at DESC
+         LIMIT ${limit} OFFSET ${offset}`,
+        params
+      ),
+      pool.query(
+        `SELECT COUNT(*) as count FROM matches m ${where}`,
+        params
+      ),
+      pool.query('SELECT id, name, icon FROM games WHERE active = true ORDER BY name'),
+    ]);
+
+    const totalCount = parseInt(countResult.rows[0].count);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return reply.view('matches/history.ejs', {
+      user: request.user,
+      matches: matchesResult.rows,
+      games: gamesResult.rows,
+      page,
+      totalPages,
+      totalCount,
+      gameFilter,
+      resultFilter,
+      dateFrom,
+      dateTo,
+    });
   });
 
   // GET /matches/:id - Match detail (participants and admins only, except waiting matches)

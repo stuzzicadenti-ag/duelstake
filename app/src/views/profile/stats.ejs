@@ -1,0 +1,245 @@
+<%- include('../partials/head', { title: (profile.display_name || profile.username) + ' - ' + t('stats.title') }) %>
+<%- include('../partials/nav') %>
+
+<div class="container">
+  <div class="page-header">
+    <div class="flex items-center gap-2">
+      <div>
+        <h1><%= profile.display_name || profile.username %> &mdash; <%= t('stats.title') %></h1>
+        <p><a href="/profile/<%= profile.username %>" style="color: var(--text-muted);">&larr; <%= t('stats.back_to_profile') %></a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overview Stats -->
+  <div class="grid grid-3 mb-3" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
+    <div class="card stat">
+      <div class="stat-value text-accent"><%= profile.elo_rating %></div>
+      <div class="stat-label"><%= t('stats.global_elo') %></div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value text-success"><%= totalWins %></div>
+      <div class="stat-label"><%= t('stats.total_wins') %></div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value text-danger"><%= totalLosses %></div>
+      <div class="stat-label"><%= t('stats.total_losses') %></div>
+    </div>
+    <div class="card stat">
+      <%
+        var totalGames = totalWins + totalLosses;
+        var winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : '0.0';
+      %>
+      <div class="stat-value" style="color: <%= parseFloat(winRate) >= 50 ? 'var(--success)' : 'var(--danger)' %>;">
+        <%= winRate %>%
+      </div>
+      <div class="stat-label"><%= t('stats.win_rate') %></div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value text-accent">&euro;<%= totalEarnings.toFixed(2) %></div>
+      <div class="stat-label"><%= t('stats.total_earnings') %></div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value" style="color: var(--accent);">&euro;<%= biggestWin.toFixed(2) %></div>
+      <div class="stat-label"><%= t('stats.biggest_win') %></div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value">&euro;<%= avgStake.toFixed(2) %></div>
+      <div class="stat-label"><%= t('stats.avg_stake') %></div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value" style="color: var(--accent);"><%= currentStreak %></div>
+      <div class="stat-label"><%= t('stats.current_streak') %></div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <!-- Win/Loss Ratio Chart -->
+    <div class="card">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.win_loss_ratio') %></h2>
+      <div style="position: relative; height: 250px; display: flex; align-items: center; justify-content: center;">
+        <% if (totalWins + totalLosses > 0) { %>
+          <canvas id="winLossChart"></canvas>
+        <% } else { %>
+          <span class="text-muted"><%= t('stats.no_data') %></span>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Monthly Activity Chart -->
+    <div class="card">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.monthly_activity') %></h2>
+      <div style="position: relative; height: 250px;">
+        <% if (monthlyActivity.length > 0) { %>
+          <canvas id="monthlyChart"></canvas>
+        <% } else { %>
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+            <span class="text-muted"><%= t('stats.no_data') %></span>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Form -->
+  <div class="card mt-3">
+    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.recent_form') %></h2>
+    <% if (recentForm.length > 0) { %>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <% recentForm.forEach(function(m) { %>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <span style="font-size: 1.2rem;"><%= m.game_icon %></span>
+            <span style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; background: rgba(<%= m.result === 'W' ? '34,197,94' : '239,68,68' %>, 0.15); color: var(<%= m.result === 'W' ? '--success' : '--danger' %>);">
+              <%= m.result %>
+            </span>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <p class="text-muted"><%= t('stats.no_matches_yet') %></p>
+    <% } %>
+  </div>
+
+  <!-- Per-Game Stats -->
+  <div class="card mt-3">
+    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.per_game') %></h2>
+    <% if (gameStats.length > 0) { %>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><%= t('stats.game') %></th>
+              <th><%= t('stats.elo') %></th>
+              <th><%= t('stats.wins') %></th>
+              <th><%= t('stats.losses') %></th>
+              <th><%= t('stats.win_rate') %></th>
+              <th><%= t('stats.streak') %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% gameStats.forEach(function(gs) { %>
+              <%
+                var gsTotal = gs.wins + gs.losses;
+                var gsWinRate = gsTotal > 0 ? ((gs.wins / gsTotal) * 100).toFixed(1) : '0.0';
+              %>
+              <tr>
+                <td><span><%= gs.icon %></span> <a href="/games/<%= gs.slug %>"><%= gs.name %></a></td>
+                <td style="font-weight: 700;"><%= gs.elo %></td>
+                <td style="color: var(--success);"><%= gs.wins %></td>
+                <td style="color: var(--danger);"><%= gs.losses %></td>
+                <td style="color: <%= parseFloat(gsWinRate) >= 50 ? 'var(--success)' : 'var(--danger)' %>"><%= gsWinRate %>%</td>
+                <td><% if (gs.win_streak > 0) { %><span style="color: var(--accent);"><%= gs.win_streak %></span><% } else { %>0<% } %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <p class="text-muted"><%= t('stats.no_data') %></p>
+    <% } %>
+  </div>
+
+  <!-- Achievements -->
+  <div class="card mt-3">
+    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.achievements') %> (<%= achievements.length %>/<%= Object.keys(achievementDefs).length %>)</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;">
+      <% Object.keys(achievementDefs).forEach(function(key) { %>
+        <%
+          var def = achievementDefs[key];
+          var earned = achievements.find(function(a) { return a.achievement_key === key; });
+        %>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); background: var(<%= earned ? '--surface-2' : '--bg' %>); opacity: <%= earned ? '1' : '0.4' %>;">
+          <span style="font-size: 1.8rem;"><%- def.icon %></span>
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem;"><%= def.name %></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);"><%= def.description %></div>
+            <% if (earned) { %>
+              <div style="font-size: 0.7rem; color: var(--accent); margin-top: 2px;"><%= new Date(earned.unlocked_at).toLocaleDateString() %></div>
+            <% } %>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  // Win/Loss Doughnut Chart
+  var wlCanvas = document.getElementById('winLossChart');
+  if (wlCanvas) {
+    new Chart(wlCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['<%= t("stats.wins") %>', '<%= t("stats.losses") %>'],
+        datasets: [{
+          data: [<%= totalWins %>, <%= totalLosses %>],
+          backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+          borderColor: ['#22c55e', '#ef4444'],
+          borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+          legend: { labels: { color: '#f0f0f5', usePointStyle: true, pointStyle: 'circle' } },
+        },
+      },
+    });
+  }
+
+  // Monthly Activity Bar Chart
+  var maCanvas = document.getElementById('monthlyChart');
+  if (maCanvas) {
+    var monthData = <%- JSON.stringify(monthlyActivity.map(function(m) {
+      return { month: m.month, wins: parseInt(m.wins), losses: parseInt(m.losses) };
+    })) %>;
+    new Chart(maCanvas, {
+      type: 'bar',
+      data: {
+        labels: monthData.map(function(d) {
+          return new Date(d.month).toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
+        }),
+        datasets: [
+          {
+            label: '<%= t("stats.wins") %>',
+            data: monthData.map(function(d) { return d.wins; }),
+            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+            borderRadius: 4,
+          },
+          {
+            label: '<%= t("stats.losses") %>',
+            data: monthData.map(function(d) { return d.losses; }),
+            backgroundColor: 'rgba(239, 68, 68, 0.7)',
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#8a8a9a' },
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#8a8a9a', stepSize: 1 },
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: { labels: { color: '#f0f0f5', usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: { backgroundColor: '#16161f', borderColor: '#2a2a3a', borderWidth: 1 },
+        },
+      },
+    });
+  }
+})();
+</script>
+
+<%- include('../partials/footer') %>

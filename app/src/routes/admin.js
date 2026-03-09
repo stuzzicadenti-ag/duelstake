@@ -78,6 +78,43 @@ export async function runAdminMigrations() {
     `CREATE INDEX IF NOT EXISTS idx_user_activity_created_at ON user_activity(created_at DESC)`,
     `ALTER TABLE user_warnings ADD COLUMN IF NOT EXISTS expired BOOLEAN DEFAULT false`,
     `CREATE INDEX IF NOT EXISTS idx_user_warnings_user_id ON user_warnings(user_id)`,
+
+    // Achievements system
+    `CREATE TABLE IF NOT EXISTS achievements (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      achievement_key VARCHAR(50) NOT NULL,
+      unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      UNIQUE (user_id, achievement_key)
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_achievements_user_id ON achievements(user_id)`,
+
+    // Notifications system
+    `CREATE TABLE IF NOT EXISTS notifications (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      type VARCHAR(50) NOT NULL,
+      title VARCHAR(200) NOT NULL,
+      message TEXT,
+      link VARCHAR(500),
+      read BOOLEAN DEFAULT false,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(user_id, read)`,
+
+    // ELO history tracking
+    `CREATE TABLE IF NOT EXISTS elo_history (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      game_id INTEGER NOT NULL REFERENCES games(id),
+      match_id INTEGER REFERENCES matches(id),
+      elo_before INTEGER NOT NULL,
+      elo_after INTEGER NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_elo_history_user_game ON elo_history(user_id, game_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_elo_history_created ON elo_history(created_at)`,
   ];
 
   for (const sql of migrations) {

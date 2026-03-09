@@ -186,13 +186,90 @@
     </div>
   <% } %>
 
-  <!-- ELO Chart placeholder -->
-  <div class="card mt-3" style="text-align: center; padding: 40px;">
-    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">ELO History</div>
-    <div style="height: 200px; background: var(--bg); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; border: 1px dashed var(--border);">
-      <span class="text-muted">Chart coming soon</span>
+  <!-- Player Stats & Achievements Links -->
+  <div class="card mt-3" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 4px;"><%= t('profile.detailed_stats') %></h2>
+      <p class="text-muted" style="font-size: 0.85rem;"><%= t('profile.detailed_stats_desc') %></p>
+    </div>
+    <a href="/profile/<%= profile.id %>/stats" class="btn btn-sm btn-secondary"><%= t('profile.view_stats') %></a>
+  </div>
+
+  <!-- ELO History Chart -->
+  <div class="card mt-3">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+      <h2 style="font-size: 1.1rem; font-weight: 700;"><%= t('profile.elo_history') %></h2>
+    </div>
+    <div style="position: relative; height: 280px;">
+      <canvas id="eloChart"></canvas>
+    </div>
+    <div id="eloChartEmpty" style="display: none; text-align: center; padding: 40px 0;">
+      <span class="text-muted"><%= t('profile.no_elo_data') %></span>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script>
+  (function() {
+    var profileId = <%= profile.id %>;
+    fetch('/profile/' + profileId + '/elo-history')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var games = Object.keys(data);
+        if (games.length === 0) {
+          document.getElementById('eloChart').style.display = 'none';
+          document.getElementById('eloChartEmpty').style.display = 'block';
+          return;
+        }
+        var colors = ['#e63946', '#ffd700', '#22c55e', '#60a5fa', '#a855f7', '#f97316'];
+        var datasets = games.map(function(game, i) {
+          var points = data[game];
+          return {
+            label: game,
+            data: points.map(function(p) { return { x: new Date(p.date), y: p.elo }; }),
+            borderColor: colors[i % colors.length],
+            backgroundColor: colors[i % colors.length] + '22',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            tension: 0.3,
+            fill: false,
+          };
+        });
+        new Chart(document.getElementById('eloChart'), {
+          type: 'line',
+          data: { datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+              x: {
+                type: 'time',
+                time: { unit: 'day', tooltipFormat: 'MMM d, yyyy' },
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#8a8a9a', maxTicksLimit: 8 },
+              },
+              y: {
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#8a8a9a' },
+                title: { display: true, text: 'ELO', color: '#8a8a9a' },
+              },
+            },
+            plugins: {
+              legend: { labels: { color: '#f0f0f5', usePointStyle: true, pointStyle: 'circle' } },
+              tooltip: { backgroundColor: '#16161f', borderColor: '#2a2a3a', borderWidth: 1 },
+            },
+          },
+        });
+      })
+      .catch(function() {
+        document.getElementById('eloChart').style.display = 'none';
+        document.getElementById('eloChartEmpty').style.display = 'block';
+      });
+  })();
+  </script>
 </div>
 
 <%- include('../partials/footer') %>

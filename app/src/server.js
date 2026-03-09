@@ -17,6 +17,7 @@ import matchesRoutes from './routes/matches.js';
 import leaderboardRoutes from './routes/leaderboard.js';
 import walletRoutes from './routes/wallet.js';
 import profileRoutes from './routes/profile.js';
+import notificationRoutes from './routes/notifications.js';
 import wsRoutes from './routes/ws.js';
 import adminRoutes, { runAdminMigrations } from './routes/admin.js';
 import { pool } from './db/schema.js';
@@ -38,7 +39,7 @@ app.addHook('onSend', async (request, reply) => {
   reply.header('X-XSS-Protection', '0');
   reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  reply.header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'");
+  reply.header('Content-Security-Policy', "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'");
   reply.removeHeader('X-Powered-By');
 });
 
@@ -152,10 +153,20 @@ app.addHook('onRequest', async (request, reply) => {
   }
 });
 
-// Pass user to all views
+// Pass user and notification count to all views
 app.addHook('preHandler', async (request, reply) => {
   if (reply.locals === undefined) reply.locals = {};
   reply.locals.user = request.user;
+  reply.locals.unreadNotifications = 0;
+  if (request.user) {
+    try {
+      const result = await pool.query(
+        `SELECT COUNT(*) as count FROM notifications WHERE user_id = $1 AND read = false`,
+        [request.user.id]
+      );
+      reply.locals.unreadNotifications = parseInt(result.rows[0].count);
+    } catch { /* ignore */ }
+  }
 });
 
 // i18n: load locale, inject t() and lang into all views
@@ -168,6 +179,7 @@ await app.register(matchesRoutes, { prefix: '/matches' });
 await app.register(leaderboardRoutes, { prefix: '/leaderboard' });
 await app.register(walletRoutes, { prefix: '/wallet' });
 await app.register(profileRoutes, { prefix: '/profile' });
+await app.register(notificationRoutes, { prefix: '/notifications' });
 await app.register(adminRoutes, { prefix: '/admin' });
 await app.register(wsRoutes);
 

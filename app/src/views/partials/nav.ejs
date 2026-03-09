@@ -22,7 +22,14 @@
             <%= user.display_name || user.username %>
           </div>
           <a href="/matches"><%= t('nav.matches') %></a>
+          <a href="/matches/history"><%= t('nav.match_history') %></a>
           <a href="/wallet"><%= t('nav.wallet') %></a>
+          <a href="/notifications" style="display: flex; align-items: center; gap: 6px;">
+            <%= t('nav.notifications') %>
+            <% if (typeof unreadNotifications !== 'undefined' && unreadNotifications > 0) { %>
+              <span style="background: var(--danger); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center;"><%= unreadNotifications %></span>
+            <% } %>
+          </a>
           <% if (typeof user.role !== 'undefined' && (user.role === 'admin' || user.role === 'owner')) { %>
             <a href="/admin" style="color: var(--accent);"><%= t('nav.admin') %></a>
           <% } %>
@@ -42,7 +49,14 @@
               <div class="dropdown-header"><%= user.display_name || user.username %></div>
               <div class="dropdown-divider"></div>
               <a href="/matches"><%= t('nav.matches') %></a>
+              <a href="/matches/history"><%= t('nav.match_history') %></a>
               <a href="/wallet"><%= t('nav.wallet') %></a>
+              <a href="/notifications" style="display: flex; align-items: center; gap: 6px;">
+                <%= t('nav.notifications') %>
+                <% if (typeof unreadNotifications !== 'undefined' && unreadNotifications > 0) { %>
+                  <span style="background: var(--danger); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center;"><%= unreadNotifications %></span>
+                <% } %>
+              </a>
               <% if (typeof user.role !== 'undefined' && (user.role === 'admin' || user.role === 'owner')) { %>
                 <a href="/admin" class="text-accent"><%= t('nav.admin') %></a>
               <% } %>
