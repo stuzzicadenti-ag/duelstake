@@ -77,7 +77,7 @@
         <% if (cancellation.evidence_url) { %>
           <div>
             <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Evidence</span>
-            <div><a href="<%= cancellation.evidence_url %>" target="_blank" rel="noopener" style="color: #60a5fa;">View Evidence</a></div>
+            <div><% const safeEvidenceUrl = cancellation.evidence_url && /^https?:\/\//i.test(cancellation.evidence_url) ? cancellation.evidence_url : '#'; %><a href="<%= safeEvidenceUrl %>" target="_blank" rel="noopener" style="color: #60a5fa;">View Evidence</a></div>
           </div>
         <% } %>
         <% if (cancellation.warned_username) { %>

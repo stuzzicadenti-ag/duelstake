@@ -26,6 +26,7 @@ export default async function profileRoutes(app) {
   // POST /profile/verify - Handle KYC upload
   app.post('/verify', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const data = await request.file();
     if (!data) {
@@ -68,6 +69,7 @@ export default async function profileRoutes(app) {
   // POST /profile/:id/report - Report a user
   app.post('/:id/report', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const reportedId = parseInt(request.params.id);
     const userId = request.user.id;

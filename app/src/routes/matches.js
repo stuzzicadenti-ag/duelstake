@@ -251,6 +251,7 @@ export default async function matchesRoutes(app) {
   // POST /matches/:id/proof - Upload proof
   app.post('/:id/proof', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const matchId = request.params.id;
     const userId = request.user.id;
@@ -317,6 +318,7 @@ export default async function matchesRoutes(app) {
   // POST /matches/:id/report - Report winner
   app.post('/:id/report', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const matchId = request.params.id;
     const userId = request.user.id;
@@ -423,6 +425,7 @@ export default async function matchesRoutes(app) {
   // POST /matches/:id/flag - Report a player in a match
   app.post('/:id/flag', async (request, reply) => {
     if (!request.user) return reply.redirect('/auth/login');
+    if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
     const matchId = parseInt(request.params.id);
     const userId = request.user.id;
@@ -485,7 +488,7 @@ export default async function matchesRoutes(app) {
         return reply.redirect('/auth/login');
       }
       const isParticipant = request.user.id === match.player1_id || request.user.id === match.player2_id;
-      const isAdmin = request.user.role === 'admin';
+      const isAdmin = request.user.role === 'admin' || request.user.role === 'owner';
       if (!isParticipant && !isAdmin) {
         return reply.code(403).send('Access denied: you are not a participant in this match');
       }

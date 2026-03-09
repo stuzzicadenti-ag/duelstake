@@ -38,7 +38,19 @@ export function registerI18n(app) {
       sameSite: 'lax',
       maxAge: 365 * 24 * 60 * 60,
     });
-    const referer = request.headers.referer || '/';
+    // Validate referer to prevent open redirect - only allow same-origin paths
+    let referer = '/';
+    const raw = request.headers.referer;
+    if (raw) {
+      try {
+        const url = new URL(raw, `http://${request.headers.host}`);
+        if (url.host === request.headers.host) {
+          referer = url.pathname + url.search;
+        }
+      } catch {
+        // Invalid URL, fall back to /
+      }
+    }
     return reply.redirect(referer);
   });
 
