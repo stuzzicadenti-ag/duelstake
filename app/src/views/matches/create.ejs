@@ -21,7 +21,7 @@
       </div>
     <% } %>
 
-    <div class="card">
+    <div class="card animate-in">
       <form action="/matches/create" method="POST">
         <div class="form-group">
           <label>Game</label>
@@ -67,7 +67,7 @@
           </ul>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px;" onclick="this.classList.add('btn-loading');">
           Create Match
         </button>
       </form>

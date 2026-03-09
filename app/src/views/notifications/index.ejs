@@ -2,67 +2,50 @@
 <%- include('../partials/nav') %>
 
 <div class="container">
-  <div class="page-header">
-    <h1><%= t('notifications.title') %></h1>
-    <p><%= t('notifications.subtitle') %></p>
+  <div class="page-header flex items-center justify-between">
+    <div>
+      <h1><%= t('notifications.title') %></h1>
+      <p><%= t('notifications.subtitle') %></p>
+    </div>
+    <% if (notifications.length > 0) { %>
+      <form action="/notifications/mark-all-read" method="POST" style="margin: 0;">
+        <button type="submit" class="btn btn-secondary btn-sm">Mark all read</button>
+      </form>
+    <% } %>
   </div>
 
-  <div class="card">
+  <div class="card animate-in">
     <% if (notifications.length > 0) { %>
-      <% notifications.forEach(function(n) { %>
-        <a href="<%= n.link || '#' %>" style="display: block; padding: 14px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); transition: background 0.2s;" <% if (!n.read) { %>class="notif-unread"<% } %>>
-          <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem;
-              <% if (n.type === 'match_result') { %>
-                background: rgba(230, 57, 70, 0.15); color: var(--primary);
-              <% } else if (n.type === 'achievement') { %>
-                background: rgba(255, 215, 0, 0.15); color: var(--accent);
-              <% } else if (n.type === 'match_invite') { %>
-                background: rgba(96, 165, 250, 0.15); color: #60a5fa;
-              <% } else if (n.type === 'dispute_update') { %>
-                background: rgba(239, 68, 68, 0.15); color: var(--danger);
-              <% } else { %>
-                background: rgba(138, 138, 154, 0.15); color: var(--text-muted);
-              <% } %>
-            ">
-              <% if (n.type === 'match_result') { %>
-                &#9876;
-              <% } else if (n.type === 'achievement') { %>
-                &#127942;
-              <% } else if (n.type === 'match_invite') { %>
-                &#9993;
-              <% } else if (n.type === 'dispute_update') { %>
-                &#9888;
-              <% } else { %>
-                &#128276;
-              <% } %>
+      <div class="stagger-children">
+        <% notifications.forEach(function(n) { %>
+          <a href="<%= n.link || '#' %>" class="notif-item <%= !n.read ? 'unread' : '' %>">
+            <div class="notif-icon <% if (n.type === 'match_result') { %>notif-icon-match<% } else if (n.type === 'achievement') { %>notif-icon-achievement<% } else if (n.type === 'match_invite') { %>notif-icon-invite<% } else if (n.type === 'dispute_update') { %>notif-icon-dispute<% } else { %>notif-icon-general<% } %>">
+              <% if (n.type === 'match_result') { %>&#9876;<% } else if (n.type === 'achievement') { %>&#127942;<% } else if (n.type === 'match_invite') { %>&#9993;<% } else if (n.type === 'dispute_update') { %>&#9888;<% } else { %>&#128276;<% } %>
             </div>
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <span style="font-weight: 700; font-size: 0.9rem;"><%= n.title %></span>
+            <div class="notif-content">
+              <div class="notif-title-row">
+                <span class="notif-title"><%= n.title %></span>
                 <% if (!n.read) { %>
-                  <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0;"></span>
+                  <span class="notif-dot"></span>
                 <% } %>
               </div>
               <% if (n.message) { %>
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2px;"><%= n.message %></div>
+                <div class="notif-message"><%= n.message %></div>
               <% } %>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">
-                <%= new Date(n.created_at).toLocaleString() %>
-              </div>
+              <div class="notif-time"><%= new Date(n.created_at).toLocaleString() %></div>
             </div>
             <div style="flex-shrink: 0;">
               <span class="badge" style="
                 <% if (n.type === 'match_result') { %>
-                  background: rgba(230, 57, 70, 0.15); color: var(--primary);
+                  background: rgba(230, 57, 70, 0.12); color: var(--primary);
                 <% } else if (n.type === 'achievement') { %>
-                  background: rgba(255, 215, 0, 0.15); color: var(--accent);
+                  background: rgba(255, 215, 0, 0.12); color: var(--accent);
                 <% } else if (n.type === 'match_invite') { %>
-                  background: rgba(96, 165, 250, 0.15); color: #60a5fa;
+                  background: rgba(96, 165, 250, 0.12); color: #60a5fa;
                 <% } else if (n.type === 'dispute_update') { %>
-                  background: rgba(239, 68, 68, 0.15); color: var(--danger);
+                  background: rgba(239, 68, 68, 0.12); color: var(--danger);
                 <% } else { %>
-                  background: rgba(138, 138, 154, 0.15); color: var(--text-muted);
+                  background: rgba(138, 138, 154, 0.12); color: var(--text-muted);
                 <% } %>
               ">
                 <% if (n.type === 'match_result') { %>
@@ -78,11 +61,11 @@
                 <% } %>
               </span>
             </div>
-          </div>
-        </a>
-      <% }); %>
+          </a>
+        <% }); %>
+      </div>
     <% } else { %>
-      <div class="empty-state">
+      <div class="empty-state animate-in">
         <span class="icon">&#128276;</span>
         <h2><%= t('notifications.empty') %></h2>
         <p><%= t('notifications.empty_desc') %></p>
@@ -90,9 +73,5 @@
     <% } %>
   </div>
 </div>
-
-<style>
-  .notif-unread { background: rgba(230, 57, 70, 0.03); }
-</style>
 
 <%- include('../partials/footer') %>

@@ -2,55 +2,61 @@
 <%- include('../partials/nav') %>
 
 <div class="container">
-  <div class="page-header">
+  <div class="page-header animate-in">
     <div class="flex items-center gap-2">
-      <span style="font-size: 2rem;"><%= match.game_icon %></span>
+      <span style="font-size: 2.5rem; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border-radius: 14px;"><%= match.game_icon %></span>
       <div>
         <h1>Match #<%= match.id %></h1>
-        <p><%= match.game_name %> - <span class="badge badge-<%= match.status %>"><%= match.status %></span></p>
+        <p><%= match.game_name %> &middot; <span class="badge badge-<%= match.status %>"><%= match.status %></span></p>
       </div>
     </div>
   </div>
 
   <!-- Players & Stake -->
-  <div class="card mb-3">
+  <div class="card mb-3 animate-in" style="animation-delay: 0.05s;">
     <div style="display: flex; align-items: center; gap: 20px; justify-content: center; flex-wrap: wrap;">
       <div style="text-align: center; flex: 1; min-width: 150px;">
-        <div style="width: 64px; height: 64px; background: var(--surface-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 8px; border: 2px solid <%= match.winner_id === match.player1_id ? 'var(--success)' : 'var(--border)' %>;">
+        <div style="width: 72px; height: 72px; background: linear-gradient(135deg, var(--surface-2), rgba(230, 57, 70, 0.1)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 10px; border: 3px solid <%= match.winner_id === match.player1_id ? 'var(--success)' : 'var(--border)' %>; transition: border-color 0.3s;">
           &#128100;
         </div>
         <a href="/profile/<%= match.player1_name %>" style="font-weight: 700; font-size: 1.1rem;">
           <%= match.player1_display || match.player1_name %>
         </a>
-        <div style="font-size: 0.85rem; color: var(--text-muted);">ELO: <%= match.player1_elo %></div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">ELO: <span style="font-weight: 600;"><%= match.player1_elo %></span></div>
         <% if (match.winner_id === match.player1_id) { %>
-          <div style="color: var(--success); font-weight: 700; margin-top: 4px;">WINNER</div>
+          <div style="margin-top: 6px;">
+            <span style="display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: rgba(34, 197, 94, 0.15); color: var(--success);">&#127942; WINNER</span>
+          </div>
         <% } %>
       </div>
 
-      <div style="text-align: center;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Stake</div>
-        <div style="font-size: 2rem; font-weight: 900; color: var(--accent); margin: 4px 0;">
-          &euro;<%= parseFloat(match.stake_amount).toFixed(2) %>
+      <div style="text-align: center; flex-shrink: 0;">
+        <div class="match-card-stake" style="margin-bottom: 12px;">
+          <div class="match-card-stake-label">Stake Each</div>
+          <div style="font-size: 2.2rem; font-weight: 900; color: var(--accent); margin: 4px 0; letter-spacing: -1px;">
+            &euro;<%= parseFloat(match.stake_amount).toFixed(2) %>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">&euro;<%= (parseFloat(match.stake_amount) * 2).toFixed(2) %> pot</div>
         </div>
-        <div style="font-size: 0.8rem; color: var(--text-muted);">each (&euro;<%= (parseFloat(match.stake_amount) * 2).toFixed(2) %> pot)</div>
-        <div style="font-size: 1.5rem; color: var(--text-muted); margin-top: 8px;">VS</div>
+        <div class="vs-badge">VS</div>
       </div>
 
       <div style="text-align: center; flex: 1; min-width: 150px;">
         <% if (match.player2_name) { %>
-          <div style="width: 64px; height: 64px; background: var(--surface-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 8px; border: 2px solid <%= match.winner_id === match.player2_id ? 'var(--success)' : 'var(--border)' %>;">
+          <div style="width: 72px; height: 72px; background: linear-gradient(135deg, var(--surface-2), rgba(230, 57, 70, 0.1)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 10px; border: 3px solid <%= match.winner_id === match.player2_id ? 'var(--success)' : 'var(--border)' %>; transition: border-color 0.3s;">
             &#128100;
           </div>
           <a href="/profile/<%= match.player2_name %>" style="font-weight: 700; font-size: 1.1rem;">
             <%= match.player2_display || match.player2_name %>
           </a>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">ELO: <%= match.player2_elo %></div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">ELO: <span style="font-weight: 600;"><%= match.player2_elo %></span></div>
           <% if (match.winner_id === match.player2_id) { %>
-            <div style="color: var(--success); font-weight: 700; margin-top: 4px;">WINNER</div>
+            <div style="margin-top: 6px;">
+              <span style="display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: rgba(34, 197, 94, 0.15); color: var(--success);">&#127942; WINNER</span>
+            </div>
           <% } %>
         <% } else { %>
-          <div style="width: 64px; height: 64px; background: var(--surface-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 8px; border: 2px dashed var(--border);">
+          <div style="width: 72px; height: 72px; background: var(--surface-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 10px; border: 3px dashed var(--border); animation: pulse 2s infinite;">
             ?
           </div>
           <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-muted);">Waiting for opponent</div>
@@ -59,10 +65,12 @@
     </div>
   </div>
 
-  <!-- Cancellation info (Task 4) -->
+  <!-- Cancellation info -->
   <% if (typeof cancellation !== 'undefined' && cancellation) { %>
-    <div class="card mb-3" style="border-left: 3px solid var(--danger);">
-      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--danger);">Match Cancelled</h2>
+    <div class="card mb-3 animate-in" style="border-left: 3px solid var(--danger); animation-delay: 0.1s;">
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--danger); display: flex; align-items: center; gap: 6px;">
+        <span>&#10060;</span> Match Cancelled
+      </h2>
       <div style="display: grid; gap: 8px;">
         <div>
           <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reason</span>
@@ -95,33 +103,35 @@
 
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;" class="match-detail-grid">
     <!-- Timeline -->
-    <div class="card">
-      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px;">Timeline</h2>
-      <div style="border-left: 2px solid var(--border); padding-left: 20px;">
-        <div style="margin-bottom: 16px; position: relative;">
-          <div style="position: absolute; left: -27px; top: 4px; width: 12px; height: 12px; background: var(--success); border-radius: 50%;"></div>
-          <div style="font-weight: 600;">Match Created</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted);"><%= new Date(match.created_at).toLocaleString() %></div>
+    <div class="card animate-in" style="animation-delay: 0.15s;">
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 6px;">
+        <span style="color: var(--primary);">&#128340;</span> Timeline
+      </h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot timeline-dot-success"></div>
+          <div class="timeline-label">Match Created</div>
+          <div class="timeline-date"><%= new Date(match.created_at).toLocaleString() %></div>
         </div>
         <% if (match.started_at) { %>
-        <div style="margin-bottom: 16px; position: relative;">
-          <div style="position: absolute; left: -27px; top: 4px; width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
-          <div style="font-weight: 600;">Match Started</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted);"><%= new Date(match.started_at).toLocaleString() %></div>
+        <div class="timeline-item">
+          <div class="timeline-dot timeline-dot-primary"></div>
+          <div class="timeline-label">Match Started</div>
+          <div class="timeline-date"><%= new Date(match.started_at).toLocaleString() %></div>
         </div>
         <% } %>
         <% if (match.completed_at) { %>
-        <div style="margin-bottom: 16px; position: relative;">
-          <div style="position: absolute; left: -27px; top: 4px; width: 12px; height: 12px; background: var(--accent); border-radius: 50%;"></div>
-          <div style="font-weight: 600;">Match Completed</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted);"><%= new Date(match.completed_at).toLocaleString() %></div>
+        <div class="timeline-item">
+          <div class="timeline-dot timeline-dot-accent"></div>
+          <div class="timeline-label">Match Completed</div>
+          <div class="timeline-date"><%= new Date(match.completed_at).toLocaleString() %></div>
         </div>
         <% } %>
         <% if (match.status === 'disputed') { %>
-        <div style="position: relative;">
-          <div style="position: absolute; left: -27px; top: 4px; width: 12px; height: 12px; background: var(--danger); border-radius: 50%;"></div>
-          <div style="font-weight: 600; color: var(--danger);">Disputed</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted);">Awaiting admin review</div>
+        <div class="timeline-item">
+          <div class="timeline-dot timeline-dot-danger"></div>
+          <div class="timeline-label" style="color: var(--danger);">Disputed</div>
+          <div class="timeline-date">Awaiting admin review</div>
         </div>
         <% } %>
       </div>
@@ -130,13 +140,15 @@
     <!-- Actions / Proofs -->
     <div>
       <% if (typeof user !== 'undefined' && user && match.status === 'waiting' && match.player1_id !== user.id) { %>
-        <div class="card mb-2">
-          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Join This Match</h2>
+        <div class="card mb-2 animate-in" style="animation-delay: 0.2s;">
+          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <span>&#9876;</span> Join This Match
+          </h2>
           <p class="text-muted mb-2" style="font-size: 0.9rem;">
             Stake &euro;<%= parseFloat(match.stake_amount).toFixed(2) %> to join. Winner takes &euro;<%= (parseFloat(match.stake_amount) * 2).toFixed(2) %>.
           </p>
           <form action="/matches/<%= match.id %>/join" method="POST">
-            <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center;">
+            <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center;" onclick="this.classList.add('btn-loading');">
               Join Match (&euro;<%= parseFloat(match.stake_amount).toFixed(2) %>)
             </button>
           </form>
@@ -145,8 +157,10 @@
 
       <% if (typeof user !== 'undefined' && user && (match.status === 'active' || match.status === 'proof_required') && (match.player1_id === user.id || match.player2_id === user.id)) { %>
         <!-- Upload Proof -->
-        <div class="card mb-2">
-          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Submit Proof</h2>
+        <div class="card mb-2 animate-in" style="animation-delay: 0.2s;">
+          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <span>&#128247;</span> Submit Proof
+          </h2>
           <form action="/matches/<%= match.id %>/proof" method="POST" enctype="multipart/form-data">
             <div class="form-group">
               <label>Screenshot / Video</label>
@@ -159,25 +173,27 @@
               <label>Description (optional)</label>
               <input type="text" name="description" class="form-control" placeholder="e.g. Final score 3-1">
             </div>
-            <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center;">Upload Proof</button>
+            <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="this.classList.add('btn-loading');">Upload Proof</button>
           </form>
         </div>
 
         <!-- Report Winner -->
-        <div class="card">
-          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Report Winner</h2>
+        <div class="card animate-in" style="animation-delay: 0.25s;">
+          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <span>&#127942;</span> Report Winner
+          </h2>
           <p class="text-muted mb-2" style="font-size: 0.85rem;">
             Both players must agree on the winner. If you claim yourself, the match will be disputed.
           </p>
           <form action="/matches/<%= match.id %>/report" method="POST" style="display: flex; gap: 8px;">
             <input type="hidden" name="winner_id" value="<%= match.player1_id === user.id ? match.player2_id : match.player1_id %>">
-            <button type="submit" class="btn btn-success" style="flex: 1; justify-content: center;">
+            <button type="submit" class="btn btn-success" style="flex: 1; justify-content: center;" onclick="this.classList.add('btn-loading');">
               I Lost (Opponent Wins)
             </button>
           </form>
           <form action="/matches/<%= match.id %>/report" method="POST" style="margin-top: 8px;">
             <input type="hidden" name="winner_id" value="<%= user.id %>">
-            <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center;">
+            <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center;" onclick="if(!confirm('This may create a dispute if your opponent disagrees. Continue?')) { event.preventDefault(); } else { this.classList.add('btn-loading'); }">
               I Won (Dispute if opponent disagrees)
             </button>
           </form>
@@ -188,7 +204,7 @@
       <% if (typeof user !== 'undefined' && user && match.player2_id && (match.player1_id === user.id || match.player2_id === user.id)) { %>
         <% const opponentId = match.player1_id === user.id ? match.player2_id : match.player1_id; %>
         <% const opponentName = match.player1_id === user.id ? (match.player2_display || match.player2_name) : (match.player1_display || match.player1_name); %>
-        <div class="card mt-2">
+        <div class="card mt-2 animate-in" style="animation-delay: 0.3s;">
           <details>
             <summary style="cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); list-style: none; display: flex; align-items: center; gap: 6px;">
               <span style="color: var(--danger);">&#9873;</span> Report <%= opponentName %>
@@ -218,10 +234,12 @@
 
       <!-- Proofs submitted -->
       <% if (proofs.length > 0) { %>
-        <div class="card mt-2">
-          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Submitted Proofs</h2>
+        <div class="card mt-2 animate-in" style="animation-delay: 0.35s;">
+          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <span>&#128206;</span> Submitted Proofs
+          </h2>
           <% proofs.forEach(function(p) { %>
-            <div style="padding: 10px 0; border-bottom: 1px solid var(--border);">
+            <div style="padding: 12px 0; border-bottom: 1px solid var(--border);">
               <div class="flex items-center justify-between">
                 <span style="font-weight: 600;"><%= p.username %></span>
                 <span class="badge badge-<%= p.review_status === 'pending' ? 'waiting' : p.review_status === 'approved' ? 'active' : 'disputed' %>">

@@ -8,62 +8,82 @@
   </div>
 
   <!-- Game filter tabs -->
-  <div class="tabs">
-    <a href="/leaderboard" class="tab active">Global</a>
+  <div class="tabs" style="overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch;">
+    <a href="/leaderboard" class="tab active" style="white-space: nowrap;">Global</a>
     <% games.forEach(function(g) { %>
-      <a href="/leaderboard/<%= g.slug %>" class="tab"><%= g.icon %> <%= g.name %></a>
+      <a href="/leaderboard/<%= g.slug %>" class="tab" style="white-space: nowrap;"><%= g.icon %> <%= g.name %></a>
     <% }); %>
   </div>
 
   <% if (players.length > 0) { %>
-    <div class="card">
+    <div class="card animate-in">
       <div class="table-wrap">
-        <table>
+        <table class="lb-table">
           <thead>
             <tr>
-              <th style="width: 50px;">#</th>
+              <th style="width: 60px;">#</th>
               <th>Player</th>
               <th>ELO</th>
-              <th>Wins</th>
-              <th>Losses</th>
+              <th class="hide-mobile">Wins</th>
+              <th class="hide-mobile">Losses</th>
               <th>Win Rate</th>
-              <th>Best Streak</th>
+              <th class="hide-mobile">Best Streak</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="stagger-children">
             <% players.forEach(function(p, i) { %>
+            <%
+              var total = parseInt(p.total_wins) + parseInt(p.total_losses);
+              var rate = total > 0 ? ((parseInt(p.total_wins) / total) * 100).toFixed(1) : '0.0';
+              var maxElo = 2500;
+              var eloPercent = Math.min((parseInt(p.elo_rating) / maxElo) * 100, 100);
+            %>
             <tr>
               <td>
                 <% if (i === 0) { %>
-                  <span style="font-size: 1.2rem;">&#127942;</span>
+                  <span class="lb-rank-badge lb-rank-1">&#127942;</span>
                 <% } else if (i === 1) { %>
-                  <span style="font-size: 1.2rem;">&#129352;</span>
+                  <span class="lb-rank-badge lb-rank-2">&#129352;</span>
                 <% } else if (i === 2) { %>
-                  <span style="font-size: 1.2rem;">&#129353;</span>
+                  <span class="lb-rank-badge lb-rank-3">&#129353;</span>
                 <% } else { %>
-                  <span style="font-weight: 700; color: var(--text-muted);"><%= i + 1 %></span>
+                  <span class="lb-rank-badge lb-rank-default"><%= i + 1 %></span>
                 <% } %>
               </td>
               <td>
-                <a href="/profile/<%= p.username %>" style="font-weight: 600;">
-                  <%= p.display_name || p.username %>
-                </a>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">@<%= p.username %></div>
+                <div class="lb-player-info">
+                  <span class="lb-player-avatar"><%= (p.display_name || p.username).charAt(0).toUpperCase() %></span>
+                  <div>
+                    <a href="/profile/<%= p.username %>" style="font-weight: 600;">
+                      <%= p.display_name || p.username %>
+                    </a>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">@<%= p.username %></div>
+                  </div>
+                </div>
               </td>
-              <td style="font-weight: 800; font-size: 1.1rem;"><%= p.elo_rating %></td>
-              <td style="color: var(--success); font-weight: 600;"><%= p.total_wins %></td>
-              <td style="color: var(--danger); font-weight: 600;"><%= p.total_losses %></td>
               <td>
-                <%
-                  const total = parseInt(p.total_wins) + parseInt(p.total_losses);
-                  const rate = total > 0 ? ((parseInt(p.total_wins) / total) * 100).toFixed(1) : '0.0';
-                %>
-                <span style="color: <%= parseFloat(rate) >= 50 ? 'var(--success)' : 'var(--danger)' %>; font-weight: 600;">
+                <div class="lb-elo-bar">
+                  <span style="font-weight: 800; font-size: 1.05rem; min-width: 42px;"><%= p.elo_rating %></span>
+                  <div style="flex: 1; max-width: 80px; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden;">
+                    <div class="lb-elo-fill" style="width: <%= eloPercent %>%;"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="hide-mobile" style="color: var(--success); font-weight: 600;"><%= p.total_wins %></td>
+              <td class="hide-mobile" style="color: var(--danger); font-weight: 600;"><%= p.total_losses %></td>
+              <td>
+                <span style="display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; background: rgba(<%= parseFloat(rate) >= 50 ? '34,197,94' : '239,68,68' %>, 0.12); color: var(<%= parseFloat(rate) >= 50 ? '--success' : '--danger' %>);">
                   <%= rate %>%
                 </span>
               </td>
-              <td>
-                <span style="color: var(--accent); font-weight: 600;"><%= p.best_streak || 0 %></span>
+              <td class="hide-mobile">
+                <% if (parseInt(p.best_streak || 0) > 0) { %>
+                  <span style="color: var(--accent); font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                    &#128293; <%= p.best_streak %>
+                  </span>
+                <% } else { %>
+                  <span style="color: var(--text-muted);">0</span>
+                <% } %>
               </td>
             </tr>
             <% }); %>
@@ -72,9 +92,10 @@
       </div>
     </div>
   <% } else { %>
-    <div class="empty-state">
+    <div class="empty-state animate-in">
       <div class="icon">&#127942;</div>
-      <p>No players ranked yet. Be the first to compete!</p>
+      <h2>No players ranked yet</h2>
+      <p>Be the first to compete!</p>
       <a href="/games" class="btn btn-primary">Find a Match</a>
     </div>
   <% } %>

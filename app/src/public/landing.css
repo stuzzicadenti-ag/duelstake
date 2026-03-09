@@ -1300,3 +1300,100 @@ img {
   font-size: 0.95rem;
   line-height: 1.7;
 }
+
+/* === Landing Page Animations === */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hero-content {
+  animation: fadeInUp 0.7s ease-out;
+}
+.hero-badge {
+  animation: fadeIn 0.5s ease-out 0.2s both;
+}
+.hero-title {
+  animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+.hero-tagline {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+.hero-sub {
+  animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+.hero-cta {
+  animation: fadeInUp 0.6s ease-out 0.4s both;
+}
+.hero-stats {
+  animation: fadeInUp 0.6s ease-out 0.5s both;
+}
+
+/* Scroll reveal for sections */
+.section-header {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+/* Smooth count-up feel for stat numbers */
+.stat-number {
+  transition: transform 0.3s ease;
+}
+.stat-number:hover {
+  transform: scale(1.1);
+}
+
+/* Game card subtle glow on hover */
+.game-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Leaderboard row highlight */
+.leaderboard-row.gold {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.05), transparent);
+}
+.leaderboard-row.silver {
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.03), transparent);
+}
+.leaderboard-row.bronze {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.03), transparent);
+}
+
+/* Pricing card shimmer */
+.pricing-card-featured {
+  animation: none;
+  position: relative;
+}
+.pricing-card-featured::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-red), var(--accent-gold), var(--accent-red));
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Testimonial card entrance */
+.testimonial-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* CTA section pulse */
+.cta-section .btn-primary {
+  animation: ctaPulse 2s ease-in-out infinite;
+}
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(230, 57, 70, 0.3); }
+  50% { box-shadow: 0 4px 28px rgba(230, 57, 70, 0.5); }
+}

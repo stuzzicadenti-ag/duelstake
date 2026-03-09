@@ -2,113 +2,134 @@
 <%- include('../partials/nav') %>
 
 <div class="container">
-  <div class="page-header">
-    <div class="flex items-center gap-2">
-      <div style="width: 80px; height: 80px; background: var(--surface-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 3px solid var(--primary); flex-shrink: 0;">
-        &#128100;
-      </div>
-      <div>
-        <h1><%= profile.display_name || profile.username %></h1>
-        <p>@<%= profile.username %> - Joined <%= new Date(profile.created_at).toLocaleDateString() %></p>
+  <!-- Profile Hero -->
+  <div class="profile-hero animate-in">
+    <div class="profile-avatar-lg">&#128100;</div>
+    <div class="profile-info" style="flex: 1;">
+      <h1><%= profile.display_name || profile.username %></h1>
+      <p>@<%= profile.username %> &middot; Joined <%= new Date(profile.created_at).toLocaleDateString() %></p>
+      <div class="profile-badges">
+        <% if (profile.kyc_status === 'verified') { %>
+          <span class="profile-badge-item" style="color: var(--success); border-color: rgba(34, 197, 94, 0.2); background: rgba(34, 197, 94, 0.08);">&#10003; Verified</span>
+        <% } %>
+        <% if (profile.elo_rating >= 1500) { %>
+          <span class="profile-badge-item" style="color: var(--accent); border-color: rgba(255, 215, 0, 0.2); background: rgba(255, 215, 0, 0.08);">&#127942; Top Player</span>
+        <% } %>
+        <% if (totalWins >= 10) { %>
+          <span class="profile-badge-item">&#9876; Veteran</span>
+        <% } %>
       </div>
     </div>
+    <% if (typeof user !== 'undefined' && user && user.id === profile.id) { %>
+      <a href="/profile/<%= profile.id %>/stats" class="btn btn-secondary btn-sm" style="align-self: flex-start;">View Stats</a>
+    <% } %>
   </div>
 
   <!-- Stats overview -->
-  <div class="grid grid-3 mb-3" style="grid-template-columns: repeat(4, 1fr);">
-    <div class="card stat">
-      <div class="stat-value text-accent"><%= profile.elo_rating %></div>
-      <div class="stat-label">Global ELO</div>
+  <%
+    const totalGames = totalWins + totalLosses;
+    const winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : '0.0';
+  %>
+  <div class="grid mb-3 stagger-children" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value text-accent"><%= profile.elo_rating %></div>
+      <div class="stat-v2-label">Global ELO</div>
     </div>
-    <div class="card stat">
-      <div class="stat-value text-success"><%= totalWins %></div>
-      <div class="stat-label">Total Wins</div>
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value text-success"><%= totalWins %></div>
+      <div class="stat-v2-label">Total Wins</div>
     </div>
-    <div class="card stat">
-      <div class="stat-value text-danger"><%= totalLosses %></div>
-      <div class="stat-label">Total Losses</div>
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value text-danger"><%= totalLosses %></div>
+      <div class="stat-v2-label">Total Losses</div>
     </div>
-    <div class="card stat">
-      <%
-        const totalGames = totalWins + totalLosses;
-        const winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : '0.0';
-      %>
-      <div class="stat-value" style="color: <%= parseFloat(winRate) >= 50 ? 'var(--success)' : 'var(--danger)' %>;">
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value" style="color: <%= parseFloat(winRate) >= 50 ? 'var(--success)' : 'var(--danger)' %>;">
         <%= winRate %>%
       </div>
-      <div class="stat-label">Win Rate</div>
+      <div class="stat-v2-label">Win Rate</div>
     </div>
   </div>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;" class="stats-2col">
     <!-- Game stats -->
-    <div class="card">
-      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Game Stats</h2>
+    <div class="card animate-in" style="animation-delay: 0.1s;">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <span style="color: var(--primary);">&#127918;</span> Game Stats
+      </h2>
       <% if (gameStats.length > 0) { %>
         <% gameStats.forEach(function(gs) { %>
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); transition: background 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <div class="flex items-center gap-1">
-              <span style="font-size: 1.3rem;"><%= gs.icon %></span>
+              <span style="font-size: 1.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border-radius: 10px;"><%= gs.icon %></span>
               <div>
                 <a href="/games/<%= gs.slug %>" style="font-weight: 600;"><%= gs.name %></a>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">
-                  <span style="color: var(--success);"><%= gs.wins %>W</span> /
+                <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 8px; margin-top: 2px;">
+                  <span style="color: var(--success);"><%= gs.wins %>W</span>
                   <span style="color: var(--danger);"><%= gs.losses %>L</span>
                   <% if (gs.win_streak > 0) { %>
-                    - <span style="color: var(--accent);"><%= gs.win_streak %> streak</span>
+                    <span style="color: var(--accent);">&#128293; <%= gs.win_streak %> streak</span>
                   <% } %>
                 </div>
               </div>
             </div>
             <div style="text-align: right;">
               <div style="font-weight: 800; font-size: 1.1rem;"><%= gs.elo %></div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">ELO</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">ELO</div>
             </div>
           </div>
         <% }); %>
       <% } else { %>
-        <p class="text-muted" style="padding: 20px 0;">No games played yet.</p>
+        <div class="empty-state" style="padding: 30px 0;">
+          <span class="icon" style="font-size: 2rem;">&#127918;</span>
+          <p>No games played yet.</p>
+        </div>
       <% } %>
     </div>
 
     <!-- Recent matches -->
-    <div class="card">
-      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Recent Matches</h2>
+    <div class="card animate-in" style="animation-delay: 0.2s;">
+      <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <span style="color: var(--primary);">&#9876;</span> Recent Matches
+      </h2>
       <% if (recentMatches.length > 0) { %>
         <% recentMatches.forEach(function(m) { %>
-          <a href="/matches/<%= m.id %>" style="display: block; padding: 10px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text);">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-1">
-                <span><%= m.game_icon %></span>
-                <div>
-                  <span style="font-weight: 600;"><%= m.player1_name %></span>
-                  <span class="text-muted"> vs </span>
-                  <span style="font-weight: 600;"><%= m.player2_name %></span>
-                </div>
+          <a href="/matches/<%= m.id %>" style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); transition: background 0.2s; gap: 12px;">
+            <span style="font-size: 1.3rem; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border-radius: 8px;"><%= m.game_icon %></span>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 0.9rem;">
+                <span style="font-weight: 600;"><%= m.player1_name %></span>
+                <span class="text-muted"> vs </span>
+                <span style="font-weight: 600;"><%= m.player2_name %></span>
               </div>
-              <div style="text-align: right;">
-                <div style="color: var(--accent); font-weight: 700; font-size: 0.9rem;">
-                  &euro;<%= parseFloat(m.stake_amount).toFixed(2) %>
-                </div>
-                <div style="font-size: 0.75rem; color: <%= m.winner_name === profile.username ? 'var(--success)' : 'var(--danger)' %>; font-weight: 600;">
-                  <%= m.winner_name === profile.username ? 'WON' : 'LOST' %>
-                </div>
+            </div>
+            <div style="text-align: right; flex-shrink: 0;">
+              <div style="color: var(--accent); font-weight: 700; font-size: 0.9rem;">
+                &euro;<%= parseFloat(m.stake_amount).toFixed(2) %>
               </div>
+              <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; background: rgba(<%= m.winner_name === profile.username ? '34,197,94' : '239,68,68' %>, 0.12); color: var(<%= m.winner_name === profile.username ? '--success' : '--danger' %>);">
+                <%= m.winner_name === profile.username ? 'WON' : 'LOST' %>
+              </span>
             </div>
           </a>
         <% }); %>
       <% } else { %>
-        <p class="text-muted" style="padding: 20px 0;">No completed matches yet.</p>
+        <div class="empty-state" style="padding: 30px 0;">
+          <span class="icon" style="font-size: 2rem;">&#9876;</span>
+          <p>No completed matches yet.</p>
+        </div>
       <% } %>
     </div>
   </div>
 
   <!-- KYC Status -->
   <% if (typeof user !== 'undefined' && user && user.id === profile.id) { %>
-    <div class="card mt-3">
+    <div class="card mt-3 animate-in" style="animation-delay: 0.25s;">
       <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 4px;">Identity Verification</h2>
+          <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            <span>&#128274;</span> Identity Verification
+          </h2>
           <% if (profile.kyc_status === 'verified') { %>
             <span class="badge badge-active">Verified</span>
           <% } else if (profile.kyc_status === 'pending') { %>
@@ -128,9 +149,9 @@
 
   <!-- Warnings (Task 3) - visible to self and admins -->
   <% if (warnings && warnings.length > 0) { %>
-    <div class="card mt-3" style="border-left: 3px solid var(--danger);">
-      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--danger);">
-        Warnings (<%= warnings.length %>)
+    <div class="card mt-3 animate-in" style="border-left: 3px solid var(--danger); animation-delay: 0.3s;">
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--danger); display: flex; align-items: center; gap: 6px;">
+        <span>&#9888;</span> Warnings (<%= warnings.length %>)
       </h2>
       <% warnings.forEach(function(w) { %>
         <div style="padding: 12px 0; border-bottom: 1px solid var(--border);">
@@ -152,7 +173,7 @@
       <% }); %>
       <% if (warnings.length >= 3) { %>
         <div class="alert alert-error" style="margin-top: 12px;">
-          3 or more warnings result in an automatic permanent ban.
+          <span class="alert-icon">&#9888;</span> 3 or more warnings result in an automatic permanent ban.
         </div>
       <% } %>
     </div>
@@ -160,7 +181,7 @@
 
   <!-- Report Player -->
   <% if (typeof user !== 'undefined' && user && user.id !== profile.id) { %>
-    <div class="card mt-3">
+    <div class="card mt-3 animate-in" style="animation-delay: 0.35s;">
       <details>
         <summary style="cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); list-style: none; display: flex; align-items: center; gap: 6px;">
           <span style="color: var(--danger);">&#9873;</span> Report Player
@@ -187,18 +208,22 @@
   <% } %>
 
   <!-- Player Stats & Achievements Links -->
-  <div class="card mt-3" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div class="card mt-3 animate-in" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; animation-delay: 0.4s;">
     <div>
-      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 4px;"><%= t('profile.detailed_stats') %></h2>
+      <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+        <span style="color: var(--accent);">&#128200;</span> <%= t('profile.detailed_stats') %>
+      </h2>
       <p class="text-muted" style="font-size: 0.85rem;"><%= t('profile.detailed_stats_desc') %></p>
     </div>
     <a href="/profile/<%= profile.id %>/stats" class="btn btn-sm btn-secondary"><%= t('profile.view_stats') %></a>
   </div>
 
   <!-- ELO History Chart -->
-  <div class="card mt-3">
+  <div class="card mt-3 animate-in" style="animation-delay: 0.45s;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-      <h2 style="font-size: 1.1rem; font-weight: 700;"><%= t('profile.elo_history') %></h2>
+      <h2 style="font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+        <span style="color: var(--primary);">&#128200;</span> <%= t('profile.elo_history') %>
+      </h2>
     </div>
     <div style="position: relative; height: 280px;">
       <canvas id="eloChart"></canvas>

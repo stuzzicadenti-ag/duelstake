@@ -12,50 +12,50 @@
   </div>
 
   <!-- Overview Stats -->
-  <div class="grid grid-3 mb-3" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
-    <div class="card stat">
-      <div class="stat-value text-accent"><%= profile.elo_rating %></div>
-      <div class="stat-label"><%= t('stats.global_elo') %></div>
+  <%
+    var totalGames = totalWins + totalLosses;
+    var winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : '0.0';
+  %>
+  <div class="grid mb-3 stagger-children" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value text-accent"><%= profile.elo_rating %></div>
+      <div class="stat-v2-label"><%= t('stats.global_elo') %></div>
     </div>
-    <div class="card stat">
-      <div class="stat-value text-success"><%= totalWins %></div>
-      <div class="stat-label"><%= t('stats.total_wins') %></div>
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value text-success"><%= totalWins %></div>
+      <div class="stat-v2-label"><%= t('stats.total_wins') %></div>
     </div>
-    <div class="card stat">
-      <div class="stat-value text-danger"><%= totalLosses %></div>
-      <div class="stat-label"><%= t('stats.total_losses') %></div>
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value text-danger"><%= totalLosses %></div>
+      <div class="stat-v2-label"><%= t('stats.total_losses') %></div>
     </div>
-    <div class="card stat">
-      <%
-        var totalGames = totalWins + totalLosses;
-        var winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : '0.0';
-      %>
-      <div class="stat-value" style="color: <%= parseFloat(winRate) >= 50 ? 'var(--success)' : 'var(--danger)' %>;">
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value" style="color: <%= parseFloat(winRate) >= 50 ? 'var(--success)' : 'var(--danger)' %>;">
         <%= winRate %>%
       </div>
-      <div class="stat-label"><%= t('stats.win_rate') %></div>
+      <div class="stat-v2-label"><%= t('stats.win_rate') %></div>
     </div>
-    <div class="card stat">
-      <div class="stat-value text-accent">&euro;<%= totalEarnings.toFixed(2) %></div>
-      <div class="stat-label"><%= t('stats.total_earnings') %></div>
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value text-accent">&euro;<%= totalEarnings.toFixed(2) %></div>
+      <div class="stat-v2-label"><%= t('stats.total_earnings') %></div>
     </div>
-    <div class="card stat">
-      <div class="stat-value" style="color: var(--accent);">&euro;<%= biggestWin.toFixed(2) %></div>
-      <div class="stat-label"><%= t('stats.biggest_win') %></div>
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value" style="color: var(--accent);">&euro;<%= biggestWin.toFixed(2) %></div>
+      <div class="stat-v2-label"><%= t('stats.biggest_win') %></div>
     </div>
-    <div class="card stat">
-      <div class="stat-value">&euro;<%= avgStake.toFixed(2) %></div>
-      <div class="stat-label"><%= t('stats.avg_stake') %></div>
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value">&euro;<%= avgStake.toFixed(2) %></div>
+      <div class="stat-v2-label"><%= t('stats.avg_stake') %></div>
     </div>
-    <div class="card stat">
-      <div class="stat-value" style="color: var(--accent);"><%= currentStreak %></div>
-      <div class="stat-label"><%= t('stats.current_streak') %></div>
+    <div class="card stat-card-v2">
+      <div class="stat-v2-value" style="color: var(--accent);"><%= currentStreak %></div>
+      <div class="stat-v2-label"><%= t('stats.current_streak') %></div>
     </div>
   </div>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;" class="stats-2col">
     <!-- Win/Loss Ratio Chart -->
-    <div class="card">
+    <div class="card animate-in" style="animation-delay: 0.1s;">
       <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.win_loss_ratio') %></h2>
       <div style="position: relative; height: 250px; display: flex; align-items: center; justify-content: center;">
         <% if (totalWins + totalLosses > 0) { %>
@@ -67,7 +67,7 @@
     </div>
 
     <!-- Monthly Activity Chart -->
-    <div class="card">
+    <div class="card animate-in" style="animation-delay: 0.15s;">
       <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.monthly_activity') %></h2>
       <div style="position: relative; height: 250px;">
         <% if (monthlyActivity.length > 0) { %>
@@ -82,7 +82,7 @@
   </div>
 
   <!-- Recent Form -->
-  <div class="card mt-3">
+  <div class="card mt-3 animate-in" style="animation-delay: 0.2s;">
     <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.recent_form') %></h2>
     <% if (recentForm.length > 0) { %>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -101,7 +101,7 @@
   </div>
 
   <!-- Per-Game Stats -->
-  <div class="card mt-3">
+  <div class="card mt-3 animate-in" style="animation-delay: 0.25s;">
     <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.per_game') %></h2>
     <% if (gameStats.length > 0) { %>
       <div class="table-wrap">
@@ -140,7 +140,7 @@
   </div>
 
   <!-- Achievements -->
-  <div class="card mt-3">
+  <div class="card mt-3 animate-in" style="animation-delay: 0.3s;">
     <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;"><%= t('stats.achievements') %> (<%= achievements.length %>/<%= Object.keys(achievementDefs).length %>)</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;">
       <% Object.keys(achievementDefs).forEach(function(key) { %>

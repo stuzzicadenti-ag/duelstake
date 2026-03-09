@@ -8,7 +8,7 @@
   </div>
 
   <!-- Filters -->
-  <div class="card mb-3">
+  <div class="card mb-3 animate-in">
     <form method="GET" action="/matches/history" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
       <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 140px;">
         <label><%= t('match_history.game') %></label>
@@ -40,7 +40,7 @@
   </div>
 
   <!-- Results -->
-  <div class="card">
+  <div class="card animate-in" style="animation-delay: 0.1s;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
       <h2 style="font-size: 1.1rem; font-weight: 700;"><%= t('match_history.results') %> (<%= totalCount %>)</h2>
     </div>
