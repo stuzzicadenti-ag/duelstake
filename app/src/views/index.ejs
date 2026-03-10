@@ -315,7 +315,7 @@
           </div>
           <% topPlayers.forEach(function(p, i) { %>
             <div class="leaderboard-row <%= i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '' %>">
-              <span class="lb-rank"><%= i === 0 ? '&#127941; ' : i === 1 ? '&#129352; ' : i === 2 ? '&#129353; ' : '' %><%= i + 1 %></span>
+              <span class="lb-rank"><%- i === 0 ? '&#127941; ' : i === 1 ? '&#129352; ' : i === 2 ? '&#129353; ' : '' %><%= i + 1 %></span>
               <span class="lb-player"><%= p.display_name || p.username %></span>
               <span class="lb-wins"><%= p.elo_rating %></span>
               <span class="lb-earnings"><a href="/profile/<%= p.username %>"><%= t('home.view') %></a></span>

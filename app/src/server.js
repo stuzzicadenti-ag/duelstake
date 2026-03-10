@@ -5,9 +5,11 @@ import fastifyFormbody from '@fastify/formbody';
 import fastifyCookie from '@fastify/cookie';
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyMultipart from '@fastify/multipart';
+import fastifyCompress from '@fastify/compress';
 import ejs from 'ejs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { randomBytes } from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import { registerI18n } from './i18n.js';
@@ -25,6 +27,23 @@ import { pool } from './db/schema.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// --- Environment validation: fail fast in production if secrets are missing or default ---
+if (process.env.NODE_ENV === 'production') {
+  const required = ['JWT_SECRET', 'COOKIE_SECRET', 'DATABASE_URL'];
+  const defaults = ['change-me', 'change-me-to-a-strong-secret'];
+  for (const key of required) {
+    const val = process.env[key];
+    if (!val) {
+      console.error(`FATAL: ${key} is not set. Refusing to start in production.`);
+      process.exit(1);
+    }
+    if (defaults.includes(val)) {
+      console.error(`FATAL: ${key} is set to a default/insecure value. Refusing to start in production.`);
+      process.exit(1);
+    }
+  }
+}
+
 const app = Fastify({
   logger: true,
   trustProxy: true,
@@ -39,7 +58,7 @@ app.addHook('onSend', async (request, reply) => {
   reply.header('X-XSS-Protection', '0');
   reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  reply.header('Content-Security-Policy', "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'");
+  reply.header('Content-Security-Policy', "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'");
   reply.removeHeader('X-Powered-By');
 });
 
@@ -118,6 +137,7 @@ await app.register(fastifyMultipart, {
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
 });
 await app.register(fastifyWebsocket);
+await app.register(fastifyCompress, { global: true });
 await app.register(fastifyView, {
   engine: { ejs },
   root: path.join(__dirname, 'views'),
@@ -128,6 +148,8 @@ await app.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
   prefix: '/public/',
   maxAge: process.env.NODE_ENV === 'production' ? 86400000 : 0,
+  etag: true,
+  lastModified: true,
 });
 // NOTE: Removed /static/ route that exposed entire src/ directory (security risk).
 // If static assets beyond /public/ are needed, serve a specific subdirectory instead.
@@ -153,11 +175,58 @@ app.addHook('onRequest', async (request, reply) => {
   }
 });
 
+// --- CSRF Protection: Double Submit Cookie pattern ---
+const CSRF_SKIP_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+const CSRF_SKIP_PREFIXES = ['/api/', '/health', '/ws'];
+
+// onRequest: set _csrf cookie if missing
+app.addHook('onRequest', async (request, reply) => {
+  if (!request.cookies._csrf) {
+    const token = randomBytes(32).toString('hex');
+    reply.setCookie('_csrf', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+    request.csrfToken = token;
+  } else {
+    request.csrfToken = request.cookies._csrf;
+  }
+});
+
+// preHandler: validate _csrf on state-changing methods
+app.addHook('preHandler', async (request, reply) => {
+  if (CSRF_SKIP_METHODS.has(request.method)) return;
+  // Skip API routes, health check, and WebSocket upgrades
+  if (CSRF_SKIP_PREFIXES.some(p => request.url.startsWith(p))) return;
+  if (request.headers.upgrade === 'websocket') return;
+
+  // Skip multipart forms here; they validate CSRF in their route handlers
+  // because the body must be streamed and parsed manually.
+  const ct = request.headers['content-type'] || '';
+  if (ct.includes('multipart/form-data')) return;
+
+  const cookieToken = request.cookies._csrf;
+  if (!cookieToken) {
+    reply.code(403).send('CSRF validation failed: missing token cookie');
+    return;
+  }
+
+  const bodyToken = request.body && request.body._csrf;
+  if (!bodyToken || bodyToken !== cookieToken) {
+    reply.code(403).send('CSRF validation failed: token mismatch');
+    return;
+  }
+});
+
 // Pass user and notification count to all views
 app.addHook('preHandler', async (request, reply) => {
   if (reply.locals === undefined) reply.locals = {};
   reply.locals.user = request.user;
   reply.locals.unreadNotifications = 0;
+  // Inject csrfToken for all views
+  reply.locals.csrfToken = request.csrfToken || request.cookies._csrf || '';
   if (request.user) {
     try {
       const result = await pool.query(

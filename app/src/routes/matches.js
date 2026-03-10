@@ -369,7 +369,26 @@ export default async function matchesRoutes(app) {
       return reply.code(403).send('Not a participant');
     }
 
-    const data = await request.file();
+    // For multipart forms, we consume the request manually to extract CSRF token
+    const parts = request.parts();
+    let data = null;
+    const fields = {};
+    for await (const part of parts) {
+      if (part.type === 'file') {
+        data = part;
+        // We must consume the file now; buffer it
+        data._buffer = await part.toBuffer();
+      } else {
+        fields[part.fieldname] = part.value;
+      }
+    }
+
+    // Validate CSRF from multipart fields
+    const csrfCookie = request.cookies._csrf;
+    if (!csrfCookie || fields._csrf !== csrfCookie) {
+      return reply.code(403).send('CSRF validation failed');
+    }
+
     if (!data) {
       return reply.code(400).send('No file uploaded');
     }
@@ -393,10 +412,9 @@ export default async function matchesRoutes(app) {
     const filename = `proof_${userId}_${Date.now()}${ext}`;
     const filePath = path.join(dir, filename);
 
-    const buffer = await data.toBuffer();
-    await fs.writeFile(filePath, buffer);
+    await fs.writeFile(filePath, data._buffer);
 
-    const description = data.fields?.description?.value || '';
+    const description = fields.description || '';
 
     await pool.query(
       `INSERT INTO match_proofs (match_id, user_id, file_path, description)
@@ -618,6 +636,15 @@ export default async function matchesRoutes(app) {
       where += ` AND m.completed_at <= ($${params.length}::date + INTERVAL '1 day')`;
     }
 
+    // Save params for count query (without limit/offset)
+    const countParams = [...params];
+
+    // Add limit and offset as parameterized values to prevent SQL injection
+    params.push(limit);
+    const limitParam = `$${params.length}`;
+    params.push(offset);
+    const offsetParam = `$${params.length}`;
+
     const [matchesResult, countResult, gamesResult] = await Promise.all([
       pool.query(
         `SELECT m.*, g.name as game_name, g.icon as game_icon, g.slug as game_slug,
@@ -633,12 +660,12 @@ export default async function matchesRoutes(app) {
          LEFT JOIN elo_history eh ON eh.match_id = m.id AND eh.user_id = $1
          ${where}
          ORDER BY m.completed_at DESC
-         LIMIT ${limit} OFFSET ${offset}`,
+         LIMIT ${limitParam} OFFSET ${offsetParam}`,
         params
       ),
       pool.query(
         `SELECT COUNT(*) as count FROM matches m ${where}`,
-        params
+        countParams
       ),
       pool.query('SELECT id, name, icon FROM games WHERE active = true ORDER BY name'),
     ]);

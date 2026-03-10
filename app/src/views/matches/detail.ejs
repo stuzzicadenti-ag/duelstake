@@ -85,7 +85,7 @@
         <% if (cancellation.evidence_url) { %>
           <div>
             <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Evidence</span>
-            <div><% const safeEvidenceUrl = cancellation.evidence_url && /^https?:\/\//i.test(cancellation.evidence_url) ? cancellation.evidence_url : '#'; %><a href="<%= safeEvidenceUrl %>" target="_blank" rel="noopener" style="color: #60a5fa;">View Evidence</a></div>
+            <div><% const safeEvidenceUrl = cancellation.evidence_url && /^https?:\/\//i.test(cancellation.evidence_url) ? cancellation.evidence_url : '#'; %><a href="<%= safeEvidenceUrl %>" target="_blank" rel="noopener noreferrer" style="color: #60a5fa;">View Evidence</a></div>
           </div>
         <% } %>
         <% if (cancellation.warned_username) { %>
@@ -162,16 +162,17 @@
             <span>&#128247;</span> Submit Proof
           </h2>
           <form action="/matches/<%= match.id %>/proof" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
             <div class="form-group">
-              <label>Screenshot / Video</label>
+              <label for="proof-file">Screenshot / Video</label>
               <div class="file-upload">
                 <span>&#128206; Choose file or drag here...</span>
-                <input type="file" name="file" accept="image/*,video/*" required>
+                <input type="file" name="file" id="proof-file" accept="image/*,video/*" required aria-label="Upload match proof screenshot or video">
               </div>
             </div>
             <div class="form-group">
-              <label>Description (optional)</label>
-              <input type="text" name="description" class="form-control" placeholder="e.g. Final score 3-1">
+              <label for="proof-desc">Description (optional)</label>
+              <input type="text" name="description" id="proof-desc" class="form-control" placeholder="e.g. Final score 3-1">
             </div>
             <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="this.classList.add('btn-loading');">Upload Proof</button>
           </form>

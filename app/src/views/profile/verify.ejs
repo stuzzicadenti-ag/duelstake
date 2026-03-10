@@ -68,9 +68,10 @@
     <div class="card">
       <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Upload Document</h2>
       <form action="/profile/verify" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
         <div class="form-group">
-          <label>Document Type</label>
-          <select name="document_type" class="form-control" required>
+          <label for="doc-type">Document Type</label>
+          <select name="document_type" id="doc-type" class="form-control" required>
             <option value="">Select document type...</option>
             <option value="passport">Passport</option>
             <option value="id_card">National ID Card</option>
@@ -78,10 +79,10 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Document Image or PDF</label>
+          <label for="kyc-file">Document Image or PDF</label>
           <div class="file-upload">
             <span>&#128206; Choose file (JPG, PNG, WebP, or PDF)...</span>
-            <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp,.pdf" required>
+            <input type="file" name="file" id="kyc-file" accept=".jpg,.jpeg,.png,.webp,.pdf" required aria-label="Upload identity document">
           </div>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">

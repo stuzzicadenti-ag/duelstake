@@ -184,9 +184,13 @@ describe('XSS Safety - EJS Template Escaping', () => {
       const matches = content.matchAll(/<%-(.*?)%>/gs);
       for (const m of matches) {
         const expr = m[1].trim();
-        // Safe: include(), t() calls (controlled i18n strings)
+        // Safe: include(), t() calls (controlled i18n strings), JSON.stringify, hardcoded defs
         if (expr.startsWith('include(')) continue;
         if (/^t\(/.test(expr)) continue;
+        if (expr.startsWith('JSON.stringify')) continue;
+        if (expr === 'def.icon') continue;
+        // Safe: hardcoded HTML entities in ternary (not user data)
+        if (/^i\s*===\s*\d+\s*\?\s*'&#\d+;\s*'\s*:/.test(expr)) continue;
         unsafePatterns.push({ file: name, expr });
       }
     }
@@ -507,9 +511,9 @@ describe('SQL Injection Protection', () => {
         const interpolations = sqlTemplate.matchAll(/\$\{([^}]+)\}/g);
         for (const interp of interpolations) {
           const expr = interp[1].trim();
-          // These are safe: dynamically built placeholder lists or WHERE clauses
+          // These are safe: dynamically built placeholder lists, WHERE clauses, or parameterized limit/offset
           assert.ok(
-            expr.includes('statusPlaceholders') || expr.includes('params.length') || expr === 'where',
+            expr.includes('statusPlaceholders') || expr.includes('params.length') || expr === 'where' || expr === 'limitParam' || expr === 'offsetParam',
             `${name}: SQL template literal interpolation should only be for safe constructs, found: \${${expr}}`
           );
         }

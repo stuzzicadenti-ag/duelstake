@@ -24,6 +24,22 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
+  // CSRF: auto-inject hidden _csrf input into all POST forms
+  (function() {
+    var token = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+    if (token) {
+      document.querySelectorAll('form[method="POST"], form[method="post"]').forEach(function(form) {
+        if (!form.querySelector('input[name="_csrf"]')) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = '_csrf';
+          input.value = token;
+          form.appendChild(input);
+        }
+      });
+    }
+  })();
+
   // Form loading states
   document.querySelectorAll('form').forEach(function(form) {
     form.addEventListener('submit', function() {

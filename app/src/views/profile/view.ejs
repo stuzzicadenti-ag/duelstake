@@ -166,7 +166,7 @@
           <% } %>
           <% if (w.evidence_url) { %>
             <div style="font-size: 0.8rem; margin-top: 4px;">
-              <% const safeWarnUrl = w.evidence_url && /^https?:\/\//i.test(w.evidence_url) ? w.evidence_url : '#'; %><a href="<%= safeWarnUrl %>" target="_blank" rel="noopener" style="color: #60a5fa;">View Evidence</a>
+              <% const safeWarnUrl = w.evidence_url && /^https?:\/\//i.test(w.evidence_url) ? w.evidence_url : '#'; %><a href="<%= safeWarnUrl %>" target="_blank" rel="noopener noreferrer" style="color: #60a5fa;">View Evidence</a>
             </div>
           <% } %>
         </div>

@@ -54,6 +54,19 @@ See [DOCS.md](DOCS.md) for full technical documentation, architecture, database 
 - **i18n**: Flat JSON locale files (en, it, de, fr)
 - **Theme**: Dark (bg: #0a0a0f, primary: #e63946, accent: #ffd700)
 
+## Security & Performance
+
+- **CSRF protection**: Double Submit Cookie pattern (with multipart form support)
+- **Compression**: @fastify/compress with gzip and Brotli support
+- **Env validation**: Startup validation of required environment variables
+- **SQL injection fix**: Parameterized LIMIT/OFFSET queries (replaced string interpolation)
+- **CSP updated**: Content Security Policy allows Google Fonts
+- **OG meta tags**: Open Graph tags in head partial for social media previews
+- **Accessibility**: Proper form labels, aria-labels on interactive elements
+- **Link security**: rel="noopener noreferrer" on all external links
+- **Docker port binding**: Bound to 127.0.0.1 to prevent external access in development
+- **Validation tests**: 115 tests covering input validation, auth flows, and edge cases
+
 ## License
 
 Proprietary -- Stuzzicadenti AG

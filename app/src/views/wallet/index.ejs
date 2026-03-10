@@ -39,8 +39,8 @@
       </h2>
       <form action="/wallet/deposit" method="POST">
         <div class="form-group">
-          <label>Amount (&euro;)</label>
-          <input type="number" name="amount" class="form-control" step="0.01" min="1" max="10000" placeholder="50.00" required>
+          <label for="deposit-amount">Amount (&euro;)</label>
+          <input type="number" name="amount" id="deposit-amount" class="form-control" step="0.01" min="1" max="10000" placeholder="50.00" required>
         </div>
         <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
           <button type="button" class="btn btn-secondary btn-sm" onclick="this.form.amount.value='10'">&euro;10</button>
@@ -66,8 +66,8 @@
       <% } else { %>
         <form action="/wallet/withdraw" method="POST">
           <div class="form-group">
-            <label>Amount (&euro;)</label>
-            <input type="number" name="amount" class="form-control" step="0.01" min="1" max="<%= parseFloat(balance).toFixed(2) %>" placeholder="25.00" required>
+            <label for="withdraw-amount">Amount (&euro;)</label>
+            <input type="number" name="amount" id="withdraw-amount" class="form-control" step="0.01" min="1" max="<%= parseFloat(balance).toFixed(2) %>" placeholder="25.00" required>
           </div>
           <button type="button" class="btn btn-secondary btn-sm mb-2" onclick="this.form.amount.value='<%= parseFloat(balance).toFixed(2) %>'">Withdraw All</button>
           <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="this.classList.add('btn-loading');">Withdraw</button>

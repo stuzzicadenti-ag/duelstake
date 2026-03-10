@@ -4,7 +4,7 @@ services:
     build: .
     image: stz-duelstake:latest
     ports:
-      - "0.0.0.0:4004:4004"
+      - "127.0.0.1:4004:4004"
     environment:
       NODE_ENV: production
       PORT: 4004

@@ -167,12 +167,30 @@ export default async function profileRoutes(app) {
     if (!request.user) return reply.redirect('/auth/login');
     if (app.checkActionRateLimit && !app.checkActionRateLimit(request, reply)) return;
 
-    const data = await request.file();
+    // Parse multipart form manually to extract CSRF token and file
+    const parts = request.parts();
+    let data = null;
+    const fields = {};
+    for await (const part of parts) {
+      if (part.type === 'file') {
+        data = part;
+        data._buffer = await part.toBuffer();
+      } else {
+        fields[part.fieldname] = part.value;
+      }
+    }
+
+    // Validate CSRF from multipart fields
+    const csrfCookie = request.cookies._csrf;
+    if (!csrfCookie || fields._csrf !== csrfCookie) {
+      return reply.code(403).send('CSRF validation failed');
+    }
+
     if (!data) {
       return reply.code(400).send('No file uploaded');
     }
 
-    const docType = data.fields?.document_type?.value;
+    const docType = fields.document_type;
     if (!['passport', 'id_card', 'drivers_license'].includes(docType)) {
       return reply.code(400).send('Invalid document type');
     }
@@ -192,8 +210,7 @@ export default async function profileRoutes(app) {
     const filename = `kyc_${request.user.id}_${Date.now()}${ext}`;
     const filePath = path.join(kycDir, filename);
 
-    const buffer = await data.toBuffer();
-    await fs.writeFile(filePath, buffer);
+    await fs.writeFile(filePath, data._buffer);
 
     await pool.query(
       `UPDATE users SET kyc_status = 'pending', kyc_document_type = $1, kyc_document_path = $2, kyc_submitted_at = NOW(), kyc_rejected_reason = NULL

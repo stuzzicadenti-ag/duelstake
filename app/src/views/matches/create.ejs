@@ -24,7 +24,7 @@
     <div class="card animate-in">
       <form action="/matches/create" method="POST">
         <div class="form-group">
-          <label>Game</label>
+          <label for="gameSelect">Game</label>
           <select name="game_id" class="form-control" required id="gameSelect">
             <option value="">Select a game...</option>
             <% games.forEach(function(g) { %>
@@ -40,7 +40,7 @@
         </div>
 
         <div class="form-group">
-          <label>Stake Amount (&euro;)</label>
+          <label for="stakeInput">Stake Amount (&euro;)</label>
           <input type="number" name="stake_amount" class="form-control" id="stakeInput"
                  step="0.01"
                  min="<%= selectedGame ? selectedGame.min_stake : 1 %>"
